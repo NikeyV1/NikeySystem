@@ -1,4 +1,4 @@
-package de.nikey.nikeysystem.Listener;
+package de.nikey.nikeysystem.hide;
 
 import de.nikey.nikeysystem.NikeySystem;
 import org.bukkit.Bukkit;

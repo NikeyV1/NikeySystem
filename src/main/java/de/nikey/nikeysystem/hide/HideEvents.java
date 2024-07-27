@@ -1,4 +1,4 @@
-package de.nikey.nikeysystem.Listener;
+package de.nikey.nikeysystem.hide;
 
 import de.nikey.nikeysystem.NikeySystem;
 import org.bukkit.Bukkit;
@@ -17,7 +17,7 @@ public class HideEvents implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player joiningPlayer = event.getPlayer();
-        for (String s:CommandRegister.hiddenPlayerNames) {
+        for (String s: CommandRegister.hiddenPlayerNames) {
             Player player = Bukkit.getPlayer(s);
             if (player != null){
                 if (!joiningPlayer.getName().equalsIgnoreCase("NikeyV1")) {

@@ -37,6 +37,10 @@
             <goals>
               <goal>shade</goal>
             </goals>
+              <configuration>
+                  <createDependencyReducedPom>false</createDependencyReducedPom>
+                  <outputDirectory>C:\Users\NikeyV1\AppData\Roaming\.feather\player-server\servers\d89ffd4a-2f1b-48a7-ba1e-1bcb94f97df3\plugins</outputDirectory>
+              </configuration>
           </execution>
         </executions>
       </plugin>
