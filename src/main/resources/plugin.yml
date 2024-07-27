@@ -1,0 +1,4 @@
+name: NikeySystem
+version: '${project.version}'
+main: de.nikey.nikeysystem.NikeySystem
+api-version: '1.21'
