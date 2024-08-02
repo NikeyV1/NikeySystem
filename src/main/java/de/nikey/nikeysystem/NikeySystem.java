@@ -1,8 +1,10 @@
 package de.nikey.nikeysystem;
 
+import de.nikey.nikeysystem.Distributor.PermissionDistributor;
 import de.nikey.nikeysystem.Player.ResourcePack;
-import de.nikey.nikeysystem.hide.CommandRegister;
-import de.nikey.nikeysystem.hide.HideEvents;
+import de.nikey.nikeysystem.Distributor.HideDistributor;
+import de.nikey.nikeysystem.Functions.HideFunctions;
+import de.nikey.nikeysystem.Util.CommandRegister;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -17,12 +19,18 @@ public final class NikeySystem extends JavaPlugin {
     public void onEnable() {
         plugin = this;
         saveDefaultConfig();
-        CommandRegister.loadHiddenPlayerNames();
+        HideDistributor.loadHiddenPlayerNames();
+        HideDistributor.loadTrueHiddenPlayers();
+        HideDistributor.loadHideImmunityPlayers();
+        HideDistributor.loadTrueHideImmunityPlayers();
+        PermissionDistributor.loadAdmins();
+        PermissionDistributor.loadModerators();
 
         PluginManager manager = Bukkit.getPluginManager();
-        manager.registerEvents(new CommandRegister() , this);
-        manager.registerEvents(new HideEvents(),this);
+        manager.registerEvents(new HideDistributor() , this);
+        manager.registerEvents(new HideFunctions(),this);
         manager.registerEvents(new ResourcePack(),this);
+        manager.registerEvents(new CommandRegister(),this);
     }
 
     @Override
