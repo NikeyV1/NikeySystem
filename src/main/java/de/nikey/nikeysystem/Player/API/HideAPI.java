@@ -1,4 +1,4 @@
-package de.nikey.nikeysystem.API;
+package de.nikey.nikeysystem.Player.API;
 
 import java.util.HashSet;
 import java.util.Set;

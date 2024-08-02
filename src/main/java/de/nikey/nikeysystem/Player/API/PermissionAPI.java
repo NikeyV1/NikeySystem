@@ -1,4 +1,4 @@
-package de.nikey.nikeysystem.API;
+package de.nikey.nikeysystem.Player.API;
 
 import org.bukkit.entity.Player;
 

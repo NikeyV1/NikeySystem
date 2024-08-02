@@ -1,11 +1,12 @@
-package de.nikey.nikeysystem.Functions;
+package de.nikey.nikeysystem.Player.Functions;
 
-import de.nikey.nikeysystem.API.HideAPI;
-import de.nikey.nikeysystem.API.PermissionAPI;
+import de.nikey.nikeysystem.Player.API.HideAPI;
+import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.NikeySystem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameRule;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -32,7 +33,15 @@ public class HideFunctions implements Listener {
         }
     }
 
+    @EventHandler(ignoreCancelled = true , priority = EventPriority.HIGHEST)
+    public void onPlayerHideEntity(PlayerHideEntityEvent event) {
+        Entity hidden = event.getEntity();
+        Player player = event.getPlayer();
 
+        if (PermissionAPI.isOwner(player.getName()) || HideAPI.getTrueHideImmunity().contains(player.getName()) || HideAPI.getHideImmunity().contains(player.getName())) {
+            player.showEntity(NikeySystem.getPlugin(),hidden);
+        }
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerJoin(PlayerJoinEvent event) {
@@ -106,17 +115,18 @@ public class HideFunctions implements Listener {
         if (HideAPI.getHiddenPlayerNames().contains(senderName) ) {
             event.setMessage("\u200E ");
             event.setCancelled(true);
+            sender.sendMessage("<" + sender.getName() + "> "+message);
             for (Player player : Bukkit.getOnlinePlayers()) {
-                if (PermissionAPI.isOwner(player.getName()) || PermissionAPI.isAdmin(player.getName())) {
-                    player.sendMessage("<" + player.getName() + "> "+message);
+                if (PermissionAPI.isOwner(player.getName()) || PermissionAPI.isAdmin(player.getName()) && player != sender) {
+                    player.sendMessage("<" + sender.getName() + "> "+message);
                 }
             }
         }else if (HideAPI.getTrueHiddenNames().contains(senderName)) {
             event.setMessage("\u200E ");
             event.setCancelled(true);
             for (Player player : Bukkit.getOnlinePlayers()) {
-                if (PermissionAPI.isOwner(player.getName())) {
-                    player.sendMessage("<" + player.getName() + "> "+message);
+                if (PermissionAPI.isOwner(player.getName()) && player != sender) {
+                    player.sendMessage("<" + sender.getName() + "> "+message);
                 }
             }
         }
@@ -126,8 +136,15 @@ public class HideFunctions implements Listener {
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         Player player = event.getPlayer();
         if (HideAPI.getHiddenPlayerNames().contains(player.getName()) || HideAPI.getTrueHiddenNames().contains(player.getName())) {
-            event.setCancelled(true);
-            player.sendMessage(ChatColor.DARK_AQUA+"You are hidden you can't send commands");
+            if (player.getWorld().getGameRuleValue(GameRule.SEND_COMMAND_FEEDBACK)) {
+                player.getWorld().setGameRule(GameRule.SEND_COMMAND_FEEDBACK,false);
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        player.getWorld().setGameRule(GameRule.SEND_COMMAND_FEEDBACK,true);
+                    }
+                }.runTaskLater(NikeySystem.getPlugin(),2);
+            }
         }
     }
 
@@ -144,7 +161,7 @@ public class HideFunctions implements Listener {
                 public void run() {
                     player.getWorld().setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS,true);
                 }
-            }.runTaskLater(NikeySystem.getPlugin(),10);
+            }.runTaskLater(NikeySystem.getPlugin(),2);
         }
     }
 
@@ -168,4 +185,5 @@ public class HideFunctions implements Listener {
             }
         }
     }
+
 }

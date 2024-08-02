@@ -1,17 +1,17 @@
-package de.nikey.nikeysystem.Distributor;
+package de.nikey.nikeysystem.Player.Distributor;
 
-import de.nikey.nikeysystem.API.HideAPI;
-import de.nikey.nikeysystem.API.PermissionAPI;
+import de.nikey.nikeysystem.Player.API.HideAPI;
+import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.NikeySystem;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class HideDistributor implements Listener {
+public class HideDistributor {
 
     public static void loadHiddenPlayerNames() {
         FileConfiguration config = NikeySystem.getPlugin().getConfig();
@@ -91,6 +91,63 @@ public class HideDistributor implements Listener {
                 HideAPI.getTrueHideImmunity().add(args[4]);
                 saveTrueHideImmunityPlayers();
                 player.sendMessage(ChatColor.GOLD + player.getName() + " has now true hide immunity §2added");
+            }
+        }else if (args[3].equalsIgnoreCase("List")) {
+            if (PermissionAPI.isOwner(player.getName())) {
+                String playerName = args[4];
+                List<String> messages = new ArrayList<>();
+
+                if (HideAPI.getHideImmunity().contains(playerName)) {
+                    messages.add("§bHide Immunity");
+                }
+
+                if (HideAPI.getTrueHideImmunity().contains(playerName)) {
+                    messages.add("§3True Hide Immunity");
+                }
+
+                if (HideAPI.getHiddenPlayerNames().contains(playerName)) {
+                    messages.add("§bHidden");
+                }
+
+                if (HideAPI.getTrueHiddenNames().contains(playerName)) {
+                    messages.add("§3True Hidden");
+                }
+
+                String message = "§7" + playerName + " has ";
+                if (messages.isEmpty()) {
+                    message += "no special statuses.";
+                } else {
+                    message += String.join(", ", messages) + ".";
+                }
+
+                player.sendMessage(message);
+            }else {
+                String playerName = args[4];
+                List<String> messages = new ArrayList<>();
+
+                if (HideAPI.getHideImmunity().contains(playerName)) {
+                    messages.add("§bHide Immunity");
+                }
+
+                if (HideAPI.getHiddenPlayerNames().contains(playerName)) {
+                    messages.add("§bHidden");
+                }
+
+
+                String message = "§7" + playerName + " has ";
+                if (messages.isEmpty()) {
+                    message += "no special statuses.";
+                } else {
+                    message += String.join(", ", messages) + ".";
+                }
+
+                player.sendMessage(message);
+            }
+        }else if (args[3].equalsIgnoreCase("help")) {
+            if (PermissionAPI.isOwner(player.getName())) {
+                player.sendMessage("§7The path 'System/Player/Hide' has following sub-paths: §fToggleHide <PlayerName>, ToggleTrueHide <PlayerName>, ToggleImmunity <PlayerName>, ToggleTrueImmunity <PlayerName>, List <PlayerName>.");
+            }else {
+                player.sendMessage("§7The path 'System/Player/Hide' has following sub-paths: §fToggleHide <PlayerName>, ToggleImmunity <PlayerName>, List <PlayerName>.");
             }
         }
     }

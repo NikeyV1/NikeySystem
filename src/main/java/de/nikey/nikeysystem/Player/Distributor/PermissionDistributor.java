@@ -1,6 +1,6 @@
-package de.nikey.nikeysystem.Distributor;
+package de.nikey.nikeysystem.Player.Distributor;
 
-import de.nikey.nikeysystem.API.PermissionAPI;
+import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.NikeySystem;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -37,8 +37,8 @@ public class PermissionDistributor {
     }
 
     public static void permissionDistributor(Player sender,String[] args) {
-        String target = args[4];
         if (args[3].equalsIgnoreCase("ToggleAdmin")) {
+            String target = args[4];
             if (PermissionAPI.isOwner(sender.getName())) {
                 if (!PermissionAPI.isAdmin(target)) {
                     PermissionAPI.addAdmin(target);
@@ -49,8 +49,11 @@ public class PermissionDistributor {
                     saveAdmins();
                     sender.sendMessage("§bRemoved "+target+"'s §cadmin §bpermissions!");
                 }
+            }else {
+                sender.sendMessage("§cError: required permission missing!");
             }
         } else if (args[3].equalsIgnoreCase("ToggleModerator")) {
+            String target = args[4];
             if (!PermissionAPI.isModerator(target)) {
                 PermissionAPI.addModerator(target);
                 saveModerators();
@@ -61,6 +64,15 @@ public class PermissionDistributor {
                 sender.sendMessage("§bRemoved "+target+"'s §0moderator §bpermissions!");
             }
         } else if (args[3].equalsIgnoreCase("List")) {
+            String target = args[4];
+            if (PermissionAPI.isAdmin(target) || PermissionAPI.isModerator(target) || PermissionAPI.isOwner(target)) {
+                sender.sendMessage("§8"+target+" has following permissions: " +
+                        (PermissionAPI.isAdmin(target) ? "§cAdmin":"") + (PermissionAPI.isModerator(target) ? "§0Moderator" : "") + (PermissionAPI.isOwner(target) ? "§cOwner" : ""));
+            }else {
+                sender.sendMessage("§8"+target+" has normal member permissions");
+            }
+        }else if (args[3].equalsIgnoreCase("ListAll")) {
+            String target = args[4];
             if (PermissionAPI.isAdmin(target) || PermissionAPI.isModerator(target) || PermissionAPI.isOwner(target)) {
                 sender.sendMessage("§8"+target+" has following permissions: " +
                         (PermissionAPI.isAdmin(target) ? "§cAdmin":"") + (PermissionAPI.isModerator(target) ? "§0Moderator" : "") + (PermissionAPI.isOwner(target) ? "§cOwner" : ""));
@@ -79,6 +91,12 @@ public class PermissionDistributor {
                 perm.add(iterator.next().getPermission());
             }
             sender.sendMessage("§8"+target +" has following default permissions " +(player.isOp() ? "§cOperator + ":"") +"§7" +perm);
+        }else if (args[3].equalsIgnoreCase("help")) {
+            if (PermissionAPI.isOwner(sender.getName())) {
+                sender.sendMessage("§7The path 'System/Player/Permissions' has following sub-paths: §fToggleAdmin <PlayerName>, ToggleModerator <PlayerName>, List <PlayerName>, ListAll <PlayerName>.");
+            }else {
+                sender.sendMessage("§7The path 'System/Player/Permissions' has following sub-paths: §fToggleModerator <PlayerName>, List <PlayerName>, ListAll <PlayerName>.");
+            }
         }
     }
 }
