@@ -38,7 +38,7 @@ public class HideFunctions implements Listener {
         Entity hidden = event.getEntity();
         Player player = event.getPlayer();
 
-        if (PermissionAPI.isOwner(player.getName()) || HideAPI.getTrueHideImmunity().contains(player.getName()) || HideAPI.getHideImmunity().contains(player.getName())) {
+        if (HideAPI.getTrueHideImmunity().contains(player.getName()) || HideAPI.getHideImmunity().contains(player.getName())) {
             player.showEntity(NikeySystem.getPlugin(),hidden);
         }
     }

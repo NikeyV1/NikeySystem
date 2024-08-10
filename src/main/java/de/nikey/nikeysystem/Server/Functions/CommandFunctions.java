@@ -15,14 +15,6 @@ public class CommandFunctions implements Listener {
         final String cmd = event.getMessage();
         final String[] args = cmd.split(" ");
 
-        //for (String command : CommandAPI.getDisabledCommands()) {
-        //            if (cmd.startsWith(command)) {
-        //                if (!PermissionAPI.isOwner(player.getName())) {
-        //                    event.setCancelled(true);
-        //                }
-        //            }
-        //        }
-
         if (CommandAPI.isBlocked(args[0])) {
             if (!PermissionAPI.isOwner(player.getName())) {
                 event.setCancelled(true);

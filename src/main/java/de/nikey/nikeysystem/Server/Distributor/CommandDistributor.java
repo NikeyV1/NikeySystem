@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CommandDistributor {
 
@@ -39,14 +40,24 @@ public class CommandDistributor {
             if (PermissionAPI.isAdmin(player.getName()) || PermissionAPI.isOwner(player.getName())) {
                 if (CommandAPI.isBlocked(args[4])) {
                     CommandAPI.removeCommand(args[4]);
-                    player.sendMessage("§1Now §aallowing  §1command: §f" + args[4]);
+                    saveBlockedCommands();
+                    player.sendMessage("§7Now §aallowing §7command: §f§n" + args[4]);
                 }else {
                     CommandAPI.addCommand(args[4]);
-                    player.sendMessage("§1Now §cblocking §1command: §f" + args[4]);
+                    saveBlockedCommands();
+                    player.sendMessage("§7Now §cblocking §7command: §f§n" + args[4]);
                 }
             }
+        }else if (args[3].equalsIgnoreCase("list")) {
+            List<String> messages = new ArrayList<>(CommandAPI.getDisabledCommands());
+
+            if (messages.isEmpty()) {
+                player.sendMessage("§8There are no blocked commands!");
+            }else {
+                player.sendMessage("§8Blocked commands are: §f§n" + messages);
+            }
         }else if (args[3].equalsIgnoreCase("help")) {
-            player.sendMessage("§7The path 'System/Server/Command' has following sub-paths: §fexecute </Command>, executeas <PlayerName> </Command>, ListAll <PlayerName>.");
+            player.sendMessage("§7The path 'System/Server/Command' has following sub-paths: §fexecute </Command>, executeas <PlayerName> </Command>, ToggleBlock <Command>.");
         }
     }
 
@@ -60,11 +71,15 @@ public class CommandDistributor {
 
             // Den zusammengefügten Befehl als String speichern
             String command = commandBuilder.toString().trim();
+            String cmd = command;
+            if (command.startsWith("/")) {
+                command = command.substring(1);
+            }
 
             // Den Befehl ausführen
             Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), command);
 
-            sender.sendMessage("§aSuccessfully executed command: §f§n"+ command);
+            sender.sendMessage("§aSuccessfully executed command: §f§n"+ cmd);
         }
     }
 
@@ -83,16 +98,20 @@ public class CommandDistributor {
 
             // Den zusammengefügten Befehl als String speichern
             String command = commandBuilder.toString().trim();
+            String cmd = command;
+            if (command.startsWith("/")) {
+                command = command.substring(1);
+            }
 
             // Den Befehl ausführen
 
             try {
                 player.performCommand(command);
             }catch (CommandException exception) {
-                sender.sendMessage("§cError: error while executing command: §f§n"+ command);
+                sender.sendMessage("§cError: error while executing command: §f§n"+ cmd);
             }
 
-            sender.sendMessage("§aSuccessfully executed as "+player.getName() + " command: §f§n" + command);
+            sender.sendMessage("§aSuccessfully executed as "+player.getName() + " command: §f§n" + cmd);
         }
     }
 }

@@ -39,6 +39,8 @@ public class CommandRegister implements Listener {
                     if (args[2].equalsIgnoreCase("command")) {
                         CommandDistributor.commandDistributor(player,args);
                         event.setCancelled(true);
+                    }else if (args[2].equalsIgnoreCase("settings")) {
+
                     }
                 }
             }
