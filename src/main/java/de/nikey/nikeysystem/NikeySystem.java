@@ -18,10 +18,7 @@ public final class NikeySystem extends JavaPlugin {
     public void onEnable() {
         plugin = this;
         saveDefaultConfig();
-        HideDistributor.loadHiddenPlayerNames();
-        HideDistributor.loadTrueHiddenPlayers();
-        HideDistributor.loadHideImmunityPlayers();
-        HideDistributor.loadTrueHideImmunityPlayers();
+        HideDistributor.loadAll();
         PermissionDistributor.loadAdmins();
         PermissionDistributor.loadModerators();
 

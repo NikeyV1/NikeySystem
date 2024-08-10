@@ -13,7 +13,15 @@ import java.util.List;
 
 public class HideDistributor {
 
-    public static void loadHiddenPlayerNames() {
+    public static void loadAll() {
+        loadHiddenPlayerNames();
+        loadHideImmunityPlayers();
+        loadTrueHiddenPlayers();
+        loadTrueHideImmunityPlayers();
+    }
+
+
+    private static void loadHiddenPlayerNames() {
         FileConfiguration config = NikeySystem.getPlugin().getConfig();
         HideAPI.getHiddenPlayerNames().clear();
         HideAPI.getHiddenPlayerNames().addAll(config.getStringList("hide.hiddenPlayers"));
@@ -26,7 +34,7 @@ public class HideDistributor {
         NikeySystem.getPlugin().saveConfig();
     }
 
-    public static void loadTrueHiddenPlayers() {
+    private static void loadTrueHiddenPlayers() {
         FileConfiguration config = NikeySystem.getPlugin().getConfig();
         HideAPI.getTrueHiddenNames().clear();
         HideAPI.getTrueHiddenNames().addAll(config.getStringList("hide.trueHiddenPlayers"));
@@ -41,7 +49,7 @@ public class HideDistributor {
 
 
     //Hide immunity
-    public static void loadHideImmunityPlayers() {
+    private static void loadHideImmunityPlayers() {
         FileConfiguration config = NikeySystem.getPlugin().getConfig();
         HideAPI.getHideImmunity().clear();
         HideAPI.getHideImmunity().addAll(config.getStringList("hide.hideImmunity"));
@@ -54,7 +62,7 @@ public class HideDistributor {
         NikeySystem.getPlugin().saveConfig();
     }
 
-    public static void loadTrueHideImmunityPlayers() {
+    private static void loadTrueHideImmunityPlayers() {
         FileConfiguration config = NikeySystem.getPlugin().getConfig();
         HideAPI.getTrueHideImmunity().clear();
         HideAPI.getTrueHideImmunity().addAll(config.getStringList("hide.trueHideImmunity"));

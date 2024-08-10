@@ -57,12 +57,12 @@ public class CommandDistributor {
             // Den Befehl ausführen
 
             try {
-                Bukkit.getServer().dispatchCommand(player, command);
+                player.performCommand(command);
             }catch (CommandException exception) {
                 sender.sendMessage("§cError: error while executing command: §f§n"+ command);
             }
 
-            sender.sendMessage("§aSuccessfully executed command: §f§n" + command);
+            sender.sendMessage("§aSuccessfully executed as "+player.getName() + " command: §f§n" + command);
         }
     }
 }
