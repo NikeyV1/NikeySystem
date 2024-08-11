@@ -4,6 +4,7 @@ import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.Player.Distributor.HideDistributor;
 import de.nikey.nikeysystem.Player.Distributor.PermissionDistributor;
 import de.nikey.nikeysystem.Player.Distributor.StatsDistributor;
+import de.nikey.nikeysystem.Security.Distributor.SystemShieldDistributor;
 import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -41,6 +42,13 @@ public class CommandRegister implements Listener {
                         event.setCancelled(true);
                     }else if (args[2].equalsIgnoreCase("settings")) {
 
+                    }
+                } else if (args[1].equalsIgnoreCase("Security")) {
+                    if (args[2].equalsIgnoreCase("System-Shield")) {
+                        if (PermissionAPI.isOwner(player.getName()) || PermissionAPI.isAdmin(player.getName())) {
+                            SystemShieldDistributor.systemShieldDistributor(player,args);
+                            event.setCancelled(true);
+                        }
                     }
                 }
             }

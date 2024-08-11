@@ -143,7 +143,7 @@ public class HideFunctions implements Listener {
                     public void run() {
                         player.getWorld().setGameRule(GameRule.SEND_COMMAND_FEEDBACK,true);
                     }
-                }.runTaskLater(NikeySystem.getPlugin(),2);
+                }.runTaskLater(NikeySystem.getPlugin(),1);
             }
         }
     }

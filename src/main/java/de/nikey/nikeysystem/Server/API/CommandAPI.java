@@ -5,7 +5,7 @@ import de.nikey.nikeysystem.NikeySystem;
 import java.util.List;
 
 public class CommandAPI {
-    private static final List<String> disabledCommands = NikeySystem.getPlugin().getConfig().getStringList("disabled-commands");
+    private static final List<String> disabledCommands = NikeySystem.getPlugin().getConfig().getStringList("security.SystemShieldUsers");
 
     public static void addCommand(String command) {
         disabledCommands.add(command);
