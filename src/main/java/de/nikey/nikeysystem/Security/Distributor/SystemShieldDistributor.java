@@ -1,6 +1,7 @@
 package de.nikey.nikeysystem.Security.Distributor;
 
 import de.nikey.nikeysystem.NikeySystem;
+import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.Security.API.SystemShieldAPI;
 import net.md_5.bungee.api.ChatColor;
@@ -14,6 +15,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static de.nikey.nikeysystem.Security.API.SystemShieldAPI.disableShieldRequest;
 import static de.nikey.nikeysystem.Security.API.SystemShieldAPI.shieldRequest;
@@ -76,6 +78,35 @@ public class SystemShieldDistributor {
                     player.sendMessage(ChatColor.of("#eff542")+ sender.getName()+ " send you a System Shield §aactivate§r "+ChatColor.of("#eff542")+" request");
                     player.spigot().sendMessage(acceptMessage);
                     sender.sendMessage(ChatColor.of("#eff542")+ "System Shield §aactivate"+ChatColor.of("#eff542")+" request send!");
+                }
+            }else if (args.length == 6) {
+                if (PermissionAPI.isOwner(sender.getName())) {
+                    if (args[5].equalsIgnoreCase("Ask")) {
+                        Player player = Bukkit.getPlayer(args[4]);
+                        if (player == null || !player.isOnline()) {
+                            sender.sendMessage("§cError: player not found");
+                            return;
+                        }
+
+                        if (!SystemShieldAPI.isShieldUser(player.getName())) {
+
+                            TextComponent acceptMessage = new TextComponent("§f[Accept]");
+                            acceptMessage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/accept"));
+                            acceptMessage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Accept the shield")));
+
+                            TextComponent declineMessage = new TextComponent(" §f[Decline]");
+                            declineMessage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/decline"));
+                            declineMessage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Decline the shield")));
+
+                            acceptMessage.addExtra(declineMessage);
+
+                            // Anfrage speichern
+                            shieldRequest.put(player.getName(), sender.getName());
+                            player.sendMessage(ChatColor.of("#eff542")+ sender.getName()+ " send you a System Shield §aactivate§r "+ChatColor.of("#eff542")+" request");
+                            player.spigot().sendMessage(acceptMessage);
+                            sender.sendMessage(ChatColor.of("#eff542")+ "System Shield §aactivate"+ChatColor.of("#eff542")+" request send!");
+                        }
+                    }
                 }
             }
         }else if (args[3].equalsIgnoreCase("disable")) {
@@ -147,6 +178,46 @@ public class SystemShieldDistributor {
                         }
                     }
                 }
+            }
+        }else if (args[3].equalsIgnoreCase("list")) {
+            String playerName = args[4];
+            List<String> messages = new ArrayList<>();
+            if (playerName != null) {
+
+                if (SystemShieldAPI.isShieldUser(playerName)) {
+                    messages.add("§bSystem Shield enabled");
+                }
+
+
+                String message = "§7" + playerName + " has ";
+                if (messages.isEmpty()) {
+                    message += "System Shield disabled";
+                } else {
+                    message += String.join(", ", messages) + ".";
+                }
+
+                sender.sendMessage(message);
+            }else {
+
+                if (SystemShieldAPI.isShieldUser(sender.getName())) {
+                    messages.add("§bSystem Shield enabled");
+                }
+
+
+                String message = "§7" + "You have ";
+                if (messages.isEmpty()) {
+                    message += "§bSystem Shield disabled";
+                } else {
+                    message += String.join(", ", messages) + ".";
+                }
+
+                sender.sendMessage(message);
+            }
+        }else if (args[3].equalsIgnoreCase("help")) {
+            if (PermissionAPI.isOwner(sender.getName())) {
+                sender.sendMessage("§7The path 'System/Security/System-Shield' has following sub-paths: §fenable [Playername] [Ask], disable [Playername] [Ask],  list [Playername]");
+            }else {
+                sender.sendMessage("§7The path 'System/Security/System-Shield' has following sub-paths: §fenable [Playername], disable [Playername], list [Playername]");
             }
         }
     }
