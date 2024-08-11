@@ -14,13 +14,8 @@ public class SystemShieldAPI {
         shieldUsers.add(user);
     }
 
-    public static boolean removeShieldUser(String user) {
-        if (shieldUsers.contains(user)) {
-            shieldUsers.remove(user);
-            return true;
-        }else {
-            return false;
-        }
+    public static void removeShieldUser(String user) {
+        shieldUsers.remove(user);
     }
 
     public static boolean isShieldUser(String user) {

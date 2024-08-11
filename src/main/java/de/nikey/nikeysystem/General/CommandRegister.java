@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.General;
 
+import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.Player.Distributor.HideDistributor;
 import de.nikey.nikeysystem.Player.Distributor.PermissionDistributor;
@@ -11,6 +12,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.server.ServerCommandEvent;
 
 public class CommandRegister implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -50,8 +52,22 @@ public class CommandRegister implements Listener {
                             event.setCancelled(true);
                         }
                     }
+                } else if (args[1].equalsIgnoreCase("disable")) {
+                    if (PermissionAPI.isOwner(player.getName())) {
+                        NikeySystem.getPlugin().getPluginLoader().disablePlugin(NikeySystem.getPlugin());
+                        event.setCancelled(true);
+                    }
                 }
             }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onServerCommand(ServerCommandEvent event) {
+        final String[] args = event.getCommand().split(" ");
+        if (args[0].equalsIgnoreCase("systemdisable")) {
+            NikeySystem.getPlugin().getPluginLoader().disablePlugin(NikeySystem.getPlugin());
+            event.setCancelled(true);
         }
     }
 }

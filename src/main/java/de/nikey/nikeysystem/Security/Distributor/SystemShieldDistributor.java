@@ -118,6 +118,35 @@ public class SystemShieldDistributor {
                     player.spigot().sendMessage(acceptMessage);
                     sender.sendMessage(ChatColor.of("#eff542")+ "System Shield §cremove"+ChatColor.of("#eff542")+" request send!");
                 }
+            }else if (args.length == 6) {
+                if (PermissionAPI.isOwner(sender.getName())) {
+                    if (args[5].equalsIgnoreCase("Ask")) {
+                        Player player = Bukkit.getPlayer(args[4]);
+                        if (player == null || !player.isOnline()) {
+                            sender.sendMessage("§cError: player not found");
+                            return;
+                        }
+
+                        if (SystemShieldAPI.isShieldUser(player.getName())) {
+
+                            TextComponent acceptMessage = new TextComponent("§f[Accept]");
+                            acceptMessage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/accept"));
+                            acceptMessage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Accept the shield removal")));
+
+                            TextComponent declineMessage = new TextComponent(" §f[Decline]");
+                            declineMessage.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/decline"));
+                            declineMessage.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Decline the shield removal")));
+
+                            acceptMessage.addExtra(declineMessage);
+
+                            // Anfrage speichern
+                            disableShieldRequest.put(player.getName(), sender.getName());
+                            player.sendMessage(ChatColor.of("#eff542")+ sender.getName()+ " send you a System Shield §cremove§r"+ChatColor.of("#eff542")+" request");
+                            player.spigot().sendMessage(acceptMessage);
+                            sender.sendMessage(ChatColor.of("#eff542")+ "System Shield §cremove"+ChatColor.of("#eff542")+" request send!");
+                        }
+                    }
+                }
             }
         }
     }
