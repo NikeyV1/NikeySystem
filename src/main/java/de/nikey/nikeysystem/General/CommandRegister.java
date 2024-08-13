@@ -52,11 +52,6 @@ public class CommandRegister implements Listener {
                             event.setCancelled(true);
                         }
                     }
-                } else if (args[1].equalsIgnoreCase("disable")) {
-                    if (PermissionAPI.isOwner(player.getName())) {
-                        NikeySystem.getPlugin().getPluginLoader().disablePlugin(NikeySystem.getPlugin());
-                        event.setCancelled(true);
-                    }
                 }
             }
         }

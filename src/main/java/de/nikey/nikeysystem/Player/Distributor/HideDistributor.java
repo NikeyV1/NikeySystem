@@ -77,9 +77,17 @@ public class HideDistributor {
 
     public static void hideDistributor(Player player, String[] args) {
         if (args[3].equalsIgnoreCase("ToggleHide")) {
-            toggleAlwaysHide(player,args[4]);
+            if (args.length == 6) {
+                toggleAlwaysHide(player,args[4], args[5].equalsIgnoreCase("message"));
+            }else {
+                toggleAlwaysHide(player,args[4],false);
+            }
         } else if (args[3].equalsIgnoreCase("ToggleTrueHide") && PermissionAPI.isOwner(player.getName())) {
-            toggleTrueAlwaysHide(player,args[4]);
+            if (args.length == 6) {
+                toggleTrueAlwaysHide(player,args[4], args[5].equalsIgnoreCase("message"));
+            }else {
+                toggleTrueAlwaysHide(player,args[4], false);
+            }
         } else if (args[3].equalsIgnoreCase("ToggleImmunity")) {
             if (HideAPI.getHideImmunity().contains(args[4])) {
                 HideAPI.getHideImmunity().remove(args[4]);
@@ -160,12 +168,15 @@ public class HideDistributor {
         }
     }
 
-    public static void toggleAlwaysHide(Player player, String targetName) {
+    public static void toggleAlwaysHide(Player player, String targetName, boolean message) {
         Player target = Bukkit.getPlayer(targetName);
         // Zielspieler zur Liste der versteckten Spieler hinzufügen
         if (!HideAPI.getHiddenPlayerNames().contains(targetName)) {
             HideAPI.getHiddenPlayerNames().add(targetName);
             saveHiddenPlayerNames();  // Speichern nach dem Hinzufügen
+            if (message) {
+                Bukkit.broadcastMessage("§e"+ targetName + " left the game");
+            }
 
             // Wenn der Zielspieler online ist, ihn sofort verstecken
             if (target != null) {
@@ -182,6 +193,9 @@ public class HideDistributor {
         }else {
             HideAPI.getHiddenPlayerNames().remove(targetName );
             saveHiddenPlayerNames();  // Speichern nach dem Entfernen
+            if (message) {
+                Bukkit.broadcastMessage("§e"+ targetName + " joined the game");
+            }
 
             // Wenn der Zielspieler online ist, ihn sofort verstecken
             if (target != null) {
@@ -196,13 +210,16 @@ public class HideDistributor {
         }
     }
 
-    public static void toggleTrueAlwaysHide(Player player, String targetName) {
+    public static void toggleTrueAlwaysHide(Player player, String targetName, boolean message) {
         Player target = Bukkit.getPlayer(targetName);
         // Zielspieler zur Liste der versteckten Spieler hinzufügen
         if (!HideAPI.getTrueHiddenNames().contains(targetName)) {
             HideAPI.getTrueHiddenNames().add(targetName);
             HideAPI.getHideImmunity().remove(targetName);
             saveTrueHiddenPlayers();  // Speichern nach dem Hinzufügen
+            if (message) {
+                Bukkit.broadcastMessage("§e"+ targetName + " left the game");
+            }
 
             // Wenn der Zielspieler online ist, ihn sofort verstecken
             if (target != null) {
@@ -219,6 +236,9 @@ public class HideDistributor {
         }else {
             HideAPI.getTrueHiddenNames().remove(targetName );
             saveTrueHiddenPlayers();  // Speichern nach dem Entfernen
+            if (message) {
+                Bukkit.broadcastMessage("§e"+ targetName + " joined the game");
+            }
 
             // Wenn der Zielspieler online ist, ihn sofort verstecken
             if (target != null) {
