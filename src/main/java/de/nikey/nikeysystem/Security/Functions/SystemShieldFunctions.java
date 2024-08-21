@@ -130,7 +130,7 @@ public class SystemShieldFunctions implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         final String[] args = event.getMessage().split(" ");
 
@@ -152,7 +152,7 @@ public class SystemShieldFunctions implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onPlayerKick(PlayerKickEvent event) {
         if (SystemShieldAPI.isShieldUser(event.getPlayer().getName())) {
             event.setCancelled(true);
@@ -168,7 +168,7 @@ public class SystemShieldFunctions implements Listener {
     }
 
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onServerCommand(ServerCommandEvent event) {
         final String[] args = event.getCommand().split(" ");
 
@@ -189,7 +189,7 @@ public class SystemShieldFunctions implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onRemoteServerCommand(RemoteServerCommandEvent event) {
         final String[] args = event.getCommand().split(" ");
 
