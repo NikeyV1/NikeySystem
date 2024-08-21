@@ -137,18 +137,14 @@ public class SystemShieldFunctions implements Listener {
         if (args[0].equalsIgnoreCase("/ban") || args[0].equalsIgnoreCase("/ban-ip") || args[0].equalsIgnoreCase("/kick")
                 || args[0].equalsIgnoreCase("/damage") || args[0].equalsIgnoreCase("/clear") || args[0].equalsIgnoreCase("/deop") || args[0].equalsIgnoreCase("/kill"))  {
             if (args.length >= 2) {
-                Player target = Bukkit.getPlayer(args[1]);
-                if (target == null)return;
-                if (SystemShieldAPI.isShieldUser(target.getName())) {
+                if (SystemShieldAPI.isShieldUser(args[1])) {
                     event.setCancelled(true);
                     event.getPlayer().sendMessage("§cError: no permissions");
                 }
             }
         }else if (args[0].equalsIgnoreCase("/gamemode")) {
             if (args.length >= 3) {
-                Player target = Bukkit.getPlayer(args[2]);
-                if (target == null)return;
-                if (SystemShieldAPI.isShieldUser(target.getName())) {
+                if (SystemShieldAPI.isShieldUser(args[2])) {
                     event.setCancelled(true);
                     event.getPlayer().sendMessage("§cError: no permissions");
                 }
@@ -183,15 +179,11 @@ public class SystemShieldFunctions implements Listener {
 
         if (args[0].equalsIgnoreCase("ban") || args[0].equalsIgnoreCase("ban-ip") || args[0].equalsIgnoreCase("kick")
                 || args[0].equalsIgnoreCase("damage") || args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("deop") || args[0].equalsIgnoreCase("kill"))  {
-            Player target = Bukkit.getPlayer(args[1]);
-            if (target == null)return;
-            if (SystemShieldAPI.isShieldUser(target.getName())) {
+            if (SystemShieldAPI.isShieldUser(args[1])) {
                 event.setCancelled(true);
             }
         }else if (args[0].equalsIgnoreCase("gamemode")) {
-            Player target = Bukkit.getPlayer(args[2]);
-            if (target == null)return;
-            if (SystemShieldAPI.isShieldUser(target.getName())) {
+            if (SystemShieldAPI.isShieldUser(args[2])) {
                 event.setCancelled(true);
             }
         }
@@ -209,16 +201,12 @@ public class SystemShieldFunctions implements Listener {
 
         if (args[0].equalsIgnoreCase("ban") || args[0].equalsIgnoreCase("ban-ip") || args[0].equalsIgnoreCase("kick")
                 || args[0].equalsIgnoreCase("damage") || args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("deop") || args[0].equalsIgnoreCase("kill"))  {
-            Player target = Bukkit.getPlayer(args[1]);
-            if (target == null)return;
-            if (SystemShieldAPI.isShieldUser(target.getName())) {
+            if (SystemShieldAPI.isShieldUser(args[1])) {
                 event.setCancelled(true);
                 sender.sendMessage("§cError: no permissions");
             }
         }else if (args[0].equalsIgnoreCase("gamemode")) {
-            Player target = Bukkit.getPlayer(args[2]);
-            if (target == null)return;
-            if (SystemShieldAPI.isShieldUser(target.getName())) {
+            if (SystemShieldAPI.isShieldUser(args[2])) {
                 event.setCancelled(true);
                 sender.sendMessage("§cError: no permissions");
             }
