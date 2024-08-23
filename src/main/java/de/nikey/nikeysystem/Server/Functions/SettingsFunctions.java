@@ -39,11 +39,9 @@ public class SettingsFunctions implements Listener {
 
         addItemToInventory(inventory, 0, Material.PAPER, "MOTD ändern");
         addItemToInventory(inventory, 1, Material.IRON_DOOR, "Whitelist umschalten");
-        addItemToInventory(inventory, 2, Material.REDSTONE_TORCH, "Online-Mode umschalten");
-        addItemToInventory(inventory, 3, Material.DIAMOND_SWORD, "PvP umschalten");
+        addItemToInventory(inventory, 2, Material.ZOMBIE_HEAD, "Schwierigkeitsgrad ändern");
+        addItemToInventory(inventory, 3, Material.PLAYER_HEAD, "Maximale Spieleranzahl ändern");
         addItemToInventory(inventory, 4, Material.FEATHER, "Fliegen erlauben");
-        addItemToInventory(inventory, 5, Material.ZOMBIE_HEAD, "Schwierigkeitsgrad ändern");
-        addItemToInventory(inventory, 6, Material.PLAYER_HEAD, "Maximale Spieleranzahl ändern");
         addItemToInventory(inventory, 7, Material.ENDER_EYE, "Sichtweite ändern");
         addItemToInventory(inventory, 8, Material.SHEEP_SPAWN_EGG, "Spawn von Tieren umschalten");
         addItemToInventory(inventory, 9, Material.ZOMBIE_SPAWN_EGG, "Spawn von Monstern umschalten");

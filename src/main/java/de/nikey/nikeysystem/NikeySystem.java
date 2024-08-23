@@ -8,6 +8,7 @@ import de.nikey.nikeysystem.Security.Distributor.SystemShieldDistributor;
 import de.nikey.nikeysystem.Security.Functions.SystemShieldFunctions;
 import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
 import de.nikey.nikeysystem.Server.Functions.CommandFunctions;
+import de.nikey.nikeysystem.Server.Functions.SettingsFunctions;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
@@ -35,6 +36,7 @@ public final class NikeySystem extends JavaPlugin {
         manager.registerEvents(new CommandRegister(),this);
         manager.registerEvents(new CommandFunctions(), this);
         manager.registerEvents(new SystemShieldFunctions(), this);
+        manager.registerEvents(new SettingsFunctions(), this);
 
         for (World world : Bukkit.getWorlds()) {
             world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, true);
