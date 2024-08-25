@@ -5,9 +5,9 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.UUID;
 
 public class SettingsAPI {
     public static final ArrayList<Player> settingsContinue = new ArrayList<>();
-    public static final Map<Player, Consumer<String>> inputRequests = new HashMap<>();
+    public static Map<UUID, String> awaitingTextInput = new HashMap<>();
 }

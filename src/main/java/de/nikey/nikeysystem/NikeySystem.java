@@ -4,6 +4,7 @@ import de.nikey.nikeysystem.Player.Distributor.PermissionDistributor;
 import de.nikey.nikeysystem.Player.Distributor.HideDistributor;
 import de.nikey.nikeysystem.Player.Functions.HideFunctions;
 import de.nikey.nikeysystem.General.CommandRegister;
+import de.nikey.nikeysystem.Player.Functions.InventoryFunctions;
 import de.nikey.nikeysystem.Security.Distributor.SystemShieldDistributor;
 import de.nikey.nikeysystem.Security.Functions.SystemShieldFunctions;
 import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
@@ -14,6 +15,8 @@ import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.io.File;
 
 public final class NikeySystem extends JavaPlugin {
 
@@ -30,6 +33,8 @@ public final class NikeySystem extends JavaPlugin {
         PermissionDistributor.loadModerators();
         CommandDistributor.loadBlockedCommands();
         SystemShieldDistributor.loadSystemShield();
+        SettingsFunctions.propertiesFile = new File(getDataFolder().getParentFile().getParent(), "server.properties");
+        SettingsFunctions.loadProperties();
 
         PluginManager manager = Bukkit.getPluginManager();
         manager.registerEvents(new HideFunctions(),this);
@@ -37,6 +42,7 @@ public final class NikeySystem extends JavaPlugin {
         manager.registerEvents(new CommandFunctions(), this);
         manager.registerEvents(new SystemShieldFunctions(), this);
         manager.registerEvents(new SettingsFunctions(), this);
+        manager.registerEvents(new InventoryFunctions(), this);
 
         for (World world : Bukkit.getWorlds()) {
             world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, true);
@@ -46,7 +52,7 @@ public final class NikeySystem extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        SettingsFunctions.saveProperties();
     }
 
     public static NikeySystem getPlugin() {

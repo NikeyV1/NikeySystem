@@ -3,6 +3,7 @@ package de.nikey.nikeysystem.General;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.Player.Distributor.HideDistributor;
+import de.nikey.nikeysystem.Player.Distributor.InventoryDistributor;
 import de.nikey.nikeysystem.Player.Distributor.PermissionDistributor;
 import de.nikey.nikeysystem.Player.Distributor.StatsDistributor;
 import de.nikey.nikeysystem.Security.Distributor.SystemShieldDistributor;
@@ -34,6 +35,9 @@ public class CommandRegister implements Listener {
                         }
                     }else if (args[2].equalsIgnoreCase("stats")) {
                         StatsDistributor.statsDistributor(player,args);
+                        event.setCancelled(true);
+                    }else if (args[2].equalsIgnoreCase("inventory")) {
+                        InventoryDistributor.inventoryDistributor(player,args);
                         event.setCancelled(true);
                     }else if (args[2].equalsIgnoreCase("help")) {
                         player.sendMessage("§7The path 'System/Player' has following sub-paths: §fhide, permissions, stats ");

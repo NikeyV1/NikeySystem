@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
+@SuppressWarnings("ALL")
 public class StatsDistributor {
     public static void statsDistributor(Player player, String[] args) {
         if (args[3].equalsIgnoreCase("help")) {
