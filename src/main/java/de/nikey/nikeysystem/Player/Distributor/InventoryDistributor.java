@@ -117,6 +117,8 @@ public class InventoryDistributor {
                 }
                 openEq(sender,player);
             }
+        }else if (args[3].equalsIgnoreCase("help")) {
+            sender.sendMessage("§7The path 'System/Player/Inventory' has following sub-paths: §fadd <PlayerName> <Item> [Amount], remove <PlayerName> <Item> [Amount], openinv [playername]<PlayerName>, openec [playername]<PlayerName>, openeq [playername]<PlayerName>.");
         }
     }
 

@@ -12,7 +12,7 @@ import java.util.List;
 public class StatsDistributor {
     public static void statsDistributor(Player player, String[] args) {
         if (args[3].equalsIgnoreCase("help")) {
-            player.sendMessage("§7The path 'System/Player/Stats' has following sub-paths: §fInvulnerable <PlayerName>, Fly <PlayerName>, Collidable <PlayerName>, SleepIgnore <PlayerName>, Invisibility <PlayerName>, VisualFire <PlayerName>.");
+            player.sendMessage("§7The path 'System/Player/Stats' has following sub-paths: §fInvulnerable <PlayerName>, Fly <PlayerName>, Collidable <PlayerName>, SleepIgnore <PlayerName>, Invisibility <PlayerName>, VisualFire <PlayerName>, Op <Playername>.");
             return;
         }
 
@@ -72,6 +72,14 @@ public class StatsDistributor {
                 target.setVisualFire(true);
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set visual-fire §aon"+ChatColor.of("#f08d1d") +" for "+ target.getName());
             }
+        }else if (args[3].equalsIgnoreCase("Op")) {
+            if (target.isOp()) {
+                target.setOp(false);
+                player.sendMessage(ChatColor.of("#f08d1d") +"Set Operator §coff"+ChatColor.of("#f08d1d") +" for "+ target.getName());
+            }else {
+                target.setOp(true);
+                player.sendMessage(ChatColor.of("#f08d1d") +"Set Operator §aon"+ChatColor.of("#f08d1d") +" for "+ target.getName());
+            }
         }else if (args[3].equalsIgnoreCase("Reset")) {
             target.setInvulnerable(false);
             target.setAllowFlight(false);
@@ -80,6 +88,7 @@ public class StatsDistributor {
             target.setSleepingIgnored(false);
             target.setInvisible(false);
             target.setVisualFire(false);
+            target.setOp(false);
             player.sendMessage("§cReset "+ChatColor.of("#f08d1d") +"stats for "+ target.getName());
         }else if (args[3].equalsIgnoreCase("List")) {
             String playerName = args[4];
@@ -107,6 +116,10 @@ public class StatsDistributor {
 
             if (target.isVisualFire()) {
                 messages.add("§bVisualFire");
+            }
+
+            if (target.isOp()) {
+                messages.add("§bOp");
             }
 
             String message = "§7" + playerName + " has ";

@@ -38,6 +38,12 @@ public class CommandDistributor {
             }
         }else if (args[3].equalsIgnoreCase("ToggleBlock")) {
             if (PermissionAPI.isAdmin(player.getName()) || PermissionAPI.isOwner(player.getName())) {
+
+                if (args[4].equalsIgnoreCase("default")) {
+                    defaultBlock(player);
+                    return;
+                }
+
                 if (CommandAPI.isBlocked(args[4])) {
                     CommandAPI.removeCommand(args[4]);
                     saveBlockedCommands();
@@ -59,6 +65,23 @@ public class CommandDistributor {
         }else if (args[3].equalsIgnoreCase("help")) {
             player.sendMessage("§7The path 'System/Server/Command' has following sub-paths: §fexecute </Command>, executeas <PlayerName> </Command>, ToggleBlock <Command>.");
         }
+    }
+
+    public static void defaultBlock(Player sender) {
+        List<String> defaultCmd = new ArrayList<>();
+        defaultCmd.add("plugins");
+        defaultCmd.add("pl");
+        defaultCmd.add("version");
+        defaultCmd.add("ver");
+        defaultCmd.add("about");
+        defaultCmd.add("execute");
+        for (String cmd : defaultCmd) {
+            if (!CommandAPI.isBlocked(cmd)) {
+                CommandAPI.addCommand(cmd);
+                saveBlockedCommands();
+            }
+        }
+        sender.sendMessage("§7Now §cblocking §7default commands");
     }
 
     public static void execute(String[] args, Player sender) {

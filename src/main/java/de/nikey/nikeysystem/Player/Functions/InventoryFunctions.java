@@ -68,7 +68,6 @@ public class InventoryFunctions implements Listener {
 
             player.getInventory().setItemInOffHand(inventory.getItem(8));
 
-            Bukkit.broadcastMessage(String.valueOf(inventory.getItem(1).getType()));
         }
     }
 
@@ -92,7 +91,6 @@ public class InventoryFunctions implements Listener {
             equipment.setItem(EquipmentSlot.HEAD,inventory.getItem(3));
 
             player.getInventory().setItemInOffHand(inventory.getItem(8));
-            Bukkit.broadcastMessage(String.valueOf(inventory.getItem(8).getType())+ "1");
         }
     }
 

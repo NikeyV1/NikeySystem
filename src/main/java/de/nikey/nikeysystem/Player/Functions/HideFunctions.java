@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Player.Functions;
 
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.NikeySystem;
@@ -17,7 +18,9 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.bukkit.GameRule.SEND_COMMAND_FEEDBACK;
 
@@ -223,4 +226,25 @@ public class HideFunctions implements Listener {
         }
     }
 
+    @EventHandler
+    public void onPaperServerListPing(PaperServerListPingEvent event) {
+        event.getListedPlayers().clear();
+        int hiddenCount = event.getNumPlayers();
+
+        // Zähle Spieler in hiddenPlayerNames
+        for (String playerName : HideAPI.getHiddenPlayerNames()) {
+            Player player = Bukkit.getPlayer(playerName);
+            if (player != null)hiddenCount-=1;
+        }
+
+        // Zähle Spieler in trueHiddenNames
+        for (String playerName : HideAPI.getTrueHiddenNames()) {
+            if (!HideAPI.getHiddenPlayerNames().contains(playerName)){
+                Player player = Bukkit.getPlayer(playerName);
+                if (player != null)hiddenCount-=1;
+            }
+        }
+
+        event.setNumPlayers(hiddenCount);
+    }
 }

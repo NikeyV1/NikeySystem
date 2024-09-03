@@ -33,8 +33,6 @@ public final class NikeySystem extends JavaPlugin {
         PermissionDistributor.loadModerators();
         CommandDistributor.loadBlockedCommands();
         SystemShieldDistributor.loadSystemShield();
-        SettingsFunctions.propertiesFile = new File(getDataFolder().getParentFile().getParent(), "server.properties");
-        SettingsFunctions.loadProperties();
 
         PluginManager manager = Bukkit.getPluginManager();
         manager.registerEvents(new HideFunctions(),this);
@@ -52,7 +50,6 @@ public final class NikeySystem extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        SettingsFunctions.saveProperties();
     }
 
     public static NikeySystem getPlugin() {
