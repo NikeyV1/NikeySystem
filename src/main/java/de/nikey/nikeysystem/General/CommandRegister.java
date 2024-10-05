@@ -2,10 +2,7 @@ package de.nikey.nikeysystem.General;
 
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
-import de.nikey.nikeysystem.Player.Distributor.HideDistributor;
-import de.nikey.nikeysystem.Player.Distributor.InventoryDistributor;
-import de.nikey.nikeysystem.Player.Distributor.PermissionDistributor;
-import de.nikey.nikeysystem.Player.Distributor.StatsDistributor;
+import de.nikey.nikeysystem.Player.Distributor.*;
 import de.nikey.nikeysystem.Security.Distributor.SystemShieldDistributor;
 import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
 import de.nikey.nikeysystem.Server.Distributor.SettingsDistributor;
@@ -39,6 +36,9 @@ public class CommandRegister implements Listener {
                     }else if (args[2].equalsIgnoreCase("inventory")) {
                         InventoryDistributor.inventoryDistributor(player,args);
                         event.setCancelled(true);
+                    }else if (args[2].equalsIgnoreCase("effect")) {
+                        EffectDistributor.effectDistributor(player,args);
+                        event.setCancelled(true);
                     }else if (args[2].equalsIgnoreCase("help")) {
                         player.sendMessage("§7The path 'System/Player' has following sub-paths: §fhide, permissions, stats ");
                         event.setCancelled(true);
@@ -67,7 +67,7 @@ public class CommandRegister implements Listener {
     public void onServerCommand(ServerCommandEvent event) {
         final String[] args = event.getCommand().split(" ");
         if (args[0].equalsIgnoreCase("systemdisable")) {
-            NikeySystem.getPlugin().getPluginLoader().disablePlugin(NikeySystem.getPlugin());
+            NikeySystem.getPlugin().getServer().getPluginManager().disablePlugin(NikeySystem.getPlugin());
             event.setCancelled(true);
         }
     }

@@ -5,3 +5,5 @@ api-version: 1.21
 description: Dark side
 author: Nikey
 website: github.com/NikeyV1
+commands:
+  system:

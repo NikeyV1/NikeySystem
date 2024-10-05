@@ -75,6 +75,9 @@ public class CommandDistributor {
         defaultCmd.add("ver");
         defaultCmd.add("about");
         defaultCmd.add("execute");
+        defaultCmd.add("minecraft:");
+        defaultCmd.add("bukkit");
+        defaultCmd.add("?");
         for (String cmd : defaultCmd) {
             if (!CommandAPI.isBlocked(cmd)) {
                 CommandAPI.addCommand(cmd);

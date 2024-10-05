@@ -1,6 +1,7 @@
 package de.nikey.nikeysystem.Player.Functions;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import de.nikey.nikeysystem.General.GeneralAPI;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.NikeySystem;
@@ -104,7 +105,7 @@ public class HideFunctions implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         if (HideAPI.getHiddenPlayerNames().contains(event.getPlayer().getName())) {
             event.setQuitMessage("");
-            for (Player player : Bukkit.getOnlinePlayers()) {
+            for (Player player : GeneralAPI.getOnlinePlayers(event.getPlayer())) {
                 if (PermissionAPI.isOwner(player.getName()) || PermissionAPI.isAdmin(player.getName())) {
                     player.sendMessage("§e" +event.getPlayer().getName() + " left the game");
                 }
@@ -115,6 +116,42 @@ public class HideFunctions implements Listener {
                 if (PermissionAPI.isOwner(player.getName())) {
                     player.sendMessage("§e" +event.getPlayer().getName() + " left the game");
                 }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
+        String command = event.getMessage().toLowerCase();
+        Player sender = (Player) event.getPlayer();
+
+        // Detect if it's a command to teleport or give items to a hidden player
+        for (String hiddenPlayer : HideAPI.getHiddenPlayerNames()) {
+            if (command.contains(hiddenPlayer)) {
+                sender.sendMessage("§cUnknown or incomplete command, see below for error\n" +
+                        command+"<--[HERE]");
+                event.setCancelled(true);
+            }
+        }
+        for (String hiddenPlayer : HideAPI.getHiddenPlayerNames()) {
+            if (command.contains(hiddenPlayer)) {
+                // Täusche eine Vanilla-Meldung vor
+                if (command.startsWith("/tp") || command.startsWith("/teleport")) {
+                    sender.sendMessage("§cNo player was found");
+                } else if (command.startsWith("/give")) {
+                    sender.sendMessage("§cNo player was found");
+                } else {
+                    sender.sendMessage("§cNo player was found");
+                }
+                event.setCancelled(true);
+            }
+        }
+
+        for (String hiddenPlayer : HideAPI.getTrueHiddenNames()) {
+            if (command.contains(hiddenPlayer)) {
+                sender.sendMessage("§cUnknown or incomplete command, see below for error\n" +
+                        command+"<--[HERE]");
+                event.setCancelled(true);
             }
         }
     }
@@ -169,7 +206,7 @@ public class HideFunctions implements Listener {
                     event.setCancelled(true);
                 }
 
-                Player recipient = Bukkit.getPlayerExact(args[1]);
+                Player recipient = Bukkit.getPlayer(args[1]);
                 if (recipient != null && !HideAPI.canSee(player,recipient)) {
                     event.setCancelled(true);
                     player.sendMessage(ChatColor.RED + "No player was found");

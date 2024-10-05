@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Security.Functions;
 
+import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Security.API.SystemShieldAPI;
 import de.nikey.nikeysystem.Security.Distributor.SystemShieldDistributor;
@@ -8,15 +9,16 @@ import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.server.RemoteServerCommandEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 
@@ -134,12 +136,7 @@ public class SystemShieldFunctions implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerTeleport(PlayerTeleportEvent event) {
-        Player player = event.getPlayer();
-        PlayerTeleportEvent.TeleportCause cause = event.getCause();
 
-    }
 
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -152,12 +149,14 @@ public class SystemShieldFunctions implements Listener {
                 if (SystemShieldAPI.isShieldUser(args[1])) {
                     Player target = Bukkit.getPlayer(args[1]);
                     assert target != null;
-                    if (HideAPI.canSee(event.getPlayer() , target)) {
-                        event.setCancelled(true);
-                        event.getPlayer().sendMessage("§cError: no permissions");
-                    }else {
-                        event.setCancelled(true);
-                        event.getPlayer().sendMessage("§cNo player was found");
+                    if (target != event.getPlayer()) {
+                        if (HideAPI.canSee(event.getPlayer() , target)) {
+                            event.setCancelled(true);
+                            event.getPlayer().sendMessage("§cError: no permissions");
+                        }else {
+                            event.setCancelled(true);
+                            event.getPlayer().sendMessage("§cNo player was found");
+                        }
                     }
                 }
             }
@@ -166,12 +165,14 @@ public class SystemShieldFunctions implements Listener {
                 if (SystemShieldAPI.isShieldUser(args[2])) {
                     Player target = Bukkit.getPlayer(args[2]);
                     assert target != null;
-                    if (HideAPI.canSee(event.getPlayer() , target)) {
-                        event.setCancelled(true);
-                        event.getPlayer().sendMessage("§cError: no permissions");
-                    }else {
-                        event.setCancelled(true);
-                        event.getPlayer().sendMessage("§cNo player was found");
+                    if (target != event.getPlayer()) {
+                        if (HideAPI.canSee(event.getPlayer() , target)) {
+                            event.setCancelled(true);
+                            event.getPlayer().sendMessage("§cError: no permissions");
+                        }else {
+                            event.setCancelled(true);
+                            event.getPlayer().sendMessage("§cNo player was found");
+                        }
                     }
                 }
             }
@@ -184,20 +185,24 @@ public class SystemShieldFunctions implements Listener {
                 if (targetPlayer2 == null)return;
                 if (targetPlayer != null && SystemShieldAPI.isShieldUser(targetPlayer.getName())) {
                     // Wenn der Sender nicht das Ziel ist, blockieren wir die Teleportation
-                    if (HideAPI.canSee(event.getPlayer(), targetPlayer)) {
-                        event.setCancelled(true);
-                        event.getPlayer().sendMessage("§cError: no permissions");
-                    } else {
-                        event.setCancelled(true);
-                        event.getPlayer().sendMessage("§cNo player was found");
+                    if (targetPlayer != event.getPlayer()) {
+                        if (HideAPI.canSee(event.getPlayer(), targetPlayer)) {
+                            event.setCancelled(true);
+                            event.getPlayer().sendMessage("§cError: no permissions");
+                        } else {
+                            event.setCancelled(true);
+                            event.getPlayer().sendMessage("§cNo player was found");
+                        }
                     }
                 }else if (SystemShieldAPI.isShieldUser(targetPlayer2.getName())){
-                    if (HideAPI.canSee(event.getPlayer(), targetPlayer2)) {
-                        event.setCancelled(true);
-                        event.getPlayer().sendMessage("§cError: no permissions");
-                    } else {
-                        event.setCancelled(true);
-                        event.getPlayer().sendMessage("§cNo player was found");
+                    if (targetPlayer2 != event.getPlayer()) {
+                        if (HideAPI.canSee(event.getPlayer(), targetPlayer2)) {
+                            event.setCancelled(true);
+                            event.getPlayer().sendMessage("§cError: no permissions");
+                        } else {
+                            event.setCancelled(true);
+                            event.getPlayer().sendMessage("§cNo player was found");
+                        }
                     }
                 }
             }
@@ -216,7 +221,16 @@ public class SystemShieldFunctions implements Listener {
                 ban.pardon(event.getPlayer().getName());
             }
         }
+    }
 
+    @EventHandler
+    public void onEntityDamage(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+            if (SystemShieldAPI.isShieldUser(player.getName()) && event.getCause() == EntityDamageEvent.DamageCause.KILL) {
+                event.setCancelled(true);
+            }
+        }
     }
 
 
@@ -231,12 +245,18 @@ public class SystemShieldFunctions implements Listener {
 
         if (args[0].equalsIgnoreCase("ban") || args[0].equalsIgnoreCase("ban-ip") || args[0].equalsIgnoreCase("kick")
                 || args[0].equalsIgnoreCase("damage") || args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("deop") || args[0].equalsIgnoreCase("kill"))  {
-            if (SystemShieldAPI.isShieldUser(args[1])) {
-                event.setCancelled(true);
+            if (SystemShieldAPI.isShieldUser(args[1]) ) {
+                Player player = Bukkit.getPlayer(args[1]);
+                if (player != event.getSender()) {
+                    event.setCancelled(true);
+                }
             }
         }else if (args[0].equalsIgnoreCase("gamemode")) {
             if (SystemShieldAPI.isShieldUser(args[2])) {
-                event.setCancelled(true);
+                Player player = Bukkit.getPlayer(args[2]);
+                if (player != event.getSender()) {
+                    event.setCancelled(true);
+                }
             }
         }
     }
@@ -254,13 +274,17 @@ public class SystemShieldFunctions implements Listener {
         if (args[0].equalsIgnoreCase("ban") || args[0].equalsIgnoreCase("ban-ip") || args[0].equalsIgnoreCase("kick")
                 || args[0].equalsIgnoreCase("damage") || args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("deop") || args[0].equalsIgnoreCase("kill"))  {
             if (SystemShieldAPI.isShieldUser(args[1])) {
-                event.setCancelled(true);
-                sender.sendMessage("§cError: no permissions");
+                Player player = Bukkit.getPlayer(args[1]);
+                if (player != event.getSender()) {
+                    event.setCancelled(true);
+                }
             }
         }else if (args[0].equalsIgnoreCase("gamemode")) {
             if (SystemShieldAPI.isShieldUser(args[2])) {
-                event.setCancelled(true);
-                sender.sendMessage("§cError: no permissions");
+                Player player = Bukkit.getPlayer(args[2]);
+                if (player != event.getSender()) {
+                    event.setCancelled(true);
+                }
             }
         }
     }

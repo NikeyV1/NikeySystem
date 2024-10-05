@@ -129,7 +129,7 @@ public class InventoryDistributor {
             return;
         }
         if (player.getInventory().firstEmpty() == -1){
-            sender.sendMessage("§Error: player has full inventory");
+            sender.sendMessage("§cError: player has full inventory");
         }else {
             player.getInventory().addItem(new ItemStack(material, amount));
             sender.sendMessage("§aItem added: " + material.name());

@@ -31,7 +31,7 @@ public class StatsDistributor {
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set invulnerability §aon"+ChatColor.of("#f08d1d") +" for "+ target.getName());
             }
         }else if (args[3].equalsIgnoreCase("Fly")) {
-            if (target.isFlying()) {
+            if (target.getAllowFlight()) {
                 target.setAllowFlight(false);
                 target.setFlying(false);
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set flying §coff"+ChatColor.of("#f08d1d") +" for "+ target.getName());

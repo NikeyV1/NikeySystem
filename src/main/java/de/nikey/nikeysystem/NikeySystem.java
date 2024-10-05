@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem;
 
+import de.nikey.nikeysystem.General.SystemCommandTabCompleter;
 import de.nikey.nikeysystem.Player.Distributor.PermissionDistributor;
 import de.nikey.nikeysystem.Player.Distributor.HideDistributor;
 import de.nikey.nikeysystem.Player.Functions.HideFunctions;
@@ -15,8 +16,6 @@ import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.io.File;
 
 public final class NikeySystem extends JavaPlugin {
 
@@ -41,6 +40,9 @@ public final class NikeySystem extends JavaPlugin {
         manager.registerEvents(new SystemShieldFunctions(), this);
         manager.registerEvents(new SettingsFunctions(), this);
         manager.registerEvents(new InventoryFunctions(), this);
+        
+
+        getCommand("system").setTabCompleter(new SystemCommandTabCompleter());
 
         for (World world : Bukkit.getWorlds()) {
             world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, true);
