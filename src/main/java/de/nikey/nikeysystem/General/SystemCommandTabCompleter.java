@@ -136,7 +136,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         // Handle the fifth argument (Ask) for enable/disable commands
-        if (args.length == 5 && args[1].equalsIgnoreCase("System-Shield") &&
+        if (PermissionAPI.isOwner(sender.getName()) &&args.length == 5 && args[1].equalsIgnoreCase("System-Shield") &&
                 (args[2].equalsIgnoreCase("enable") || args[2].equalsIgnoreCase("disable"))) {
             return Arrays.asList("Ask");
         }

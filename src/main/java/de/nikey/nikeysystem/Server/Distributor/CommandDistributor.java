@@ -76,6 +76,7 @@ public class CommandDistributor {
         defaultCmd.add("about");
         defaultCmd.add("execute");
         defaultCmd.add("minecraft:");
+        defaultCmd.add("minecraft:execute");
         defaultCmd.add("bukkit");
         defaultCmd.add("?");
         for (String cmd : defaultCmd) {

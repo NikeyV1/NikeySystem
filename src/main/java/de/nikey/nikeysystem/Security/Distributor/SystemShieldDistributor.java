@@ -75,7 +75,7 @@ public class SystemShieldDistributor {
 
                     // Anfrage speichern
                     shieldRequest.put(player.getName(), sender.getName());
-                    player.sendMessage(ChatColor.of("#eff542")+ sender.getName()+ " send you a System Shield §aactivate§r "+ChatColor.of("#eff542")+" request");
+                    player.sendMessage(ChatColor.of("#eff542")+ sender.getName()+ " send you a System Shield §aactivate§r"+ChatColor.of("#eff542")+" request");
                     player.spigot().sendMessage(acceptMessage);
                     sender.sendMessage(ChatColor.of("#eff542")+ "System Shield §aactivate"+ChatColor.of("#eff542")+" request send!");
                 }
