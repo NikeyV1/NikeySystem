@@ -158,23 +158,23 @@ public class SystemShieldFunctions implements Listener {
                         if (HideAPI.canSee(event.getPlayer() , target)) {
                             event.setCancelled(true);
                             event.getPlayer().sendMessage("§cError: no permissions");
-                            TextComponent textComponent = Component.text(event.getPlayer().getName())
-                                    .color(NamedTextColor.DARK_GRAY)
-                                    .append(Component.text("tried to use: ", NamedTextColor.GRAY))
+                            Component textComponent = Component.text(event.getPlayer().getName())
+                                    .color(NamedTextColor.WHITE)
+                                    .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
                                     .append(Component.text(event.getMessage(), NamedTextColor.RED))
                                     .append(Component.text(" on you", NamedTextColor.GRAY));
 
-                            target.sendTitlePart(TitlePart.SUBTITLE,textComponent);
+                            target.sendActionBar(textComponent);
                         }else {
                             event.setCancelled(true);
                             event.getPlayer().sendMessage("§cNo player was found");
-                            TextComponent textComponent = Component.text(event.getPlayer().getName())
-                                    .color(NamedTextColor.DARK_GRAY)
-                                    .append(Component.text("tried to use: ", NamedTextColor.GRAY))
+                            Component textComponent = Component.text(event.getPlayer().getName())
+                                    .color(NamedTextColor.WHITE)
+                                    .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
                                     .append(Component.text(event.getMessage(), NamedTextColor.RED))
                                     .append(Component.text(" on you", NamedTextColor.GRAY));
 
-                            target.sendTitlePart(TitlePart.SUBTITLE,textComponent);
+                            target.sendActionBar(textComponent);
                         }
                     }
                 }
@@ -189,8 +189,8 @@ public class SystemShieldFunctions implements Listener {
                             event.setCancelled(true);
                             event.getPlayer().sendMessage("§cError: no permissions");
                             TextComponent textComponent = Component.text(event.getPlayer().getName())
-                                    .color(NamedTextColor.DARK_GRAY)
-                                    .append(Component.text("tried to use: ", NamedTextColor.GRAY))
+                                    .color(NamedTextColor.WHITE)
+                                    .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
                                     .append(Component.text(event.getMessage(), NamedTextColor.RED))
                                     .append(Component.text(" on you", NamedTextColor.GRAY));
 
@@ -198,13 +198,13 @@ public class SystemShieldFunctions implements Listener {
                         }else {
                             event.setCancelled(true);
                             event.getPlayer().sendMessage("§cNo player was found");
-                            TextComponent textComponent = Component.text(event.getPlayer().getName())
-                                    .color(NamedTextColor.DARK_GRAY)
-                                    .append(Component.text("tried to use: ", NamedTextColor.GRAY))
+                            Component textComponent = Component.text(event.getPlayer().getName())
+                                    .color(NamedTextColor.WHITE)
+                                    .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
                                     .append(Component.text(event.getMessage(), NamedTextColor.RED))
                                     .append(Component.text(" on you", NamedTextColor.GRAY));
 
-                            target.sendTitlePart(TitlePart.SUBTITLE,textComponent);
+                            target.sendActionBar(textComponent);
                         }
                     }
                 }
@@ -222,23 +222,23 @@ public class SystemShieldFunctions implements Listener {
                         if (HideAPI.canSee(event.getPlayer(), targetPlayer)) {
                             event.setCancelled(true);
                             event.getPlayer().sendMessage("§cError: no permissions");
-                            TextComponent textComponent = Component.text(event.getPlayer().getName())
-                                    .color(NamedTextColor.DARK_GRAY)
-                                    .append(Component.text("tried to use: ", NamedTextColor.GRAY))
+                            Component textComponent = Component.text(event.getPlayer().getName())
+                                    .color(NamedTextColor.WHITE)
+                                    .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
                                     .append(Component.text(event.getMessage(), NamedTextColor.RED))
                                     .append(Component.text(" on you", NamedTextColor.GRAY));
 
-                            targetPlayer.sendTitlePart(TitlePart.SUBTITLE,textComponent);
+                            targetPlayer2.sendActionBar(textComponent);
                         } else {
                             event.setCancelled(true);
                             event.getPlayer().sendMessage("§cNo player was found");
-                            TextComponent textComponent = Component.text(event.getPlayer().getName())
-                                    .color(NamedTextColor.DARK_GRAY)
+                            Component textComponent = Component.text(event.getPlayer().getName())
+                                    .color(NamedTextColor.WHITE)
                                     .append(Component.text("tried to use: ", NamedTextColor.GRAY))
                                     .append(Component.text(event.getMessage(), NamedTextColor.RED))
                                     .append(Component.text(" on you", NamedTextColor.GRAY));
 
-                            targetPlayer.sendTitlePart(TitlePart.SUBTITLE,textComponent);
+                            targetPlayer2.sendActionBar(textComponent);
                         }
                     }
                 }else if (SystemShieldAPI.isShieldUser(targetPlayer2.getName())){
@@ -246,23 +246,24 @@ public class SystemShieldFunctions implements Listener {
                         if (HideAPI.canSee(event.getPlayer(), targetPlayer2)) {
                             event.setCancelled(true);
                             event.getPlayer().sendMessage("§cError: no permissions");
-                            TextComponent textComponent = Component.text(event.getPlayer().getName())
-                                    .color(NamedTextColor.DARK_GRAY)
-                                    .append(Component.text("tried to use: ", NamedTextColor.GRAY))
+                            Component textComponent = Component.text(event.getPlayer().getName())
+                                    .color(NamedTextColor.WHITE)
+                                    .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
                                     .append(Component.text(event.getMessage(), NamedTextColor.RED))
                                     .append(Component.text(" on you", NamedTextColor.GRAY));
 
-                            targetPlayer2.sendTitlePart(TitlePart.SUBTITLE,textComponent);
+                            // Actionbar an den Spieler senden
+                            targetPlayer2.sendActionBar(textComponent);
                         } else {
                             event.setCancelled(true);
                             event.getPlayer().sendMessage("§cNo player was found");
-                            TextComponent textComponent = Component.text(event.getPlayer().getName())
-                                    .color(NamedTextColor.DARK_GRAY)
-                                    .append(Component.text("tried to use: ", NamedTextColor.GRAY))
+                            Component textComponent = Component.text(event.getPlayer().getName())
+                                    .color(NamedTextColor.WHITE)
+                                    .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
                                     .append(Component.text(event.getMessage(), NamedTextColor.RED))
                                     .append(Component.text(" on you", NamedTextColor.GRAY));
 
-                            targetPlayer2.sendTitlePart(TitlePart.SUBTITLE,textComponent);
+                            targetPlayer2.sendActionBar(textComponent);
                         }
                     }
                 }
@@ -326,7 +327,6 @@ public class SystemShieldFunctions implements Listener {
     public void onRemoteServerCommand(RemoteServerCommandEvent event) {
         final String[] args = event.getCommand().split(" ");
 
-        CommandSender sender = event.getSender();
         if (args[0].startsWith("/")) {
             args[0] = args[0].substring(1);
         }
