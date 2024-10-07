@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
+import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.InventoryAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -22,14 +23,14 @@ public class InventoryDistributor {
         if (cmd.equalsIgnoreCase("add")) {
             if (args.length == 6) {
                 Player player = Bukkit.getPlayer(args[4]);
-                if (player == null){
+                if (player == null || !HideAPI.canSee(sender,player)){
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
                 addItem(sender,player, args[5], 1);
             }else if (args.length == 7) {
                 Player player = Bukkit.getPlayer(args[4]);
-                if (player == null){
+                if (player == null|| !HideAPI.canSee(sender,player)){
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
@@ -46,14 +47,14 @@ public class InventoryDistributor {
         }else if (cmd.equalsIgnoreCase("remove")) {
             if (args.length == 6) {
                 Player player = Bukkit.getPlayer(args[4]);
-                if (player == null){
+                if (player == null|| !HideAPI.canSee(sender,player)){
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
                 removeItem(player,sender, args[5], 1000);
             }else if (args.length == 7) {
                 Player player = Bukkit.getPlayer(args[4]);
-                if (player == null){
+                if (player == null|| !HideAPI.canSee(sender,player)){
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
@@ -74,10 +75,15 @@ public class InventoryDistributor {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
+
+                if (!HideAPI.canSee(sender,target) || !HideAPI.canSee(sender,player)) {
+                    sender.sendMessage("§cError: wrong usage");
+                    return;
+                }
                 openInventory(player,target);
             }else if (args.length == 5) {
                 Player player = Bukkit.getPlayer(args[4]);
-                if (player == null ){
+                if (player == null ||!HideAPI.canSee(sender,player)){
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
@@ -91,10 +97,15 @@ public class InventoryDistributor {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
+
+                if (!HideAPI.canSee(sender,target) || !HideAPI.canSee(sender,player)) {
+                    sender.sendMessage("§cError: wrong usage");
+                    return;
+                }
                 openEc(player,target);
             }else if (args.length == 5) {
                 Player player = Bukkit.getPlayer(args[4]);
-                if (player == null ){
+                if (player == null||!HideAPI.canSee(sender,player) ){
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
@@ -108,10 +119,18 @@ public class InventoryDistributor {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
+                if (!HideAPI.canSee(sender,target) || !HideAPI.canSee(sender,player)) {
+                    sender.sendMessage("§cError: wrong usage");
+                    return;
+                }
                 openEq(player,target);
             }else if (args.length == 5) {
                 Player player = Bukkit.getPlayer(args[4]);
                 if (player == null ){
+                    sender.sendMessage("§cError: wrong usage");
+                    return;
+                }
+                if (!HideAPI.canSee(sender,player)) {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }

@@ -18,7 +18,7 @@ public class StatsDistributor {
 
 
         Player target = Bukkit.getPlayer(args[4]);
-        if (target == null) {
+        if (target == null || !HideAPI.canSee(player,target)) {
             player.sendMessage("§cError: target not found!");
             return;
         }

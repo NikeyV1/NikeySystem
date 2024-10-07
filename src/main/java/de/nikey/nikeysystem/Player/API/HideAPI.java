@@ -53,4 +53,14 @@ public class HideAPI {
             return true;
         }
     }
+
+    public static boolean canSee(String player , String hidden) {
+        if (HideAPI.getHiddenPlayerNames().contains(hidden) ) {
+            return PermissionAPI.isOwner(player) || PermissionAPI.isAdmin(player) && !player.equals(hidden);
+        }else if (HideAPI.getTrueHiddenNames().contains(hidden)) {
+            return PermissionAPI.isOwner(player) && !player.equals(hidden);
+        }else {
+            return true;
+        }
+    }
 }

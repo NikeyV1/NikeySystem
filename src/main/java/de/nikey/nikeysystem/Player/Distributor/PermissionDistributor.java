@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
+import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.NikeySystem;
 import org.bukkit.Bukkit;
@@ -80,7 +81,7 @@ public class PermissionDistributor {
                 sender.sendMessage("§8"+target+" has normal member permissions");
             }
             Player player = Bukkit.getPlayer(target);
-            if (player == null) {
+            if (player == null || !HideAPI.canSee(sender,player)) {
                 sender.sendMessage("§cError: player is null");
                 return;
             }

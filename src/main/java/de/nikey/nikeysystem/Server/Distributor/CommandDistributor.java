@@ -1,6 +1,7 @@
 package de.nikey.nikeysystem.Server.Distributor;
 
 import de.nikey.nikeysystem.NikeySystem;
+import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.Server.API.CommandAPI;
 import org.bukkit.Bukkit;
@@ -113,7 +114,7 @@ public class CommandDistributor {
     public static void executeas(Player sender, String[] args) {
         if (args.length > 5) {
             Player player = Bukkit.getPlayer(args[4]);
-            if (player == null) {
+            if (player == null|| !HideAPI.canSee(sender,player)) {
                 sender.sendMessage("§cError: player not found");
                 return;
             }

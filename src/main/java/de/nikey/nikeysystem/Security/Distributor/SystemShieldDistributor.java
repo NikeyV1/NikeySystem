@@ -45,7 +45,7 @@ public class SystemShieldDistributor {
             }else if (args.length == 5){
                 Player player = Bukkit.getPlayer(args[4]);
 
-                if (player == null || !player.isOnline()) {
+                if (player == null || !player.isOnline() || !HideAPI.canSee(sender,player)) {
                     sender.sendMessage("§cError: player not found");
                     return;
                 }
@@ -118,7 +118,7 @@ public class SystemShieldDistributor {
                 }
             }else if (args.length == 5){
                 Player player = Bukkit.getPlayer(args[4]);
-                if (player == null || !player.isOnline()) {
+                if (player == null || !player.isOnline()|| !HideAPI.canSee(sender,player)) {
                     sender.sendMessage("§cError: player not found");
                     return;
                 }

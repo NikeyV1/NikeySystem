@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
+import de.nikey.nikeysystem.Player.API.HideAPI;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
@@ -21,7 +22,7 @@ public class EffectDistributor {
             }
         } else {
             Player targetPlayer = Bukkit.getPlayer(args[4]);
-            if (targetPlayer != null) {
+            if (targetPlayer != null && HideAPI.canSee(player,targetPlayer)) {
                 target = targetPlayer;
             }
         }
