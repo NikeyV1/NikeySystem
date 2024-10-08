@@ -5,23 +5,22 @@ import de.nikey.nikeysystem.General.GeneralAPI;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.NikeySystem;
+import de.nikey.nikeysystem.Player.API.PlayerSettingsAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameRule;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 import static org.bukkit.GameRule.SEND_COMMAND_FEEDBACK;
 
@@ -120,10 +119,11 @@ public class HideFunctions implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
         String command = event.getMessage().toLowerCase();
         Player sender = (Player) event.getPlayer();
+        final String[] args = command.split(" ");
 
         // Detect if it's a command to teleport or give items to a hidden player
         for (String hiddenPlayer : HideAPI.getHiddenPlayerNames()) {
@@ -136,10 +136,184 @@ public class HideFunctions implements Listener {
         for (String hiddenPlayer : HideAPI.getHiddenPlayerNames()) {
             if (command.contains(hiddenPlayer)) {
                 // Täusche eine Vanilla-Meldung vor
-                if (command.startsWith("/tp") || command.startsWith("/teleport")) {
-                    sender.sendMessage("§cNo player was found");
+                if (command.startsWith("/tp") || command.startsWith("/teleport") || command.startsWith("/spectate")) {
+                    if (args[1].equalsIgnoreCase(hiddenPlayer) ||args[2].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                    }
                 } else if (command.startsWith("/give")) {
-                    sender.sendMessage("§cNo player was found");
+                    if (args[1].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                    }
+                }else if (command.startsWith("/effect")) {
+                    if (args[1].equalsIgnoreCase("give") || args[1].equalsIgnoreCase("clear")) {
+                        if (args[2].equalsIgnoreCase(hiddenPlayer)) {
+                            sender.sendMessage("§cNo player was found");
+                        }
+                    }
+                } else if ((command.startsWith("/ban") || command.startsWith("/pardon")) && args.length >= 1) {
+                    if (args[1].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+
+                // Kick-Befehl (prüfe, ob der Spieler als Ziel genannt wird)
+                else if (command.startsWith("/kick") && args.length >= 1) {
+                    if (args[1].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+
+                // OP- und Deop-Befehl (prüfe, ob der Spieler als Ziel genannt wird)
+                else if ((command.startsWith("/op") || command.startsWith("/deop")) && args.length == 1) {
+                    if (args[1].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+
+                // Nachricht- und Tell-Befehl (prüfe, ob der Spieler als Ziel genannt wird)
+                else if ((command.startsWith("/msg") || command.startsWith("/tell")) && args.length >= 1) {
+                    if (args[1].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+
+                // Whitelist-Befehl (prüfe, ob der Spieler als Ziel genannt wird)
+                else if (command.startsWith("/whitelist")) {
+                    if (args.length >= 2 && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("remove"))) {
+                        if (args[2].equalsIgnoreCase(hiddenPlayer)) {
+                            sender.sendMessage("§cNo player was found");
+                            event.setCancelled(true);
+                        }
+                    }
+                }else if (command.startsWith("/advancement")) {
+                    if (args.length >= 2 && (args[1].equalsIgnoreCase("grant") || args[1].equalsIgnoreCase("revoke"))) {
+                        if (args[2].equalsIgnoreCase(hiddenPlayer)) {
+                            sender.sendMessage("§cNo player was found");
+                            event.setCancelled(true);
+                        }
+                    }
+                }else if (command.equalsIgnoreCase("/xp") || command.equalsIgnoreCase("/experience")) {
+                    if (args.length >= 2 && (args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("set")|| args[1].equalsIgnoreCase("query"))) {
+                        if (args[2].equalsIgnoreCase(hiddenPlayer)) {
+                            sender.sendMessage("§cNo player was found");
+                            event.setCancelled(true);
+                        }
+                    }
+                }
+
+                // Team-Befehl (prüfe, ob der Spieler als Ziel genannt wird)
+                else if (command.startsWith("/team")) {
+                    if (args.length > 2 && args[1].equalsIgnoreCase("leave")) {
+                        if (args[2].equalsIgnoreCase(hiddenPlayer)) {
+                            sender.sendMessage("§cNo player was found");
+                            event.setCancelled(true);
+                        }
+                    } else if (args.length >= 3 && args[1].equalsIgnoreCase("join")) {
+                        if (args[3].equalsIgnoreCase(hiddenPlayer)) {
+                            sender.sendMessage("§cNo player was found");
+                            event.setCancelled(true);
+                        }
+                    }
+                }
+
+                // Scoreboard-Befehl (prüfe, ob der Spieler als Ziel genannt wird)
+                else if (command.startsWith("/scoreboard") && args.length > 2) {
+                    if (args[2].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
+                }
+
+                // Clear-Befehl (prüfe, ob der Spieler als Ziel genannt wird)
+                else if (command.startsWith("/clear") && args.length >= 1) {
+                    if (args[1].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
+                }else if (command.startsWith("/gamemode") && args.length >= 2) { // Spieler ist das 3. Argument
+                    if (args[2].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                    }
+                }else if (command.startsWith("/transfer") && args.length == 3) { // Spieler ist das 2. Argument
+                    if (args[3].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                    }
+                }else if (command.startsWith("/spawnpoint") && args.length >= 1) {
+                    if (args[1].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
+                }else if (command.startsWith("/recipe") && args.length >= 2) {
+                    if (args[2].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
+                }else if (command.startsWith("/playsound") && args.length >= 3) {
+                    if (args[3].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
+                }else if (command.startsWith("/enchant") && args.length > 1) {
+                    if (args[1].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
+                }else if (command.startsWith("/title") && args.length > 1) {
+                    if (args[1].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
+                }else if (command.startsWith("/tellraw") && args.length > 1) {
+                    if (args[1].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
+                }else if (command.startsWith("/tag") && args.length > 1) {
+                    if (args[1].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
+                }else if (command.startsWith("/stopsound") && args.length > 1) {
+                    if (args[1].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
+                }else if (command.startsWith("/ride")) {
+                    if (args[1].equalsIgnoreCase(hiddenPlayer) || args[3].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                    }
+                }else if (command.startsWith("/loot") && args.length > 1) {
+                    if (args[1].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
+                }else if (command.startsWith("/kill") && args.length > 1) {
+                    if (args[1].equalsIgnoreCase(hiddenPlayer)) {
+                        sender.sendMessage("§cNo player was found");
+                        event.setCancelled(true);
+                        return;
+                    }
                 } else {
                     sender.sendMessage("§cNo player was found");
                 }
@@ -167,7 +341,7 @@ public class HideFunctions implements Listener {
             event.setCancelled(true);
             sender.sendMessage("<" + sender.getName() + "> "+message);
             for (Player player : Bukkit.getOnlinePlayers()) {
-                if (PermissionAPI.isOwner(player.getName()) || PermissionAPI.isAdmin(player.getName()) && player != sender) {
+                if (HideAPI.canSee(player,sender)) {
                     player.sendMessage("<" + sender.getName() + "> "+message);
                 }
             }
@@ -198,13 +372,12 @@ public class HideFunctions implements Listener {
         }
 
         final String[] args = event.getMessage().split(" ");
+        if (event.getMessage().contains("@")) {
+            player.sendMessage(ChatColor.RED + "Error: @ disabled");
+            event.setCancelled(true);
+        }
         if (args[0].toLowerCase().equalsIgnoreCase("/msg") || args[0].toLowerCase().equalsIgnoreCase("/tell") || args[0].toLowerCase().equalsIgnoreCase("/w")) {
             if (args.length >= 2) {
-
-                if (args[1].startsWith("@")) {
-                    player.sendMessage(ChatColor.RED + "Error: feature disabled");
-                    event.setCancelled(true);
-                }
 
                 Player recipient = Bukkit.getPlayer(args[1]);
                 if (recipient != null && !HideAPI.canSee(player,recipient)) {
@@ -239,14 +412,14 @@ public class HideFunctions implements Listener {
         if (HideAPI.getHiddenPlayerNames().contains(player.getName()) ) {
             event.setDeathMessage("");
             for (Player players : Bukkit.getOnlinePlayers()) {
-                if (PermissionAPI.isOwner(players.getName()) || PermissionAPI.isAdmin(players.getName())) {
+                if (HideAPI.canSee(players,player)) {
                     players.sendMessage(deathMessage);
                 }
             }
         }else if (HideAPI.getTrueHiddenNames().contains(player.getName())) {
             event.setDeathMessage("");
             for (Player players : Bukkit.getOnlinePlayers()) {
-                if (PermissionAPI.isOwner(players.getName())) {
+                if (HideAPI.canSee(players,player)) {
                     players.sendMessage(deathMessage);
                 }
             }
@@ -256,12 +429,37 @@ public class HideFunctions implements Listener {
     @EventHandler
     public void onEntityTargetLivingEntity(EntityTargetLivingEntityEvent event) {
         LivingEntity target = event.getTarget();
-        Entity entity = event.getEntity();
         if (target == null)return;
         if (HideAPI.getTrueHiddenNames().contains(target.getName()) || HideAPI.getHiddenPlayerNames().contains(target.getName())){
-            event.setCancelled(true);
+            if (!PlayerSettingsAPI.hasMobTargeting(target.getName())) {
+                event.setCancelled(true);
+            }
         }
     }
+
+    @EventHandler
+    public void onPlayerAttemptPickupItem(PlayerAttemptPickupItemEvent event) {
+        LivingEntity target = event.getPlayer();
+        if (target == null)return;
+        if (HideAPI.getTrueHiddenNames().contains(target.getName()) || HideAPI.getHiddenPlayerNames().contains(target.getName())){
+            if (!PlayerSettingsAPI.hasItemPickup(target.getName())) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerCropTrample(PlayerInteractEvent event) {
+        Player target = event.getPlayer();
+        if(event.getAction() == Action.PHYSICAL && event.getClickedBlock().getType() == Material.FARMLAND){
+            if (HideAPI.getTrueHiddenNames().contains(target.getName()) || HideAPI.getHiddenPlayerNames().contains(target.getName())){
+                if (!PlayerSettingsAPI.hasCropTrample(target.getName())) {
+                    event.setCancelled(true);
+                }
+            }
+        }
+    }
+
 
     @EventHandler
     public void onPaperServerListPing(PaperServerListPingEvent event) {

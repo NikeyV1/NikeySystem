@@ -3,6 +3,7 @@ package de.nikey.nikeysystem.Player.Distributor;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.NikeySystem;
+import de.nikey.nikeysystem.Player.Functions.PlayerSettings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -109,7 +110,10 @@ public class HideDistributor {
                 saveTrueHideImmunityPlayers();
                 player.sendMessage(ChatColor.GOLD + player.getName() + " has now true hide immunity §2added");
             }
-        }else if (args[3].equalsIgnoreCase("List")) {
+        } else if (args[3].equalsIgnoreCase("Settings")) {
+            PlayerSettings.openSettingsMenu(player);
+        }
+        if (args[3].equalsIgnoreCase("List")) {
             if (PermissionAPI.isOwner(player.getName())) {
                 String playerName = args[4];
                 List<String> messages = new ArrayList<>();

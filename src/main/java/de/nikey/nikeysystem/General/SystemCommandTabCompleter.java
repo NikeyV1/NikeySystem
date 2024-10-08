@@ -37,7 +37,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the second argument: system player or system server
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("player")) {
-                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "help");
+                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect");
             } else if (args[0].equalsIgnoreCase("server")) {
                 return Arrays.asList("command", "settings");
             } else if (args[0].equalsIgnoreCase("security")) {
@@ -47,7 +47,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         // Handle the third argument for system player permissions
         if (args.length == 3 && args[1].equalsIgnoreCase("permissions")) {
-            List<String> subCommands = new ArrayList<>(Arrays.asList("ToggleAdmin", "ToggleModerator", "List", "ListAll", "help"));
+            List<String> subCommands = new ArrayList<>(Arrays.asList("ToggleAdmin", "ToggleModerator", "List", "ListAll"));
             if (!PermissionAPI.isOwner(player.getName())) {
                 // Remove owner-specific commands for non-owners
                 subCommands.remove("ToggleAdmin");
@@ -62,7 +62,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
         // Handle the third argument for system player hide
         if (args.length == 3 && args[1].equalsIgnoreCase("hide")) {
-            List<String> subCommands = new ArrayList<>(Arrays.asList("ToggleHide", "ToggleTrueHide", "ToggleImmunity", "ToggleTrueImmunity", "List", "help"));
+            List<String> subCommands = new ArrayList<>(Arrays.asList("ToggleHide", "ToggleTrueHide", "ToggleImmunity", "ToggleTrueImmunity", "List", "Settings"));
             if (!PermissionAPI.isOwner(player.getName())) {
                 // Remove admin/owner-specific commands for non-owners
                 subCommands.removeAll(Arrays.asList("ToggleTrueHide", "ToggleTrueImmunity"));
@@ -82,7 +82,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("stats")) {
-            return Arrays.asList("Invulnerable", "Fly", "Collidable", "SleepIgnore", "Invisibility", "VisualFire", "Op", "Reset", "List", "help");
+            return Arrays.asList("Invulnerable", "Fly", "Collidable", "SleepIgnore", "Invisibility", "VisualFire", "Op", "Reset", "List");
         }
 
         // Handle the fourth argument (player name) for stats commands that require a target player
@@ -93,7 +93,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         // Handle the third argument for system player inventory
         if (args.length == 3 && args[1].equalsIgnoreCase("inventory")) {
-            return Arrays.asList("add", "remove", "openinv", "openec", "openeq", "help");
+            return Arrays.asList("add", "remove", "openinv", "openec", "openeq");
         }
 
         // Handle the fourth argument (player name) for inventory commands that require a player
@@ -124,7 +124,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         // Handle the third argument: system security System-Shield
         if (args.length == 3 && args[1].equalsIgnoreCase("System-Shield")) {
-            return Arrays.asList("enable", "disable", "list", "help");
+            return Arrays.asList("enable", "disable", "list");
         }
 
         // Handle the fourth argument (player name) for enable, disable, list commands

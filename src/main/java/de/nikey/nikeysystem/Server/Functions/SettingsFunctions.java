@@ -15,18 +15,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.*;
+
 import java.util.function.Consumer;
 
 
 public class SettingsFunctions implements Listener {
 
-    public static Properties properties;
-    public static File propertiesFile;
     private final String inventoryTitle = ChatColor.BLUE + "Server Settings";
 
 
