@@ -45,20 +45,27 @@ public class HideAPI {
     }
 
     public static boolean canSee(Player player , Player hidden) {
+        if (player == hidden) {
+            return true;
+        }
         if (HideAPI.getHiddenPlayerNames().contains(hidden.getName()) ) {
-            return PermissionAPI.isOwner(player.getName()) || PermissionAPI.isAdmin(player.getName()) && player != hidden;
+            return PermissionAPI.isOwner(player.getName()) || PermissionAPI.isAdmin(player.getName());
         }else if (HideAPI.getTrueHiddenNames().contains(hidden.getName())) {
-            return PermissionAPI.isOwner(player.getName()) && player != hidden;
+            return PermissionAPI.isOwner(player.getName());
         }else {
             return true;
         }
     }
 
     public static boolean canSee(String player , String hidden) {
+        if (player.equals(hidden)) {
+            return true;
+        }
+
         if (HideAPI.getHiddenPlayerNames().contains(hidden) ) {
-            return PermissionAPI.isOwner(player) || PermissionAPI.isAdmin(player) && !player.equals(hidden);
+            return PermissionAPI.isOwner(player) || PermissionAPI.isAdmin(player);
         }else if (HideAPI.getTrueHiddenNames().contains(hidden)) {
-            return PermissionAPI.isOwner(player) && !player.equals(hidden);
+            return PermissionAPI.isOwner(player) ;
         }else {
             return true;
         }

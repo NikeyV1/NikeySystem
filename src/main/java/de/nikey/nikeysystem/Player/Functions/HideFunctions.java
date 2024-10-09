@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Player.Functions;
 
+import com.destroystokyo.paper.event.server.AsyncTabCompleteEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import de.nikey.nikeysystem.General.GeneralAPI;
 import de.nikey.nikeysystem.Player.API.HideAPI;
@@ -21,6 +22,11 @@ import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.bukkit.GameRule.SEND_COMMAND_FEEDBACK;
 
@@ -456,6 +462,42 @@ public class HideFunctions implements Listener {
                 if (!PlayerSettingsAPI.hasCropTrample(target.getName())) {
                     event.setCancelled(true);
                 }
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onAsyncTabComplete(AsyncTabCompleteEvent event) {
+        if (!(event.getSender() instanceof Player)) return;
+        Player p = (Player) event.getSender();
+        Set<String> hiddenNames = HideAPI.getHiddenPlayerNames().stream()
+                .map(Bukkit::getPlayer).filter(Objects::nonNull)
+                .filter(hidden -> !HideAPI.canSee(p, hidden))
+                .map(Player::getName)
+                .map(name -> name.toLowerCase())
+                .collect(Collectors.toSet());
+        Iterator<String> it = event.getCompletions().iterator();
+        while (it.hasNext()) {
+            String completion = it.next();
+            boolean allowedCompletion = !hiddenNames.contains(completion.toLowerCase());
+            if (!allowedCompletion) {
+                it.remove();
+            }
+        }
+
+        //True
+        Set<String> trueHide = HideAPI.getTrueHiddenNames().stream()
+                .map(Bukkit::getPlayer).filter(Objects::nonNull)
+                .filter(hidden -> !HideAPI.canSee(p, hidden))
+                .map(Player::getName)
+                .map(name -> name.toLowerCase())
+                .collect(Collectors.toSet());
+        Iterator<String> iterator = event.getCompletions().iterator();
+        while (iterator.hasNext()) {
+            String completion = iterator.next();
+            boolean allowedCompletion = !trueHide.contains(completion.toLowerCase());
+            if (!allowedCompletion) {
+                iterator.remove();
             }
         }
     }
