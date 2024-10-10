@@ -199,7 +199,7 @@ public class HideDistributor {
             // Zielspieler für alle anderen Spieler unsichtbar machen
             for (Player players : Bukkit.getOnlinePlayers()) {
                 if (!players.equals(target)) {
-                    if (!PermissionAPI.isAdmin(players.getName()) && !PermissionAPI.isOwner(players.getName()) && !HideAPI.getTrueHideImmunity().contains(players.getName()) && !HideAPI.getHideImmunity().contains(players.getName())) {
+                    if (!HideAPI.canSee(player,target)) {
                         players.hidePlayer(NikeySystem.getPlugin(), target);
                     }
                 }

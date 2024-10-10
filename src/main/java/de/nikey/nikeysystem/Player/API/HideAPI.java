@@ -1,6 +1,5 @@
 package de.nikey.nikeysystem.Player.API;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
@@ -49,23 +48,27 @@ public class HideAPI {
             return true;
         }
         if (HideAPI.getHiddenPlayerNames().contains(hidden.getName()) ) {
-            return PermissionAPI.isOwner(player.getName()) || PermissionAPI.isAdmin(player.getName());
+            if (PermissionAPI.isOwner(player.getName())) {
+                return true;
+            } else return getHideImmunity().contains(player.getName()) || getTrueHideImmunity().contains(player.getName());
         }else if (HideAPI.getTrueHiddenNames().contains(hidden.getName())) {
-            return PermissionAPI.isOwner(player.getName());
+            return PermissionAPI.isOwner(player.getName()) || getTrueHideImmunity().contains(player.getName());
         }else {
             return true;
         }
     }
 
-    public static boolean canSee(String player , String hidden) {
+    public static boolean canSee(String player, String hidden) {
         if (player.equals(hidden)) {
             return true;
         }
 
         if (HideAPI.getHiddenPlayerNames().contains(hidden) ) {
-            return PermissionAPI.isOwner(player) || PermissionAPI.isAdmin(player);
+            if (PermissionAPI.isOwner(player) || PermissionAPI.isAdmin(player)) {
+                return true;
+            } else return getHideImmunity().contains(player) || getTrueHideImmunity().contains(player);
         }else if (HideAPI.getTrueHiddenNames().contains(hidden)) {
-            return PermissionAPI.isOwner(player) ;
+            return PermissionAPI.isOwner(player) || getTrueHideImmunity().contains(player) ;
         }else {
             return true;
         }

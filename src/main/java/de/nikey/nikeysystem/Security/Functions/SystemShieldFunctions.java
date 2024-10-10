@@ -211,7 +211,7 @@ public class SystemShieldFunctions implements Listener {
             }
         }
         if (args[0].equalsIgnoreCase("/tp") || args[0].equalsIgnoreCase("/teleport")) {
-            if (args.length > 1) {
+            if (args.length > 2) {
                 Player targetPlayer = event.getPlayer().getServer().getPlayer(args[1]);
                 Player targetPlayer2 = event.getPlayer().getServer().getPlayer(args[2]);
 
@@ -323,6 +323,8 @@ public class SystemShieldFunctions implements Listener {
         }
     }
 
+
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onRemoteServerCommand(RemoteServerCommandEvent event) {
         final String[] args = event.getCommand().split(" ");
@@ -349,6 +351,4 @@ public class SystemShieldFunctions implements Listener {
             }
         }
     }
-
-
 }
