@@ -142,7 +142,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("command")) {
-            return Arrays.asList("execute", "executeas", "ToggleBlock", "list", "help");
+            return Arrays.asList("execute", "executeas", "ToggleBlock","BlockPlayer", "list", "help");
         }
 
         // Handle the fourth argument (command or player name) for execute, executeas, ToggleBlock
@@ -153,11 +153,21 @@ public class SystemCommandTabCompleter implements TabCompleter {
             } else if (args[2].equalsIgnoreCase("ToggleBlock")) {
                 // Provide a list of blocked or allowed commands (just as a simple example, you can modify it as needed)
                 return Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList());
+            }else if (args[2].equalsIgnoreCase("execute")) {
+                return Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList());
+            }else if (args[2].equalsIgnoreCase("BlockPlayer")) {
+                // Provide a list of blocked or allowed commands (just as a simple example, you can modify it as needed)
+                return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
             }
         }
 
         // Handle the fifth argument (command for executeas) for executeas command
         if (args.length == 5 && args[2].equalsIgnoreCase("executeas")) {
+            // Provide a list of commands for the executeas command
+            return Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList());
+        }
+
+        if (args.length == 5 && args[2].equalsIgnoreCase("BlockPlayer")) {
             // Provide a list of commands for the executeas command
             return Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList());
         }
