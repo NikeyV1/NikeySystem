@@ -1,6 +1,7 @@
 package de.nikey.nikeysystem.Server.API;
 
 import de.nikey.nikeysystem.NikeySystem;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,40 +10,39 @@ import java.util.Set;
 
 public class CommandAPI {
     private static final List<String> disabledCommands = NikeySystem.getPlugin().getConfig().getStringList("security.SystemShieldUsers");
-    private static HashMap<String, Set<String>> blockedCommands;
 
-    public static HashMap<String, Set<String>> getBlockedCommands() {
-        return blockedCommands;
+    public static List<String> getPlayerBlocks(Player player) {
+        return NikeySystem.getPlugin().getConfig().getStringList("blockedCommands." + player.getName());
     }
 
-    public static void addPlayerCommand(String playerName, String cmd) {
-        if (cmd.startsWith("/")) {
-            cmd = cmd.substring(1);
-        }
+    public static void blockCommandForPlayer(Player player, String command) {
+        String playerName = player.getName();
+        List<String> blockedCommands = NikeySystem.getPlugin().getConfig().getStringList("blockedCommands." + playerName);
 
-        blockedCommands.putIfAbsent(playerName, new HashSet<>());
-        blockedCommands.get(playerName).add(cmd);
-    }
-
-    public static void removePlayerCommand(String playerName, String cmd) {
-
-        if (cmd.startsWith("/")) {
-            cmd = cmd.substring(1);
-        }
-
-        if (blockedCommands.containsKey(playerName)) {
-            blockedCommands.get(playerName).remove(cmd);
+        if (!blockedCommands.contains(command)) {
+            blockedCommands.add(command);
+            NikeySystem.getPlugin().getConfig().set("blockedCommands." + playerName, blockedCommands);
+            NikeySystem.getPlugin().saveConfig();
         }
     }
 
-    public static boolean isPlayerBlocked(String cmd, String player) {
+    // API: Spieler-Befehl entsperren
+    public static void unblockCommandForPlayer(Player player, String command) {
+        String playerName = player.getName();
+        List<String> blockedCommands = NikeySystem.getPlugin().getConfig().getStringList("blockedCommands." + playerName);
 
-        if (cmd.startsWith("/")) {
-            cmd = cmd.substring(1);
+        if (blockedCommands.contains(command)) {
+            blockedCommands.remove(command);
+            NikeySystem.getPlugin().getConfig().set("blockedCommands." + playerName, blockedCommands);
+            NikeySystem.getPlugin().saveConfig();
         }
-        if (blockedCommands.containsKey(player)) return false;
+    }
 
-        return blockedCommands.get(player).contains(cmd);
+    // API: Prüfen, ob ein Befehl für einen Spieler blockiert ist
+    public static boolean isCommandBlockedForPlayer(Player player, String command) {
+        String playerName = player.getName();
+        List<String> blockedCommands = NikeySystem.getPlugin().getConfig().getStringList("blockedCommands." + playerName);
+        return blockedCommands.contains(command);
     }
 
     public static void addCommand(String command) {

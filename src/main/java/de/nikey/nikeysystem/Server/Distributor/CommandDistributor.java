@@ -9,10 +9,7 @@ import org.bukkit.command.CommandException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class CommandDistributor {
 
@@ -27,25 +24,6 @@ public class CommandDistributor {
         config.set("command.blocked commands", new ArrayList<>(CommandAPI.getDisabledCommands()));
         NikeySystem.getPlugin().saveConfig();
     }
-
-    public static void loadPlayerBlockedCommands() {
-        if (!NikeySystem.getPlugin().getConfig().contains("blockedCommands")) return;
-
-        for (String playerName : NikeySystem.getPlugin().getConfig().getConfigurationSection("blockedCommands").getKeys(false)) {
-            Set<String> commands = new HashSet<>(NikeySystem.getPlugin().getConfig().getStringList("blockedCommands." + playerName));
-            CommandAPI.getBlockedCommands().put(playerName, commands);
-        }
-    }
-
-    public static void savePlayerBlockedCommands() {
-        for (String playerName : CommandAPI.getBlockedCommands().keySet()) {
-            NikeySystem.getPlugin().getConfig().set("blockedCommands." + playerName, new HashSet<>(CommandAPI.getBlockedCommands().get(playerName)));
-        }
-
-        NikeySystem.getPlugin().saveConfig();
-    }
-
-
 
     public static void commandDistributor(Player player, String[] args) {
         if (args[3].equalsIgnoreCase("execute")) {
@@ -77,18 +55,16 @@ public class CommandDistributor {
         }else if (args[3].equalsIgnoreCase("blockplayer")) {
             if (PermissionAPI.isAdmin(player.getName()) || PermissionAPI.isOwner(player.getName())) {
                 Player target = Bukkit.getPlayer(args[4]);
-                if (target == null){
+                if (target == null|| !HideAPI.canSee(player,target)){
                     player.sendMessage("§cError: player not found");
                     return;
                 }
 
-                if (CommandAPI.isPlayerBlocked(target.getName(),args[5])) {
-                    CommandAPI.removePlayerCommand(target.getName(),args[5]);
-                    savePlayerBlockedCommands();
+                if (CommandAPI.isCommandBlockedForPlayer(target,args[5])) {
+                    CommandAPI.unblockCommandForPlayer(target,args[5]);
                     player.sendMessage("§7Now §aallowing §7command for§8 "+target.getName()+": §n§f" + args[5]);
                 }else {
-                    CommandAPI.addPlayerCommand(target.getName(),args[5]);
-                    savePlayerBlockedCommands();
+                    CommandAPI.blockCommandForPlayer(target,args[5]);
                     player.sendMessage("§7Now §cblocking §7command for§8 "+target.getName()+": §n§f" + args[5]);
                 }
             }

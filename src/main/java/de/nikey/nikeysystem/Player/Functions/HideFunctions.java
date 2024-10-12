@@ -590,7 +590,7 @@ public class HideFunctions implements Listener {
         }
 
         final String[] args = event.getMessage().split(" ");
-        if (event.getMessage().contains("@")) {
+        if (event.getMessage().contains("@a") || event.getMessage().contains("@e")) {
             player.sendMessage(ChatColor.RED + "Error: @ disabled");
             event.setCancelled(true);
             return;

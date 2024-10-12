@@ -33,7 +33,6 @@ public final class NikeySystem extends JavaPlugin {
         PermissionDistributor.loadModerators();
         CommandDistributor.loadBlockedCommands();
         SystemShieldDistributor.loadSystemShield();
-        CommandDistributor.loadPlayerBlockedCommands();
 
         PluginManager manager = Bukkit.getPluginManager();
         manager.registerEvents(new HideFunctions(),this);
@@ -55,7 +54,7 @@ public final class NikeySystem extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        CommandDistributor.savePlayerBlockedCommands();
+
     }
 
     public static NikeySystem getPlugin() {
