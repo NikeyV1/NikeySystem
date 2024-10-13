@@ -1,6 +1,5 @@
 package de.nikey.nikeysystem.Player.Functions;
 
-import com.destroystokyo.paper.event.server.AsyncTabCompleteEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import de.nikey.nikeysystem.General.GeneralAPI;
 import de.nikey.nikeysystem.Player.API.HideAPI;
@@ -23,12 +22,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.event.server.TabCompleteEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.bukkit.GameRule.SEND_COMMAND_FEEDBACK;
 
@@ -56,12 +51,13 @@ public class HideFunctions implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true , priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true , priority = EventPriority.HIGH)
     public void onPlayerHideEntity(PlayerHideEntityEvent event) {
         Entity hidden = event.getEntity();
         Player player = event.getPlayer();
+        if (!(hidden instanceof Player))return;
 
-        if (HideAPI.getTrueHideImmunity().contains(player.getName()) || HideAPI.getHideImmunity().contains(player.getName())) {
+        if (HideAPI.canSee(player, (Player) hidden)) {
             player.showEntity(NikeySystem.getPlugin(),hidden);
         }
     }
@@ -72,7 +68,7 @@ public class HideFunctions implements Listener {
         for (String s: HideAPI.getHiddenPlayerNames()) {
             Player player = Bukkit.getPlayer(s);
             if (player != null && player != joiningPlayer){
-                if (!PermissionAPI.isAdmin(joiningPlayer.getName()) && !PermissionAPI.isOwner(joiningPlayer.getName())) {
+                if (!HideAPI.canSee(joiningPlayer,player)) {
                     joiningPlayer.hidePlayer(NikeySystem.getPlugin(), player);
                     Component textComponent = Component.text("You are hidden from ")
                             .color(NamedTextColor.DARK_GRAY)
@@ -85,7 +81,7 @@ public class HideFunctions implements Listener {
         for (String s: HideAPI.getTrueHiddenNames()) {
             Player player = Bukkit.getPlayer(s);
             if (player != null && player != joiningPlayer){
-                if (!PermissionAPI.isOwner(joiningPlayer.getName())) {
+                if (!HideAPI.canSee(joiningPlayer,player)) {
                     joiningPlayer.hidePlayer(NikeySystem.getPlugin(), player);
                     Component textComponent = Component.text("You are hidden from ")
                             .color(NamedTextColor.DARK_GRAY)
@@ -98,9 +94,9 @@ public class HideFunctions implements Listener {
         if (HideAPI.getHiddenPlayerNames().contains(joiningPlayer.getName())) {
             event.setJoinMessage("");
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                if (!PermissionAPI.isAdmin(onlinePlayer.getName()) && !PermissionAPI.isOwner(onlinePlayer.getName())) {
+                if (!HideAPI.canSee(onlinePlayer,joiningPlayer)) {
                     onlinePlayer.hidePlayer(NikeySystem.getPlugin(),joiningPlayer);
-                }else if (PermissionAPI.isOwner(onlinePlayer.getName()) || PermissionAPI.isAdmin(onlinePlayer.getName())){
+                }else {
                     onlinePlayer.sendMessage("§e" +joiningPlayer.getName() + " joined the game");
                 }
             }
@@ -109,9 +105,9 @@ public class HideFunctions implements Listener {
         if (HideAPI.getTrueHiddenNames().contains(joiningPlayer.getName())) {
             event.setJoinMessage("");
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                if (!PermissionAPI.isOwner(onlinePlayer.getName())) {
+                if (!HideAPI.canSee(onlinePlayer,joiningPlayer)) {
                     onlinePlayer.hidePlayer(NikeySystem.getPlugin(),joiningPlayer);
-                }else if (PermissionAPI.isOwner(onlinePlayer.getName())) {
+                }else {
                     onlinePlayer.sendMessage("§e" +joiningPlayer.getName() + " joined the game");
                 }
             }
@@ -122,26 +118,26 @@ public class HideFunctions implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST )
+    @EventHandler(priority = EventPriority.HIGH )
     public void onPlayerQuit(PlayerQuitEvent event) {
         if (HideAPI.getHiddenPlayerNames().contains(event.getPlayer().getName())) {
             event.setQuitMessage("");
             for (Player player : GeneralAPI.getOnlinePlayers(event.getPlayer())) {
-                if (PermissionAPI.isOwner(player.getName()) || PermissionAPI.isAdmin(player.getName())) {
+                if (HideAPI.canSee(player,event.getPlayer())) {
                     player.sendMessage("§e" +event.getPlayer().getName() + " left the game");
                 }
             }
         } else if (HideAPI.getTrueHiddenNames().contains(event.getPlayer().getName())) {
             event.setQuitMessage("");
             for (Player player : Bukkit.getOnlinePlayers()) {
-                if (PermissionAPI.isOwner(player.getName())) {
+                if (HideAPI.canSee(player,event.getPlayer())) {
                     player.sendMessage("§e" +event.getPlayer().getName() + " left the game");
                 }
             }
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
         String command = event.getMessage().toLowerCase();
         Player sender = (Player) event.getPlayer();
@@ -549,7 +545,7 @@ public class HideFunctions implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST , ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH , ignoreCancelled = true)
     public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
         Player sender = event.getPlayer();
         String senderName = sender.getName();
@@ -665,42 +661,6 @@ public class HideFunctions implements Listener {
                 if (!PlayerSettingsAPI.hasCropTrample(target.getName())) {
                     event.setCancelled(true);
                 }
-            }
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onAsyncTabComplete(AsyncTabCompleteEvent event) {
-        if (!(event.getSender() instanceof Player)) return;
-        Player p = (Player) event.getSender();
-        Set<String> hiddenNames = HideAPI.getHiddenPlayerNames().stream()
-                .map(Bukkit::getPlayer).filter(Objects::nonNull)
-                .filter(hidden -> !HideAPI.canSee(p, hidden))
-                .map(Player::getName)
-                .map(name -> name.toLowerCase())
-                .collect(Collectors.toSet());
-        Iterator<String> it = event.getCompletions().iterator();
-        while (it.hasNext()) {
-            String completion = it.next();
-            boolean allowedCompletion = !hiddenNames.contains(completion);
-            if (!allowedCompletion) {
-                it.remove();
-            }
-        }
-
-        //True
-        Set<String> trueHide = HideAPI.getTrueHiddenNames().stream()
-                .map(Bukkit::getPlayer).filter(Objects::nonNull)
-                .filter(hidden -> !HideAPI.canSee(p, hidden))
-                .map(Player::getName)
-                .map(name -> name.toLowerCase())
-                .collect(Collectors.toSet());
-        Iterator<String> iterator = event.getCompletions().iterator();
-        while (iterator.hasNext()) {
-            String completion = iterator.next();
-            boolean allowedCompletion = !trueHide.contains(completion);
-            if (!allowedCompletion) {
-                iterator.remove();
             }
         }
     }

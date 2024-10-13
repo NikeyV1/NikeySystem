@@ -48,7 +48,7 @@ public class HideAPI {
             return true;
         }
         if (HideAPI.getHiddenPlayerNames().contains(hidden.getName()) ) {
-            if (PermissionAPI.isOwner(player.getName())) {
+            if (PermissionAPI.isOwner(player.getName()) || (PermissionAPI.isAdmin(player.getName()) && PermissionAPI.isModerator(hidden.getName()))) {
                 return true;
             } else return getHideImmunity().contains(player.getName()) || getTrueHideImmunity().contains(player.getName());
         }else if (HideAPI.getTrueHiddenNames().contains(hidden.getName())) {
@@ -64,7 +64,7 @@ public class HideAPI {
         }
 
         if (HideAPI.getHiddenPlayerNames().contains(hidden) ) {
-            if (PermissionAPI.isOwner(player) || PermissionAPI.isAdmin(player)) {
+            if (PermissionAPI.isOwner(player) || (PermissionAPI.isAdmin(player) && PermissionAPI.isModerator(hidden))) {
                 return true;
             } else return getHideImmunity().contains(player) || getTrueHideImmunity().contains(player);
         }else if (HideAPI.getTrueHiddenNames().contains(hidden)) {

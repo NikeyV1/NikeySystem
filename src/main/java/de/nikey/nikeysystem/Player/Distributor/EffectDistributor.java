@@ -20,6 +20,11 @@ public class EffectDistributor {
                 player.sendMessage(ChatColor.RED + "Error: No entity in sight!");
                 return;
             }
+
+            if (target instanceof Player && !HideAPI.canSee(player, (Player) target)) {
+                player.sendMessage(ChatColor.RED + "Error: No entity in sight!");
+                return;
+            }
         } else {
             Player targetPlayer = Bukkit.getPlayer(args[4]);
             if (targetPlayer != null && HideAPI.canSee(player,targetPlayer)) {

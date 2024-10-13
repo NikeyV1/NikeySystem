@@ -12,6 +12,7 @@ import de.nikey.nikeysystem.Security.Functions.SystemShieldFunctions;
 import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
 import de.nikey.nikeysystem.Server.Functions.CommandFunctions;
 import de.nikey.nikeysystem.Server.Functions.SettingsFunctions;
+import de.nikey.nikeysystem.Server.Functions.SettingsInvFunctions;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
@@ -39,9 +40,10 @@ public final class NikeySystem extends JavaPlugin {
         manager.registerEvents(new CommandRegister(),this);
         manager.registerEvents(new CommandFunctions(), this);
         manager.registerEvents(new SystemShieldFunctions(), this);
-        manager.registerEvents(new SettingsFunctions(), this);
+        manager.registerEvents(new SettingsInvFunctions(), this);
         manager.registerEvents(new InventoryFunctions(), this);
         manager.registerEvents(new PlayerSettings(),this);
+        manager.registerEvents(new SettingsFunctions(),this);
         
 
         getCommand("system").setTabCompleter(new SystemCommandTabCompleter());

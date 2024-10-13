@@ -94,21 +94,21 @@ public class HideDistributor {
             if (HideAPI.getHideImmunity().contains(args[4])) {
                 HideAPI.getHideImmunity().remove(args[4]);
                 saveHideImmunityPlayers();
-                player.sendMessage(ChatColor.GOLD + player.getName() + " has now hide immunity §cremoved");
+                player.sendMessage(ChatColor.GOLD + args[4] + " has now hide immunity §cremoved");
             } else {
                 HideAPI.getHideImmunity().add(args[4]);
                 saveHideImmunityPlayers();
-                player.sendMessage(ChatColor.GOLD + player.getName() + " has now hide immunity §2added");
+                player.sendMessage(ChatColor.GOLD + args[4] + " has now hide immunity §2added");
             }
         } else if (args[3].equalsIgnoreCase("ToggleTrueImmunity") && PermissionAPI.isOwner(player.getName())) {
             if (HideAPI.getTrueHideImmunity().contains(args[4])) {
                 HideAPI.getTrueHideImmunity().remove(args[4]);
                 saveTrueHideImmunityPlayers();
-                player.sendMessage(ChatColor.GOLD + player.getName() + " has now true hide immunity §cremoved");
+                player.sendMessage(ChatColor.GOLD + args[4] + " has now true hide immunity §cremoved");
             } else {
                 HideAPI.getTrueHideImmunity().add(args[4]);
                 saveTrueHideImmunityPlayers();
-                player.sendMessage(ChatColor.GOLD + player.getName() + " has now true hide immunity §2added");
+                player.sendMessage(ChatColor.GOLD + args[4] + " has now true hide immunity §2added");
             }
         } else if (args[3].equalsIgnoreCase("Settings")) {
             PlayerSettings.openSettingsMenu(player);
