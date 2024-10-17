@@ -3,7 +3,6 @@ package de.nikey.nikeysystem.Player.Functions;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import de.nikey.nikeysystem.General.GeneralAPI;
 import de.nikey.nikeysystem.Player.API.HideAPI;
-import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.PlayerSettingsAPI;
 import net.kyori.adventure.text.Component;
@@ -22,7 +21,6 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.*;
-import org.bukkit.event.server.TabCompleteEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import static org.bukkit.GameRule.SEND_COMMAND_FEEDBACK;
@@ -30,7 +28,7 @@ import static org.bukkit.GameRule.SEND_COMMAND_FEEDBACK;
 @SuppressWarnings("ALL")
 public class HideFunctions implements Listener {
 
-    @EventHandler(priority = EventPriority.HIGHEST , ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGH , ignoreCancelled = true)
     public void onPlayerShowEntity(PlayerShowEntityEvent event) {
         if (event.getEntity() instanceof Player ) {
             if (HideAPI.getHiddenPlayerNames().contains(event.getEntity().getName())) {
@@ -62,7 +60,7 @@ public class HideFunctions implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player joiningPlayer = event.getPlayer();
         for (String s: HideAPI.getHiddenPlayerNames()) {

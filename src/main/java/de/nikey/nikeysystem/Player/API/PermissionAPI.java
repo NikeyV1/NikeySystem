@@ -58,8 +58,28 @@ public class PermissionAPI {
         return isAdmin(player.getName()) || isModerator(player.getName()) || isOwner(player.getName());
     }
 
-    public static void clearAll(){
-        moderators.clear();
-        admins.clear();
+    public static boolean isSystemUser(String  player) {
+        return isAdmin(player) || isModerator(player) || isOwner(player);
+    }
+
+    public static boolean isAllowedToChange(String player, String target) {
+        if (isSystemUser(player)) {
+
+            if (!isSystemUser(target)) {
+                return true;
+            }
+
+            if (isOwner(player)) {
+                return true;
+            }else if (isAdmin(player)) {
+                return isModerator(target) || isAdmin(target);
+            } else if (isModerator(player)) {
+                return isModerator(target) ;
+            }else {
+                return false;
+            }
+        }else {
+            return false;
+        }
     }
 }

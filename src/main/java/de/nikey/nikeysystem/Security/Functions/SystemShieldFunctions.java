@@ -2,17 +2,22 @@ package de.nikey.nikeysystem.Security.Functions;
 
 import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent;
 import de.nikey.nikeysystem.Player.API.HideAPI;
+import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.Security.API.SystemShieldAPI;
 import de.nikey.nikeysystem.Security.Distributor.SystemShieldDistributor;
+import io.papermc.paper.ban.BanListType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.title.TitlePart;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.ban.IpBanList;
+import org.bukkit.ban.ProfileBanList;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -128,19 +133,19 @@ public class SystemShieldFunctions implements Listener {
         shieldRequest.remove(player.getName());
     }
 
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        if (event.getPlayer().isBanned() && SystemShieldAPI.isShieldUser(event.getPlayer().getName())) {
-            OfflinePlayer target = event.getPlayer().getServer().getOfflinePlayer(String.valueOf(event.getPlayer()));
-            BanList<?> banList = Bukkit.getBanList(BanList.Type.PROFILE);
-            banList.pardon(target.getName());
-
-            BanList<?> ban = Bukkit.getBanList(BanList.Type.IP);
-            ban.pardon(target.getName());
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerDamage(EntityDamageEvent event) {
+        if (event.getEntity() instanceof Player) {
+            Player player = (Player) event.getEntity();
+            if (SystemShieldAPI.isShieldUser(player.getName())) {
+                EntityDamageEvent.DamageCause cause = event.getCause();
+                if (cause == EntityDamageEvent.DamageCause.KILL || cause == EntityDamageEvent.DamageCause.SUICIDE) {
+                    event.setCancelled(true);
+                    player.sendActionBar(Component.text("System Shield blocked damage cause: ").color(NamedTextColor.RED).append(Component.text(event.getCause().name())));
+                }
+            }
         }
     }
-
-
 
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -156,7 +161,9 @@ public class SystemShieldFunctions implements Listener {
                     if (target != event.getPlayer()) {
                         if (HideAPI.canSee(event.getPlayer() , target)) {
                             event.setCancelled(true);
-                            event.getPlayer().sendMessage("§cError: no permissions");
+                            if (PermissionAPI.isSystemUser(event.getPlayer())) {
+                                event.getPlayer().sendMessage(Component.text("Security:").color(TextColor.color(202, 34, 34)).append(Component.text(" Command blocked by system shield")));
+                            }
                             Component textComponent = Component.text(event.getPlayer().getName())
                                     .color(NamedTextColor.WHITE)
                                     .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
@@ -186,14 +193,16 @@ public class SystemShieldFunctions implements Listener {
                     if (target != event.getPlayer()) {
                         if (HideAPI.canSee(event.getPlayer() , target)) {
                             event.setCancelled(true);
-                            event.getPlayer().sendMessage("§cError: no permissions");
+                            if (PermissionAPI.isSystemUser(event.getPlayer())) {
+                                event.getPlayer().sendMessage(Component.text("Security:").color(TextColor.color(202, 34, 34)).append(Component.text(" Command blocked by system shield")));
+                            }
                             TextComponent textComponent = Component.text(event.getPlayer().getName())
                                     .color(NamedTextColor.WHITE)
                                     .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
                                     .append(Component.text(event.getMessage(), NamedTextColor.RED))
                                     .append(Component.text(" on you", NamedTextColor.GRAY));
 
-                            target.sendTitlePart(TitlePart.SUBTITLE,textComponent);
+                            target.sendActionBar(textComponent);
                         }else {
                             event.setCancelled(true);
                             event.getPlayer().sendMessage("§cNo player was found");
@@ -220,7 +229,9 @@ public class SystemShieldFunctions implements Listener {
                     if (targetPlayer != event.getPlayer()) {
                         if (HideAPI.canSee(event.getPlayer(), targetPlayer)) {
                             event.setCancelled(true);
-                            event.getPlayer().sendMessage("§cError: no permissions");
+                            if (PermissionAPI.isSystemUser(event.getPlayer())) {
+                                event.getPlayer().sendMessage(Component.text("Security:").color(TextColor.color(202, 34, 34)).append(Component.text(" Command blocked by system shield")));
+                            }
                             Component textComponent = Component.text(event.getPlayer().getName())
                                     .color(NamedTextColor.WHITE)
                                     .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
@@ -244,7 +255,9 @@ public class SystemShieldFunctions implements Listener {
                     if (targetPlayer2 != event.getPlayer()) {
                         if (HideAPI.canSee(event.getPlayer(), targetPlayer2)) {
                             event.setCancelled(true);
-                            event.getPlayer().sendMessage("§cError: no permissions");
+                            if (PermissionAPI.isSystemUser(event.getPlayer())) {
+                                event.getPlayer().sendMessage(Component.text("Security:").color(TextColor.color(202, 34, 34)).append(Component.text(" Command blocked by system shield")));
+                            }
                             Component textComponent = Component.text(event.getPlayer().getName())
                                     .color(NamedTextColor.WHITE)
                                     .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
@@ -267,29 +280,59 @@ public class SystemShieldFunctions implements Listener {
                     }
                 }
             }
-        }
-    }
+        }else if (args[0].equalsIgnoreCase("/effect") ){
+            if (args.length >= 4) {
+                if (SystemShieldAPI.isShieldUser(args[2]) && (args[1].equalsIgnoreCase("give") || args[1].equalsIgnoreCase("clear"))) {
+                    Player target = Bukkit.getPlayer(args[2]);
+                    assert target != null;
+                    if (target != event.getPlayer()) {
+                        if (HideAPI.canSee(event.getPlayer() , target)) {
+                            event.setCancelled(true);
+                            if (PermissionAPI.isSystemUser(event.getPlayer())) {
+                                event.getPlayer().sendMessage(Component.text("Security:").color(TextColor.color(202, 34, 34)).append(Component.text(" Command blocked by system shield")));
+                            }
+                            TextComponent textComponent = Component.text(event.getPlayer().getName())
+                                    .color(NamedTextColor.WHITE)
+                                    .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                                    .append(Component.text(event.getMessage(), NamedTextColor.RED))
+                                    .append(Component.text(" on you", NamedTextColor.GRAY));
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
-    public void onPlayerKick(PlayerKickEvent event) {
-        if (SystemShieldAPI.isShieldUser(event.getPlayer().getName())) {
-            event.setCancelled(true);
-            if (event.getPlayer().isBanned()) {
-                BanList<?> banList = Bukkit.getBanList(BanList.Type.PROFILE);
-                banList.pardon(event.getPlayer().getName());
+                            target.sendActionBar(textComponent);
+                        }else {
+                            event.setCancelled(true);
+                            event.getPlayer().sendMessage("§cNo player was found");
+                            Component textComponent = Component.text(event.getPlayer().getName())
+                                    .color(NamedTextColor.WHITE)
+                                    .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                                    .append(Component.text(event.getMessage(), NamedTextColor.RED))
+                                    .append(Component.text(" on you", NamedTextColor.GRAY));
 
-                BanList<?> ban = Bukkit.getBanList(BanList.Type.IP);
-                ban.pardon(event.getPlayer().getName());
+                            target.sendActionBar(textComponent);
+                        }
+                    }
+                }
             }
         }
     }
 
-    @EventHandler
-    public void onEntityDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player) {
-            Player player = (Player) event.getEntity();
-            if (SystemShieldAPI.isShieldUser(player.getName()) && event.getCause() == EntityDamageEvent.DamageCause.KILL) {
-                event.setCancelled(true);
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerKick(PlayerKickEvent event) {
+        if (SystemShieldAPI.isShieldUser(event.getPlayer().getName())) {
+            event.setCancelled(true);
+            Component textComponent = Component.text("System Shield blocked cause: ")
+                    .color(NamedTextColor.DARK_GRAY)
+                    .append(Component.text(event.getCause().name()).color(NamedTextColor.WHITE));
+
+            event.getPlayer().sendActionBar(textComponent);
+
+            if (event.getPlayer().isBanned()) {
+                ProfileBanList banList = Bukkit.getBanList(BanListType.PROFILE);
+                banList.pardon(event.getPlayer().getPlayerProfile());
+
+                IpBanList list = Bukkit.getBanList(BanListType.IP);
+                if (event.getPlayer().getAddress() != null) list.pardon(event.getPlayer().getAddress().getAddress());
+
             }
         }
     }
@@ -308,15 +351,29 @@ public class SystemShieldFunctions implements Listener {
                 || args[0].equalsIgnoreCase("damage") || args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("deop") || args[0].equalsIgnoreCase("kill"))  {
             if (SystemShieldAPI.isShieldUser(args[1]) ) {
                 Player player = Bukkit.getPlayer(args[1]);
-                if (player != event.getSender()) {
+                if (player != null && player != event.getSender()) {
                     event.setCancelled(true);
+                    Component textComponent = Component.text(event.getSender().getName())
+                            .color(NamedTextColor.WHITE)
+                            .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                            .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                            .append(Component.text(" on you", NamedTextColor.GRAY));
+
+                    player.sendActionBar(textComponent);
                 }
             }
         }else if (args[0].equalsIgnoreCase("gamemode")) {
             if (SystemShieldAPI.isShieldUser(args[2])) {
                 Player player = Bukkit.getPlayer(args[2]);
-                if (player != event.getSender()) {
+                if (player != null && player != event.getSender()) {
                     event.setCancelled(true);
+                    Component textComponent = Component.text(event.getSender().getName())
+                            .color(NamedTextColor.WHITE)
+                            .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                            .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                            .append(Component.text(" on you", NamedTextColor.GRAY));
+
+                    player.sendActionBar(textComponent);
                 }
             }
         }
@@ -337,15 +394,29 @@ public class SystemShieldFunctions implements Listener {
                 || args[0].equalsIgnoreCase("damage") || args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("deop") || args[0].equalsIgnoreCase("kill"))  {
             if (SystemShieldAPI.isShieldUser(args[1])) {
                 Player player = Bukkit.getPlayer(args[1]);
-                if (player != event.getSender()) {
+                if (player!= null && player != event.getSender()) {
                     event.setCancelled(true);
+                    Component textComponent = Component.text(event.getSender().getName())
+                            .color(NamedTextColor.WHITE)
+                            .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                            .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                            .append(Component.text(" on you", NamedTextColor.GRAY));
+
+                    player.sendActionBar(textComponent);
                 }
             }
         }else if (args[0].equalsIgnoreCase("gamemode")) {
             if (SystemShieldAPI.isShieldUser(args[2])) {
                 Player player = Bukkit.getPlayer(args[2]);
-                if (player != event.getSender()) {
+                if (player!= null && player != event.getSender()) {
                     event.setCancelled(true);
+                    Component textComponent = Component.text(event.getSender().getName())
+                            .color(NamedTextColor.WHITE)
+                            .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                            .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                            .append(Component.text(" on you", NamedTextColor.GRAY));
+
+                    player.sendActionBar(textComponent);
                 }
             }
         }

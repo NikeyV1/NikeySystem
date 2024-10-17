@@ -1,6 +1,7 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
 import de.nikey.nikeysystem.Player.API.HideAPI;
+import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -20,6 +21,11 @@ public class StatsDistributor {
         Player target = Bukkit.getPlayer(args[4]);
         if (target == null || !HideAPI.canSee(player,target)) {
             player.sendMessage("§cError: target not found!");
+            return;
+        }
+
+        if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName())) {
+            player.sendMessage("§cError: missing permission");
             return;
         }
         if (args[3].equalsIgnoreCase("Invulnerable")) {

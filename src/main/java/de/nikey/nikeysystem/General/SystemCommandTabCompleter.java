@@ -37,7 +37,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the second argument: system player or system server
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("player")) {
-                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect");
+                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "mute");
             } else if (args[0].equalsIgnoreCase("server")) {
                 return Arrays.asList("command", "settings");
             } else if (args[0].equalsIgnoreCase("security")) {
@@ -196,6 +196,25 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the seventh argument: amplifier for give command
         if (args.length == 7 && args[2].equalsIgnoreCase("give")) {
             return Arrays.asList("1", "2", "3", "4", "5"); // Suggest some common amplifier values
+        }
+
+        if (args.length >= 3 && args[1].equalsIgnoreCase("mute")) {
+            // Second argument (subcommands for mute)
+            if (args.length == 3) {
+                return Arrays.asList("mute", "unmute", "togglemute", "getMuted");
+            }
+
+            // Third argument (player name for mute commands)
+            if (args.length == 4 && (args[2].equalsIgnoreCase("mute") || args[2].equalsIgnoreCase("unmute") ||
+                    args[2].equalsIgnoreCase("togglemute") || args[2].equalsIgnoreCase("getMuted"))) {
+                // Suggest all online player names
+                return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+            }
+
+            // Fourth argument (mute duration in seconds for the mute command)
+            if (args.length == 5 && args[2].equalsIgnoreCase("mute")) {
+                return Collections.singletonList("60");
+            }
         }
 
         return Collections.emptyList();

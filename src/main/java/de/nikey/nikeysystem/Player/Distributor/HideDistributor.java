@@ -1,9 +1,13 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
+import de.nikey.nikeysystem.General.GeneralAPI;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.Functions.PlayerSettings;
+import de.nikey.nikeysystem.Security.API.SystemShieldAPI;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -90,26 +94,9 @@ public class HideDistributor {
                 toggleTrueAlwaysHide(player,args[4], false);
             }
         } else if (args[3].equalsIgnoreCase("ToggleImmunity")) {
-
-            if (HideAPI.getHideImmunity().contains(args[4])) {
-                HideAPI.getHideImmunity().remove(args[4]);
-                saveHideImmunityPlayers();
-                player.sendMessage(ChatColor.GOLD + args[4] + " has now hide immunity §cremoved");
-            } else {
-                HideAPI.getHideImmunity().add(args[4]);
-                saveHideImmunityPlayers();
-                player.sendMessage(ChatColor.GOLD + args[4] + " has now hide immunity §2added");
-            }
+            toggleImmunity(player,args[4]);
         } else if (args[3].equalsIgnoreCase("ToggleTrueImmunity") && PermissionAPI.isOwner(player.getName())) {
-            if (HideAPI.getTrueHideImmunity().contains(args[4])) {
-                HideAPI.getTrueHideImmunity().remove(args[4]);
-                saveTrueHideImmunityPlayers();
-                player.sendMessage(ChatColor.GOLD + args[4] + " has now true hide immunity §cremoved");
-            } else {
-                HideAPI.getTrueHideImmunity().add(args[4]);
-                saveTrueHideImmunityPlayers();
-                player.sendMessage(ChatColor.GOLD + args[4] + " has now true hide immunity §2added");
-            }
+            toggleTrueImmunity(player,args[4]);
         } else if (args[3].equalsIgnoreCase("Settings")) {
             PlayerSettings.openSettingsMenu(player);
         }
@@ -176,6 +163,90 @@ public class HideDistributor {
         }
     }
 
+
+    public static void toggleImmunity(Player player, String targetname) {
+
+        if (!HideAPI.canSee(player.getName(),targetname)) {
+            player.sendMessage("§cError: Target not found!");
+            return;
+        }
+
+        if (!PermissionAPI.isAllowedToChange(player.getName(),targetname)) {
+            player.sendMessage("§cError: missing permission");
+            return;
+        }
+
+        if (SystemShieldAPI.isShieldUser(targetname)) {
+            Player target = Bukkit.getPlayer(targetname);
+            if (target != null) {
+                Component textComponent = Component.text("System Shield blocked cause: ")
+                        .color(NamedTextColor.DARK_GRAY)
+                        .append(Component.text("System Player Toggle Hide Immunity").color(NamedTextColor.WHITE));
+
+                target.sendActionBar(textComponent);
+            }
+            return;
+        }
+
+        if (HideAPI.getHideImmunity().contains(targetname)) {
+            HideAPI.getHideImmunity().remove(targetname);
+            saveHideImmunityPlayers();
+            player.sendMessage(ChatColor.GOLD + targetname + " has now hide immunity §cremoved");
+            Player target = Bukkit.getPlayer(targetname);
+            if (target != null) {
+                for (Player players : Bukkit.getOnlinePlayers()){
+                    target.hidePlayer(NikeySystem.getPlugin(),players);
+                }
+            }
+        } else {
+            HideAPI.getHideImmunity().add(targetname);
+            saveHideImmunityPlayers();
+            player.sendMessage(ChatColor.GOLD + targetname + " has now hide immunity §2added");
+            Player target = Bukkit.getPlayer(targetname);
+            if (target != null) {
+                for (Player players : GeneralAPI.getOnlinePlayers(target)){
+                    target.showPlayer(NikeySystem.getPlugin(),players);
+                }
+            }
+        }
+    }
+
+    public static void toggleTrueImmunity(Player player, String targetname) {
+        if (SystemShieldAPI.isShieldUser(targetname)) {
+            Player target = Bukkit.getPlayer(targetname);
+            if (target != null) {
+                Component textComponent = Component.text("System Shield blocked cause: ")
+                        .color(NamedTextColor.DARK_GRAY)
+                        .append(Component.text("System Player Toggle True Hide Immunity").color(NamedTextColor.WHITE));
+
+                target.sendActionBar(textComponent);
+            }
+            return;
+        }
+
+        if (HideAPI.getTrueHideImmunity().contains(targetname)) {
+            HideAPI.getTrueHideImmunity().remove(targetname);
+            saveTrueHideImmunityPlayers();
+            player.sendMessage(ChatColor.GOLD + targetname + " has now true hide immunity §cremoved");
+            Player target = Bukkit.getPlayer(targetname);
+            if (target != null) {
+                for (Player players : Bukkit.getOnlinePlayers()){
+                    target.hidePlayer(NikeySystem.getPlugin(),players);
+                }
+            }
+        } else {
+            HideAPI.getTrueHideImmunity().add(targetname);
+            saveTrueHideImmunityPlayers();
+            player.sendMessage(ChatColor.GOLD + targetname + " has now true hide immunity §2added");
+            Player target = Bukkit.getPlayer(targetname);
+            if (target != null) {
+                for (Player players : GeneralAPI.getOnlinePlayers(target)){
+                    target.showPlayer(NikeySystem.getPlugin(),players);
+                }
+            }
+        }
+    }
+
     public static void toggleAlwaysHide(Player player, String targetName, boolean message) {
         Player target = Bukkit.getPlayer(targetName);
         // Zielspieler zur Liste der versteckten Spieler hinzufügen
@@ -185,6 +256,11 @@ public class HideDistributor {
         }
         if (!HideAPI.canSee(player,target)){
             player.sendMessage(net.md_5.bungee.api.ChatColor.RED + "Error: Target not found!");
+            return;
+        }
+
+        if (!PermissionAPI.isAllowedToChange(player.getName(),targetName)) {
+            player.sendMessage("§cError: missing permission");
             return;
         }
 
@@ -199,9 +275,10 @@ public class HideDistributor {
             // Zielspieler für alle anderen Spieler unsichtbar machen
             for (Player players : Bukkit.getOnlinePlayers()) {
                 if (!players.equals(target)) {
-                    if (!HideAPI.canSee(player,target)) {
+                    if (!HideAPI.canSee(players,target)) {
                         players.hidePlayer(NikeySystem.getPlugin(), target);
                     }
+                }else {
                 }
             }
             player.sendMessage(ChatColor.GOLD + targetName + " is now §2hidden.");
@@ -224,17 +301,6 @@ public class HideDistributor {
     }
 
     public static void toggleTrueAlwaysHide(Player player, String targetName, boolean message) {
-        Player target = Bukkit.getPlayer(targetName);
-        // Zielspieler zur Liste der versteckten Spieler hinzufügen
-        if (target == null) {
-            player.sendMessage(net.md_5.bungee.api.ChatColor.RED + "Error: Target not found!");
-            return;
-        }
-        if (!HideAPI.canSee(player,target)){
-            player.sendMessage(net.md_5.bungee.api.ChatColor.RED + "Error: Target not found!");
-            return;
-        }
-
         if (!HideAPI.getTrueHiddenNames().contains(targetName)) {
             HideAPI.getTrueHiddenNames().add(targetName);
             HideAPI.getHideImmunity().remove(targetName);
@@ -243,8 +309,13 @@ public class HideDistributor {
                 Bukkit.broadcastMessage("§e"+ targetName + " left the game");
             }
 
-            // Wenn der Zielspieler online ist, ihn sofort verstecken
-            // Zielspieler für alle anderen Spieler unsichtbar machen
+            player.sendMessage(ChatColor.GOLD + targetName + " is now §2true hidden.");
+            Player target = Bukkit.getPlayer(targetName);
+            // Zielspieler zur Liste der versteckten Spieler hinzufügen
+            if (target == null) {
+                player.sendMessage(net.md_5.bungee.api.ChatColor.RED + "Error: Target not found!");
+                return;
+            }
             for (Player players : Bukkit.getOnlinePlayers()) {
                 if (!players.equals(target)) {
                     if (!PermissionAPI.isOwner(players.getName()) && !HideAPI.getTrueHideImmunity().contains(players.getName())) {
@@ -252,21 +323,25 @@ public class HideDistributor {
                     }
                 }
             }
-            player.sendMessage(ChatColor.GOLD + targetName + " is now §2true hidden.");
         }else {
             HideAPI.getTrueHiddenNames().remove(targetName );
             saveTrueHiddenPlayers();  // Speichern nach dem Entfernen
+            player.sendMessage(ChatColor.GOLD + targetName + " is now §cshown");
             if (message) {
                 Bukkit.broadcastMessage("§e"+ targetName + " joined the game");
             }
 
-            // Zielspieler für alle anderen Spieler unsichtbar machen
+            Player target = Bukkit.getPlayer(targetName);
+            // Zielspieler zur Liste der versteckten Spieler hinzufügen
+            if (target == null) {
+                player.sendMessage(net.md_5.bungee.api.ChatColor.RED + "Error: Target not found!");
+                return;
+            }
             for (Player players : Bukkit.getOnlinePlayers()) {
                 if (!players.equals(target)) {
                     players.showPlayer(NikeySystem.getPlugin(), target);
                 }
             }
-            player.sendMessage(ChatColor.GOLD + targetName + " is now §cshown.");
         }
     }
 }

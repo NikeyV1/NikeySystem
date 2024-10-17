@@ -2,6 +2,7 @@ package de.nikey.nikeysystem.Player.Distributor;
 
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.InventoryAPI;
+import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -147,6 +148,10 @@ public class InventoryDistributor {
             sender.sendMessage("§cError: unknown item: " + itemName);
             return;
         }
+        if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+            sender.sendMessage("§cError: missing permission");
+            return;
+        }
         if (player.getInventory().firstEmpty() == -1){
             sender.sendMessage("§cError: player has full inventory");
         }else {
@@ -159,6 +164,10 @@ public class InventoryDistributor {
         Material material = Material.matchMaterial(itemName.toUpperCase());
         if (material == null) {
             sender.sendMessage("§cError: unknown item: " + itemName);
+            return;
+        }
+        if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+            sender.sendMessage("§cError: missing permission");
             return;
         }
 
@@ -201,14 +210,27 @@ public class InventoryDistributor {
     }
 
     private static void openInventory(Player player, Player target) {
+        if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName())) {
+            player.sendMessage("§cError: missing permission");
+            return;
+        }
         player.openInventory(target.getInventory());
     }
 
     private static void openEc(Player player, Player target) {
+        if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName())) {
+            player.sendMessage("§cError: missing permission");
+            return;
+        }
         player.openInventory(target.getEnderChest());
     }
 
     private static void openEq(Player player, Player target) {
+        if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName())) {
+            player.sendMessage("§cError: missing permission");
+            return;
+        }
+
         EntityEquipment equipment = target.getEquipment();
         assert equipment != null;
         ItemStack[] armorContents = equipment.getArmorContents();

@@ -1,11 +1,13 @@
 package de.nikey.nikeysystem;
 
 import de.nikey.nikeysystem.General.SystemCommandTabCompleter;
+import de.nikey.nikeysystem.Player.Distributor.MuteDistributer;
 import de.nikey.nikeysystem.Player.Distributor.PermissionDistributor;
 import de.nikey.nikeysystem.Player.Distributor.HideDistributor;
 import de.nikey.nikeysystem.Player.Functions.HideFunctions;
 import de.nikey.nikeysystem.General.CommandRegister;
 import de.nikey.nikeysystem.Player.Functions.InventoryFunctions;
+import de.nikey.nikeysystem.Player.Functions.MuteFunctions;
 import de.nikey.nikeysystem.Player.Functions.PlayerSettings;
 import de.nikey.nikeysystem.Security.Distributor.SystemShieldDistributor;
 import de.nikey.nikeysystem.Security.Functions.SystemShieldFunctions;
@@ -44,6 +46,7 @@ public final class NikeySystem extends JavaPlugin {
         manager.registerEvents(new InventoryFunctions(), this);
         manager.registerEvents(new PlayerSettings(),this);
         manager.registerEvents(new SettingsFunctions(),this);
+        manager.registerEvents(new MuteFunctions(),this);
         
 
         getCommand("system").setTabCompleter(new SystemCommandTabCompleter());
