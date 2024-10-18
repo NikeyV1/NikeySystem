@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Player.API;
 
+import de.nikey.nikeysystem.Security.API.SystemShieldAPI;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -64,6 +65,7 @@ public class PermissionAPI {
 
     public static boolean isAllowedToChange(String player, String target) {
         if (isSystemUser(player)) {
+            if (SystemShieldAPI.isShieldUser(target)) return false;
 
             if (!isSystemUser(target)) {
                 return true;

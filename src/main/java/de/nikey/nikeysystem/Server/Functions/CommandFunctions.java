@@ -25,9 +25,17 @@ public class CommandFunctions implements Listener {
             player.sendMessage("§cUnknown or incomplete command, see below for error\n" +
                     cmd.substring(1)+"<--[HERE]");
             event.setCancelled(true);
+            return;
         }
 
         if (!PermissionAPI.isOwner(player.getName()) && cmd.startsWith("/minecraft:")) {
+            player.sendMessage("§cUnknown or incomplete command, see below for error\n" +
+                    cmd.substring(1)+"<--[HERE]");
+            event.setCancelled(true);
+            return;
+        }
+
+        if (!PermissionAPI.isOwner(player.getName()) && cmd.startsWith("/bukkit:")) {
             player.sendMessage("§cUnknown or incomplete command, see below for error\n" +
                     cmd.substring(1)+"<--[HERE]");
             event.setCancelled(true);

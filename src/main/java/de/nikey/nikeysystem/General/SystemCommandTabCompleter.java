@@ -1,8 +1,10 @@
 package de.nikey.nikeysystem.General;
 
+import de.nikey.nikeysystem.Player.API.LocationAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -37,7 +39,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the second argument: system player or system server
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("player")) {
-                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "mute");
+                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "mute", "location");
             } else if (args[0].equalsIgnoreCase("server")) {
                 return Arrays.asList("command", "settings");
             } else if (args[0].equalsIgnoreCase("security")) {
@@ -216,6 +218,50 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 return Collections.singletonList("60");
             }
         }
+
+        if (args.length >= 3 && args[1].equalsIgnoreCase("location")) {
+            // Second argument (subcommands for mute)
+            if (args.length == 3) {
+                return Arrays.asList("getLocation", "tp", "lastseen", "placeGuard", "removeGuard", "listGuard");
+            }
+
+            String subCommand = args[2].toLowerCase();
+
+            // Tab-Complete für 'getLocation', 'tp', 'lastseen', 'removeGuard'
+            if (args.length == 4) {
+                if (subCommand.equalsIgnoreCase("getlocation") || subCommand.equalsIgnoreCase("tp") || subCommand.equalsIgnoreCase("lastseen")) {
+                    // Liste der online Spieler für getLocation, tp, lastseen
+                    return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+                } else if (subCommand.equals("removeguard")) {
+                    // Liste der Guards für removeGuard
+                    return LocationAPI.guardLocations.keySet().stream().collect(Collectors.toList());
+                }
+            }
+            if (subCommand.equalsIgnoreCase("listGuard") && args.length == 4) {
+                return Arrays.asList("show");
+            }
+
+            // Tab-Complete für 'placeGuard': Erwarte einen Guard-Namen
+            if (subCommand.equals("placeguard") && args.length == 4) {
+                return Collections.singletonList("name"); // Beispiel für den Guard-Namen
+            }
+
+            // Tab-Complete für 'tp' mit Koordinaten x, y, z und Welt
+            if (subCommand.equals("tp")) {
+                if (args.length == 5 || args.length == 6 || args.length == 7) {
+                    return Collections.singletonList("10");
+                } else if (args.length == 8) {
+                    return Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());
+                }
+            }
+
+            // Tab-Complete für die Range bei 'placeGuard'
+            if (subCommand.equals("placeguard") && args.length == 5) {
+                return Collections.singletonList("12"); // Beispiel für eine Zahl
+            }
+        }
+
+
 
         return Collections.emptyList();
     }

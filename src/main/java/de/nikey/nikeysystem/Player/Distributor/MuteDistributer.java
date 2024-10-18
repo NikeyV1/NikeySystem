@@ -111,10 +111,10 @@ public class MuteDistributer {
         }
 
         if (duration == 0) {
-            target.sendMessage(ChatColor.of("#1dc0f0")+"You have been §fpermanently §cmuted");
+            if (PermissionAPI.isSystemUser(target)) target.sendMessage(ChatColor.of("#1dc0f0")+"You have been §fpermanently §cmuted");
             MuteAPI.add(target.getName(), 0);
         } else {
-            target.sendMessage(ChatColor.of("#1dc0f0")+"You have been §cmuted"+ChatColor.of("#1dc0f0")+" for §f" + duration +ChatColor.of("#1dc0f0")+ " seconds");
+            if (PermissionAPI.isSystemUser(target))target.sendMessage(ChatColor.of("#1dc0f0")+"You have been §cmuted"+ChatColor.of("#1dc0f0")+" for §f" + duration +ChatColor.of("#1dc0f0")+ " seconds");
             MuteAPI.add(target.getName(), System.currentTimeMillis() + (duration * 1000L));
         }
         sender.sendMessage(ChatColor.of("#1dc0f0")+target.getName() + " has been §cmuted");
@@ -127,7 +127,7 @@ public class MuteDistributer {
             return;
         }
 
-        target.sendMessage(ChatColor.of("#1dc0f0")+"You have been §aunmuted");
+        if (PermissionAPI.isSystemUser(target))target.sendMessage(ChatColor.of("#1dc0f0")+"You have been §aunmuted");
         sender.sendMessage(ChatColor.of("#1dc0f0")+target.getName() + " has been §aunmuted");
 
         // Remove from muted players map

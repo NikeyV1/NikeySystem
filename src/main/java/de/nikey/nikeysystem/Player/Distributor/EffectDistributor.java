@@ -28,7 +28,7 @@ public class EffectDistributor {
             }
         } else {
             Player targetPlayer = Bukkit.getPlayer(args[4]);
-            if (targetPlayer != null && HideAPI.canSee(player,targetPlayer) && !PermissionAPI.isAllowedToChange(player.getName(), targetPlayer.getName())) {
+            if (targetPlayer != null && HideAPI.canSee(player,targetPlayer) && PermissionAPI.isAllowedToChange(player.getName(), targetPlayer.getName())) {
                 target = targetPlayer;
             }
         }
