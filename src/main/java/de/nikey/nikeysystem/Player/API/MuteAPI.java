@@ -1,6 +1,11 @@
 package de.nikey.nikeysystem.Player.API;
 
+import de.nikey.nikeysystem.NikeySystem;
+import org.bukkit.configuration.file.FileConfiguration;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class MuteAPI {
     private static HashMap<String, Long> mutedPlayers = new HashMap<>();
@@ -34,5 +39,32 @@ public class MuteAPI {
             }
         }
         return false;
+    }
+
+    public static void saveMutedPlayers() {
+        FileConfiguration config = NikeySystem.getPlugin().getConfig();
+
+        // Entferne alte Mute-Daten
+        config.set("mutedPlayers", null);
+
+        // Speichere alle aktuellen Mute-Daten
+        for (Map.Entry<String, Long> entry : mutedPlayers.entrySet()) {
+            config.set("mutedPlayers." + entry.getKey(), entry.getValue());
+        }
+
+        // Speichere die config.yml
+        NikeySystem.getPlugin().saveConfig();
+    }
+
+    // Lade die gemuteten Spieler aus der config.yml
+    public static void loadMutedPlayers() {
+        FileConfiguration config = NikeySystem.getPlugin().getConfig();
+
+        if (config.contains("mutedPlayers")) {
+            for (String playerName : config.getConfigurationSection("mutedPlayers").getKeys(false)) {
+                long muteEndTime = config.getLong("mutedPlayers." + playerName);
+                mutedPlayers.put(playerName, muteEndTime);
+            }
+        }
     }
 }

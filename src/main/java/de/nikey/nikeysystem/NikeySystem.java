@@ -1,6 +1,7 @@
 package de.nikey.nikeysystem;
 
 import de.nikey.nikeysystem.General.SystemCommandTabCompleter;
+import de.nikey.nikeysystem.Player.API.MuteAPI;
 import de.nikey.nikeysystem.Player.Distributor.MuteDistributer;
 import de.nikey.nikeysystem.Player.Distributor.PermissionDistributor;
 import de.nikey.nikeysystem.Player.Distributor.HideDistributor;
@@ -33,6 +34,7 @@ public final class NikeySystem extends JavaPlugin {
         PermissionDistributor.loadModerators();
         CommandDistributor.loadBlockedCommands();
         SystemShieldDistributor.loadSystemShield();
+        MuteAPI.loadMutedPlayers();
 
         PluginManager manager = Bukkit.getPluginManager();
         manager.registerEvents(new HideFunctions(),this);
@@ -57,7 +59,7 @@ public final class NikeySystem extends JavaPlugin {
 
     @Override
     public void onDisable() {
-
+        MuteAPI.saveMutedPlayers();
     }
 
     public static NikeySystem getPlugin() {

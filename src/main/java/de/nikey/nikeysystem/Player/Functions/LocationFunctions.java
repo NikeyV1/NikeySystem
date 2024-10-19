@@ -30,8 +30,8 @@ public class LocationFunctions implements Listener {
         for (Map.Entry<String, Location> entry : LocationAPI.guardLocations.entrySet()) {
             String guardName = entry.getKey();
             Location guardLocation = entry.getValue();
+            if (player.getWorld() != guardLocation.getWorld())return;
             double range = LocationAPI.guardRanges.getOrDefault(guardName, 10.0);
-
             if (player.getLocation().distance(guardLocation) < range) {
                 if (!guardName.equals(LocationAPI.playerInGuardArea.get(player))) {
                     if (!LocationAPI.guardCreators.get(guardName).equals(player)){

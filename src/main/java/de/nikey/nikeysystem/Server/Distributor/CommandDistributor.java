@@ -60,6 +60,11 @@ public class CommandDistributor {
                     return;
                 }
 
+                if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName())) {
+                    player.sendMessage("§cError: missing permission");
+                    return;
+                }
+
                 if (CommandAPI.isCommandBlockedForPlayer(target,args[5])) {
                     CommandAPI.unblockCommandForPlayer(target,args[5]);
                     player.sendMessage("§7Now §aallowing §7command for§8 "+target.getName()+": §n§f" + args[5]);
@@ -129,6 +134,10 @@ public class CommandDistributor {
             Player player = Bukkit.getPlayer(args[4]);
             if (player == null|| !HideAPI.canSee(sender,player)) {
                 sender.sendMessage("§cError: player not found");
+                return;
+            }
+            if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+                sender.sendMessage("§cError: missing permission");
                 return;
             }
             // Alle Argumente ab dem dritten (Index 2) zu einem String zusammenfügen
