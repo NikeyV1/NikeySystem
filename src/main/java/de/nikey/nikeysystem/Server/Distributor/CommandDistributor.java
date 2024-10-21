@@ -68,9 +68,11 @@ public class CommandDistributor {
                 if (CommandAPI.isCommandBlockedForPlayer(target,args[5])) {
                     CommandAPI.unblockCommandForPlayer(target,args[5]);
                     player.sendMessage("§7Now §aallowing §7command for§8 "+target.getName()+": §n§f" + args[5]);
+                    target.updateCommands();
                 }else {
                     CommandAPI.blockCommandForPlayer(target,args[5]);
                     player.sendMessage("§7Now §cblocking §7command for§8 "+target.getName()+": §n§f" + args[5]);
+                    target.updateCommands();
                 }
             }
         }else if (args[3].equalsIgnoreCase("list")) {
