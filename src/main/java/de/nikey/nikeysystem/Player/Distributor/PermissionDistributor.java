@@ -64,7 +64,32 @@ public class PermissionDistributor {
                 saveModerators();
                 sender.sendMessage("§bRemoved "+target+"'s §0moderator §bpermissions!");
             }
-        } else if (args[3].equalsIgnoreCase("List")) {
+        }else if (args[3].equalsIgnoreCase("TogglePermission")) {
+            String target = args[4];
+            String permission = args[5];
+            // Zielspieler holen
+            Player player = Bukkit.getPlayer(target);
+            if (player == null || !HideAPI.canSee(sender,player)) {
+                sender.sendMessage("§cError: Player not found");
+                return;
+            }
+
+            
+
+            // Prüfen, ob der Spieler die Berechtigung bereits hat
+            if (!player.hasPermission(permission)) {
+                PermissionAttachment attachment = player.addAttachment(MyPlugin.getInstance()); // Plugin-Instanz holen
+                attachment.setPermission(permission, true);  // Berechtigung hinzufügen
+                sender.sendMessage("§bAdded permission §6" + permission + " §bto " + target + "!");
+            } else {
+                // Berechtigung entfernen
+                PermissionAttachment attachment = player.addAttachment(MyPlugin.getInstance());
+                attachment.setPermission(permission, false);
+                sender.sendMessage("§bRemoved permission §6" + permission + " §bfrom " + target + "!");
+            }
+            player.recalculatePermissions();  // Berechtigungen neu berechnen
+
+    } else if (args[3].equalsIgnoreCase("List")) {
             String target = args[4];
             if (PermissionAPI.isAdmin(target) || PermissionAPI.isModerator(target) || PermissionAPI.isOwner(target)) {
                 sender.sendMessage("§8"+target+" has following permissions: " +
