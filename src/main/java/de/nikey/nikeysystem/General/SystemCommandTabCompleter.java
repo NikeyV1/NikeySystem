@@ -49,7 +49,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         // Handle the third argument for system player permissions
         if (args.length == 3 && args[1].equalsIgnoreCase("permissions")) {
-            List<String> subCommands = new ArrayList<>(Arrays.asList("ToggleAdmin", "ToggleModerator", "List", "ListAll"));
+            List<String> subCommands = new ArrayList<>(Arrays.asList("ToggleAdmin", "ToggleModerator", "List", "ListAll","TogglePermission"));
             if (!PermissionAPI.isOwner(player.getName())) {
                 // Remove owner-specific commands for non-owners
                 subCommands.remove("ToggleAdmin");
