@@ -73,9 +73,10 @@ public class PermissionDistributor {
                 sender.sendMessage("§cError: Player not found");
                 return;
             }
-
-            
-
+            if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+                sender.sendMessage("§cError: missing permission");
+                return;
+            }
             // Prüfen, ob der Spieler die Berechtigung bereits hat
             if (!player.hasPermission(permission)) {
                 PermissionAttachment attachment = player.addAttachment(MyPlugin.getInstance()); // Plugin-Instanz holen
