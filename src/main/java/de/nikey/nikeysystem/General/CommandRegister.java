@@ -5,6 +5,7 @@ import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.Player.Distributor.*;
 import de.nikey.nikeysystem.Security.Distributor.SystemShieldDistributor;
 import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
+import de.nikey.nikeysystem.Server.Distributor.PerformanceDistributor;
 import de.nikey.nikeysystem.Server.Distributor.SettingsDistributor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -55,6 +56,9 @@ public class CommandRegister implements Listener {
                         event.setCancelled(true);
                     }else if (args[2].equalsIgnoreCase("settings")) {
                         SettingsDistributor.settingsDistributor(player,args);
+                        event.setCancelled(true);
+                    }else if (args[2].equalsIgnoreCase("Performance")) {
+                        PerformanceDistributor.performanceManager(player,args);
                         event.setCancelled(true);
                     }
                 } else if (args[1].equalsIgnoreCase("Security")) {

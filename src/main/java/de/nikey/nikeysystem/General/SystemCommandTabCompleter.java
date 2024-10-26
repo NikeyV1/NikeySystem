@@ -41,7 +41,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
             if (args[0].equalsIgnoreCase("player")) {
                 return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "mute", "location");
             } else if (args[0].equalsIgnoreCase("server")) {
-                return Arrays.asList("command", "settings");
+                return Arrays.asList("command", "settings","performance");
             } else if (args[0].equalsIgnoreCase("security")) {
                 return Arrays.asList("System-Shield");
             }
@@ -259,6 +259,16 @@ public class SystemCommandTabCompleter implements TabCompleter {
             if (subCommand.equals("placeguard") && args.length == 5) {
                 return Collections.singletonList("12"); // Beispiel für eine Zahl
             }
+        }
+
+        if (args.length == 3 && args[1].equalsIgnoreCase("performance")) {
+            return new ArrayList<>(Arrays.asList("toggletpsbar","servertick","ping","entitys"));
+        }
+
+        // Handle the fourth argument (player name) for permissions commands that require a target player
+        if (args.length == 4 && args[1].equalsIgnoreCase("performance")) {
+            // Provide list of online player names as suggestions
+            return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
         }
 
 

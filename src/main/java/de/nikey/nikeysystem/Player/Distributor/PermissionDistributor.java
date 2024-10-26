@@ -6,6 +6,7 @@ import de.nikey.nikeysystem.NikeySystem;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.util.ArrayList;
@@ -79,17 +80,17 @@ public class PermissionDistributor {
             }
             // Prüfen, ob der Spieler die Berechtigung bereits hat
             if (!player.hasPermission(permission)) {
-                PermissionAttachment attachment = player.addAttachment(MyPlugin.getInstance()); // Plugin-Instanz holen
+                PermissionAttachment attachment = player.addAttachment(NikeySystem.getPlugin()); // Plugin-Instanz holen
                 attachment.setPermission(permission, true);  // Berechtigung hinzufügen
                 sender.sendMessage("§bAdded permission §6" + permission + " §bto " + target + "!");
             } else {
                 // Berechtigung entfernen
-                PermissionAttachment attachment = player.addAttachment(MyPlugin.getInstance());
+                PermissionAttachment attachment = player.addAttachment(NikeySystem.getPlugin());
                 attachment.setPermission(permission, false);
                 sender.sendMessage("§bRemoved permission §6" + permission + " §bfrom " + target + "!");
             }
-            player.recalculatePermissions();  // Berechtigungen neu berechnen
-
+            player.recalculatePermissions();
+            player.updateCommands();
     } else if (args[3].equalsIgnoreCase("List")) {
             String target = args[4];
             if (PermissionAPI.isAdmin(target) || PermissionAPI.isModerator(target) || PermissionAPI.isOwner(target)) {

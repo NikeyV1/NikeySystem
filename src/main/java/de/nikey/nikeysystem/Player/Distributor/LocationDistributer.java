@@ -3,7 +3,6 @@ package de.nikey.nikeysystem.Player.Distributor;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.LocationAPI;
-import de.nikey.nikeysystem.Player.API.MuteAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
