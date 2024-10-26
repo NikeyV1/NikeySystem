@@ -17,8 +17,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.checkerframework.checker.units.qual.C;
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.management.ManagementFactory;
 import com.sun.management.OperatingSystemMXBean;
@@ -87,11 +85,7 @@ public class PerformanceDistributor {
                         tps1 = 20;
                     }
 
-                    // Spieler-Ping abrufen
-                    int ping = finalTarget.getPing(); // Einfacher Abruf des Pings
-
-                    // Text in der Bossbar setzen
-                    bossBar.name(Component.text(String.format("TPS: %.2f  MSPT: %.2f  Ping: %dms", tps1, Bukkit.getAverageTickTime(), ping)));
+                    bossBar.name(Component.text(String.format("TPS: %.2f  MSPT: %.2f  Ping: %dms", tps1, Bukkit.getAverageTickTime(), finalTarget.getPing())));
 
                     // Farbe und Fortschritt der Bossbar basierend auf TPS/MSPT einstellen
                     if (tps1 >= 18) {
@@ -129,7 +123,7 @@ public class PerformanceDistributor {
             double maxMspt = Double.MIN_VALUE;
 
             for (long tickTime : tickTimes) {
-                double mspt = tickTime / 1_000_000.0; // Umrechnung von Nanosekunden zu Millisekunden
+                double mspt = tickTime / 1_000_000.0;
 
                 if (mspt < minMspt) {
                     minMspt = mspt;
@@ -171,9 +165,9 @@ public class PerformanceDistributor {
                     return;
                 }
                 Component component;
-                if (target.getPing() <= 40) {
+                if (target.getPing() <= 50) {
                     component = Component.text(target.getName()+"'s ping is: ").color(TextColor.color(255, 218, 117)).append(Component.text(target.getPing()).color(NamedTextColor.GREEN));
-                }else if (target.getPing() <= 100) {
+                }else if (target.getPing() <= 110) {
                     component = Component.text(target.getName()+"'s ping is: ").color(TextColor.color(255, 218, 117)).append(Component.text(target.getPing()).color(NamedTextColor.YELLOW));
                 }else {
                     component = Component.text(target.getName()+"'s ping is: ").color(TextColor.color(255, 218, 117)).append(Component.text(target.getPing()).color(NamedTextColor.RED));

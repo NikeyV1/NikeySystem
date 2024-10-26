@@ -39,7 +39,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the second argument: system player or system server
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("player")) {
-                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "mute", "location");
+                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "mute", "location","profile");
             } else if (args[0].equalsIgnoreCase("server")) {
                 return Arrays.asList("command", "settings","performance");
             } else if (args[0].equalsIgnoreCase("security")) {
@@ -271,8 +271,23 @@ public class SystemCommandTabCompleter implements TabCompleter {
             return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
         }
 
+        if (args.length == 3 && args[1].equalsIgnoreCase("profile")) {
+            return new ArrayList<>(Arrays.asList("skin"));
+        }
 
+        // Handle the fourth argument (player name) for permissions commands that require a target player
+        if (args.length == 4 && args[1].equalsIgnoreCase("profile")) {
+            // Provide list of online player names as suggestions
+            return new ArrayList<>(Arrays.asList("set","reset"));
+        }
 
+        if (args.length == 5 && args[1].equalsIgnoreCase("profile")) {
+            return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+        }
+
+        if (args.length == 6 && args[1].equalsIgnoreCase("profile") && args[2].equalsIgnoreCase("set")) {
+            return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+        }
         return Collections.emptyList();
     }
 }

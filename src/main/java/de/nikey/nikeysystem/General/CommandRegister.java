@@ -46,6 +46,9 @@ public class CommandRegister implements Listener {
                     }else if (args[2].equalsIgnoreCase("location")) {
                         LocationDistributer.locationManager(player,args);
                         event.setCancelled(true);
+                    }else if (args[2].equalsIgnoreCase("profile")) {
+                        ProfileDistributor.manageProfile(player,args);
+                        event.setCancelled(true);
                     }else if (args[2].equalsIgnoreCase("help")) {
                         player.sendMessage("§7The path 'System/Player' has following sub-paths: §fhide, permissions, stats ");
                         event.setCancelled(true);
