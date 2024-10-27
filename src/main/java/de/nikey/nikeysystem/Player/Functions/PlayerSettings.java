@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Player.Functions;
 
+import com.destroystokyo.paper.event.entity.CreeperIgniteEvent;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import net.kyori.adventure.text.Component;
@@ -11,6 +12,8 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreeperPowerEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
@@ -106,4 +109,6 @@ public class PlayerSettings implements Listener {
             updateItemLore(clickedItem,config.getBoolean("hide.settings." + player.getName() + ".croptrample"));
         }
     }
+
+
 }

@@ -39,7 +39,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the second argument: system player or system server
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("player")) {
-                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "mute", "location","profile");
+                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "mute", "location","profile","sound");
             } else if (args[0].equalsIgnoreCase("server")) {
                 return Arrays.asList("command", "settings","performance");
             } else if (args[0].equalsIgnoreCase("security")) {
@@ -288,6 +288,35 @@ public class SystemCommandTabCompleter implements TabCompleter {
         if (args.length == 6 && args[1].equalsIgnoreCase("profile") && args[2].equalsIgnoreCase("set")) {
             return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
         }
+
+        if (args.length == 3 && args[1].equalsIgnoreCase("sound")) {
+            return new ArrayList<>(Arrays.asList("play","download","stopall"));
+        }
+
+        if (args.length == 4 && args[1].equalsIgnoreCase("sound")) {
+            return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+        }
+
+        if (args[1].equalsIgnoreCase("sound") && args[2].equalsIgnoreCase("play")) {
+            if (args.length == 5) {
+                return new ArrayList<>(Arrays.asList("custom","minecraft"));
+            }else if (args.length == 6) {
+                return new ArrayList<>(Arrays.asList("stayinalive","ambient.cave"));
+            }else if (args.length == 7) {
+                return new ArrayList<>(Arrays.asList("1.0"));
+            }else if (args.length == 8) {
+                return new ArrayList<>(Arrays.asList("1.0"));
+            }
+        }
+
+        if (args[1].equalsIgnoreCase("sound") && args[2].equalsIgnoreCase("download")) {
+            if (args.length == 5) {
+                return new ArrayList<>(Arrays.asList("uri"));
+            }else if (args.length == 6) {
+                return new ArrayList<>(Arrays.asList("hash"));
+            }
+        }
+
         return Collections.emptyList();
     }
 }
