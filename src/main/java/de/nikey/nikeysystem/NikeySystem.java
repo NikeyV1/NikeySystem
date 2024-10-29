@@ -2,11 +2,12 @@ package de.nikey.nikeysystem;
 
 import de.nikey.nikeysystem.General.SystemCommandTabCompleter;
 import de.nikey.nikeysystem.Player.API.MuteAPI;
-import de.nikey.nikeysystem.Player.Distributor.MuteDistributer;
 import de.nikey.nikeysystem.Player.Distributor.PermissionDistributor;
 import de.nikey.nikeysystem.Player.Distributor.HideDistributor;
 import de.nikey.nikeysystem.Player.Functions.*;
 import de.nikey.nikeysystem.General.CommandRegister;
+import de.nikey.nikeysystem.Player.Settings.HideSettings;
+import de.nikey.nikeysystem.Player.Settings.InventorySettings;
 import de.nikey.nikeysystem.Security.Distributor.SystemShieldDistributor;
 import de.nikey.nikeysystem.Security.Functions.SystemShieldFunctions;
 import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
@@ -19,9 +20,6 @@ import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.lang.management.ManagementFactory;
-import java.lang.management.OperatingSystemMXBean;
 
 public final class NikeySystem extends JavaPlugin {
 
@@ -47,11 +45,12 @@ public final class NikeySystem extends JavaPlugin {
         manager.registerEvents(new SystemShieldFunctions(), this);
         manager.registerEvents(new SettingsInvFunctions(), this);
         manager.registerEvents(new InventoryFunctions(), this);
-        manager.registerEvents(new PlayerSettings(),this);
+        manager.registerEvents(new HideSettings(),this);
         manager.registerEvents(new SettingsFunctions(),this);
         manager.registerEvents(new MuteFunctions(),this);
         manager.registerEvents(new LocationFunctions(),this);
         manager.registerEvents(new PerformanceFunctions(),this);
+        manager.registerEvents(new InventorySettings(),this);
         
 
         getCommand("system").setTabCompleter(new SystemCommandTabCompleter());

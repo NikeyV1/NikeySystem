@@ -3,12 +3,15 @@ package de.nikey.nikeysystem.Player.Distributor;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.InventoryAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
+import de.nikey.nikeysystem.Player.Settings.HideSettings;
+import de.nikey.nikeysystem.Player.Settings.InventorySettings;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -72,22 +75,33 @@ public class InventoryDistributor {
             if (args.length == 6) {
                 Player player = Bukkit.getPlayer(args[4]);
                 Player target = Bukkit.getPlayer(args[5]);
-                if (player == null || target == null){
+                if (player == null || !HideAPI.canSee(sender,player)){
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
 
-                if (!HideAPI.canSee(sender,target) || !HideAPI.canSee(sender,player)) {
-                    sender.sendMessage("§cError: wrong usage");
+                if (target == null || !HideAPI.canSee(sender,target)){
+                    InventoryType inventoryType = InventoryType.valueOf(args[5]);
+                    if (inventoryType == InventoryType.PLAYER) {
+                        sender.sendMessage("§cError: wrong usage");
+                        return;
+                    }
+                    sender.openInventory(Bukkit.createInventory(sender, inventoryType));
                     return;
                 }
                 openInventory(player,target);
             }else if (args.length == 5) {
                 Player player = Bukkit.getPlayer(args[4]);
-                if (player == null ||!HideAPI.canSee(sender,player)){
-                    sender.sendMessage("§cError: wrong usage");
+                if (player == null || !HideAPI.canSee(sender,player)){
+                    InventoryType inventoryType = InventoryType.valueOf(args[4]);
+                    if (inventoryType == InventoryType.PLAYER) {
+                        sender.sendMessage("§cError: wrong usage");
+                        return;
+                    }
+                    sender.openInventory(Bukkit.createInventory(sender, inventoryType));
                     return;
                 }
+
                 openInventory(sender,player);
             }
         }else if (cmd.equalsIgnoreCase("openec")) {
@@ -139,6 +153,8 @@ public class InventoryDistributor {
             }
         }else if (args[3].equalsIgnoreCase("help")) {
             sender.sendMessage("§7The path 'System/Player/Inventory' has following sub-paths: §fadd <PlayerName> <Item> [Amount], remove <PlayerName> <Item> [Amount], openinv [playername]<PlayerName>, openec [playername]<PlayerName>, openeq [playername]<PlayerName>.");
+        }else if (args[3].equalsIgnoreCase("Settings")) {
+            InventorySettings.openSettingsMenu(sender);
         }
     }
 

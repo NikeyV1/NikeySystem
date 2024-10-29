@@ -4,7 +4,7 @@ import de.nikey.nikeysystem.General.GeneralAPI;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.NikeySystem;
-import de.nikey.nikeysystem.Player.Functions.PlayerSettings;
+import de.nikey.nikeysystem.Player.Settings.HideSettings;
 import de.nikey.nikeysystem.Security.API.SystemShieldAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -98,7 +98,7 @@ public class HideDistributor {
         } else if (args[3].equalsIgnoreCase("ToggleTrueImmunity") && PermissionAPI.isOwner(player.getName())) {
             toggleTrueImmunity(player,args[4]);
         } else if (args[3].equalsIgnoreCase("Settings")) {
-            PlayerSettings.openSettingsMenu(player);
+            HideSettings.openSettingsMenu(player);
         }
         if (args[3].equalsIgnoreCase("List")) {
             if (PermissionAPI.isOwner(player.getName())) {

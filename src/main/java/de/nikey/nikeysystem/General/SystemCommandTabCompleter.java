@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.General;
 
+import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.LocationAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import org.bukkit.Bukkit;
@@ -9,6 +10,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
@@ -95,13 +97,27 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         // Handle the third argument for system player inventory
         if (args.length == 3 && args[1].equalsIgnoreCase("inventory")) {
-            return Arrays.asList("add", "remove", "openinv", "openec", "openeq");
+            return Arrays.asList("add", "remove", "openinv", "openec", "openeq","settings");
         }
 
         // Handle the fourth argument (player name) for inventory commands that require a player
         if (args.length == 4 && args[1].equalsIgnoreCase("inventory")) {
             // Provide list of online player names as suggestions
-            return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+            if (args[2].equalsIgnoreCase("add") || args[2].equalsIgnoreCase("remove")) {
+                // Provide list of material names (items) for add/remove commands
+                return Arrays.stream(Material.values()).map(Material::name).collect(Collectors.toList());
+            } else if (args[2].equalsIgnoreCase("openec") || args[2].equalsIgnoreCase("openeq")) {
+                // Provide list of online player names for openinv, openec, and openeq
+                return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+            } else if (args[2].equalsIgnoreCase("openinv")) {
+                List<String> playerNames = GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+                for (InventoryType type : InventoryType.values()) {
+                    if (!type.name().equalsIgnoreCase("Player")&& NikeySystem.getPlugin().getConfig().getBoolean("inventory.settings." + player.getName() + ".showinvtype")) {
+                        playerNames.add(type.name());
+                    }
+                }
+                return playerNames;
+            }
         }
 
         // Handle the fifth argument (item or target player) for add, remove, and open commands
@@ -109,9 +125,17 @@ public class SystemCommandTabCompleter implements TabCompleter {
             if (args[2].equalsIgnoreCase("add") || args[2].equalsIgnoreCase("remove")) {
                 // Provide list of material names (items) for add/remove commands
                 return Arrays.stream(Material.values()).map(Material::name).collect(Collectors.toList());
-            } else if (args[2].equalsIgnoreCase("openinv") || args[2].equalsIgnoreCase("openec") || args[2].equalsIgnoreCase("openeq")) {
+            } else if (args[2].equalsIgnoreCase("openec") || args[2].equalsIgnoreCase("openeq")) {
                 // Provide list of online player names for openinv, openec, and openeq
                 return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+            } else if (args[2].equalsIgnoreCase("openinv")) {
+                List<String> playerNames = GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+                for (InventoryType type : InventoryType.values()) {
+                    if (!type.name().equalsIgnoreCase("Player") && NikeySystem.getPlugin().getConfig().getBoolean("inventory.settings." + player.getName() + ".showinvtype")) {
+                        playerNames.add(type.name());
+                    }
+                }
+                return playerNames;
             }
         }
 
@@ -290,11 +314,13 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("sound")) {
-            return new ArrayList<>(Arrays.asList("play","download","stopall"));
+            return new ArrayList<>(Arrays.asList("play","download","stopall","queue","showqueue","clearqueue","removequeue"));
         }
 
         if (args.length == 4 && args[1].equalsIgnoreCase("sound")) {
-            return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+            List<String> list = new ArrayList<>(GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList()));
+            list.add("all");
+            return list;
         }
 
         if (args[1].equalsIgnoreCase("sound") && args[2].equalsIgnoreCase("play")) {
@@ -314,6 +340,26 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 return new ArrayList<>(Arrays.asList("uri"));
             }else if (args.length == 6) {
                 return new ArrayList<>(Arrays.asList("hash"));
+            }
+        }
+
+        if (args[1].equalsIgnoreCase("sound") && args[2].equalsIgnoreCase("removequeue")) {
+            if (args.length == 5) {
+                return new ArrayList<>(Arrays.asList("1","2","5"));
+            }
+        }
+
+        if (args[1].equalsIgnoreCase("sound") && args[2].equalsIgnoreCase("queue")) {
+            if (args.length == 5) {
+                return new ArrayList<>(Arrays.asList("custom","minecraft"));
+            }else if (args.length == 6) {
+                return new ArrayList<>(Arrays.asList("stayinalive","ambient.cave"));
+            }else if (args.length == 7) {
+                return new ArrayList<>(Arrays.asList("1.0"));
+            }else if (args.length == 8) {
+                return new ArrayList<>(Arrays.asList("1.0"));
+            }else if (args.length == 9) {
+                return new ArrayList<>(Arrays.asList("273"));
             }
         }
 
