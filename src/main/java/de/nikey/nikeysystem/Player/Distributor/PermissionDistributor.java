@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
+import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.NikeySystem;
@@ -74,7 +75,7 @@ public class PermissionDistributor {
                 sender.sendMessage("§cError: Player not found");
                 return;
             }
-            if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+            if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(), ShieldCause.TOGGLE_PERMISSION)) {
                 sender.sendMessage("§cError: missing permission");
                 return;
             }

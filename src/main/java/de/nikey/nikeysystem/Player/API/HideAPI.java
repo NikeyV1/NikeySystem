@@ -52,6 +52,8 @@ public class HideAPI {
                 return true;
             } else if (PermissionAPI.isAdmin(player.getName()) && PermissionAPI.isModerator(hidden.getName())) {
                 return true;
+            } else if (PermissionAPI.isAdmin(player.getName()) && !PermissionAPI.isSystemUser(hidden.getName())) {
+                return true;
             } else return getHideImmunity().contains(player.getName()) || getTrueHideImmunity().contains(player.getName());
         }else if (HideAPI.getTrueHiddenNames().contains(hidden.getName())) {
             return PermissionAPI.isOwner(player.getName()) || getTrueHideImmunity().contains(player.getName());
@@ -61,18 +63,18 @@ public class HideAPI {
     }
 
     public static boolean canSee(String player, String hidden) {
-        if (player.equals(hidden)) {
-            return true;
-        }
+        if (player.equals(hidden)) return true;
 
         if (HideAPI.getHiddenPlayerNames().contains(hidden) ) {
-            if (PermissionAPI.isOwner(player) || (PermissionAPI.isAdmin(player) && PermissionAPI.isModerator(hidden))) {
+            if (PermissionAPI.isOwner(player) ) {
+                return true;
+            } else if (PermissionAPI.isAdmin(player) && PermissionAPI.isModerator(hidden)) {
+                return true;
+            } else if (PermissionAPI.isAdmin(player) && !PermissionAPI.isSystemUser(hidden)) {
                 return true;
             } else return getHideImmunity().contains(player) || getTrueHideImmunity().contains(player);
         }else if (HideAPI.getTrueHiddenNames().contains(hidden)) {
             return PermissionAPI.isOwner(player) || getTrueHideImmunity().contains(player) ;
-        }else {
-            return true;
-        }
+        }else return true;
     }
 }

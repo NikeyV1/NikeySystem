@@ -2,6 +2,7 @@ package de.nikey.nikeysystem.Player.Distributor;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
+import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import net.kyori.adventure.text.Component;
@@ -79,7 +80,7 @@ public class ProfileDistributor {
                         sender.sendMessage("§cError: wrong usage");
                         return;
                     }
-                    if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+                    if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(),ShieldCause.SKIN_RESET)) {
                         sender.sendMessage("§cError: missing permission");
                         return;
                     }
@@ -114,7 +115,7 @@ public class ProfileDistributor {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
-                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(), ShieldCause.SKIN_SET)) {
                     sender.sendMessage("§cError: missing permission");
                     return;
                 }
@@ -152,6 +153,17 @@ public class ProfileDistributor {
         }else if (cmd.equalsIgnoreCase("name")) {
             if (args.length == 6) {
                 if (args[4].equalsIgnoreCase("set")) {
+                    String newNickname = args[5];
+
+                    // Überprüfen der Länge und Format des Nicknames
+                    if (newNickname.length() < 3 || newNickname.length() > 16) {
+                        sender.sendMessage(Component.text("Error: name length must be between 3-16"));
+                        return;
+                    }
+
+                    // Ändern des Namens in der Spieler-Tabliste und dem Nametag
+                    sender.displayName(Component.text(newNickname));
+                    sender.playerListName(Component.text(newNickname));
 
                 }
             }

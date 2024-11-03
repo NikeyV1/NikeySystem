@@ -1,6 +1,7 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
 import de.nikey.nikeysystem.General.GeneralAPI;
+import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.NikeySystem;
@@ -171,20 +172,8 @@ public class HideDistributor {
             return;
         }
 
-        if (!PermissionAPI.isAllowedToChange(player.getName(),targetname)) {
+        if (!PermissionAPI.isAllowedToChange(player.getName(),targetname,ShieldCause.HIDE_IMMUNITY)) {
             player.sendMessage("§cError: missing permission");
-            return;
-        }
-
-        if (SystemShieldAPI.isShieldUser(targetname)) {
-            Player target = Bukkit.getPlayer(targetname);
-            if (target != null) {
-                Component textComponent = Component.text("System Shield blocked cause: ")
-                        .color(NamedTextColor.DARK_GRAY)
-                        .append(Component.text("System Player Toggle Hide Immunity").color(NamedTextColor.WHITE));
-
-                target.sendActionBar(textComponent);
-            }
             return;
         }
 
@@ -259,7 +248,7 @@ public class HideDistributor {
             return;
         }
 
-        if (!PermissionAPI.isAllowedToChange(player.getName(),targetName)) {
+        if (!PermissionAPI.isAllowedToChange(player.getName(),targetName, ShieldCause.HIDE_HIDE)) {
             player.sendMessage("§cError: missing permission");
             return;
         }

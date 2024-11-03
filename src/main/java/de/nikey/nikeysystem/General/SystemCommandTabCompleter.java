@@ -5,6 +5,7 @@ import de.nikey.nikeysystem.Player.API.LocationAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -41,9 +42,9 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the second argument: system player or system server
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("player")) {
-                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "mute", "location","profile","sound");
+                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "mute", "location","profile","sound","resourcepack");
             } else if (args[0].equalsIgnoreCase("server")) {
-                return Arrays.asList("command", "settings","performance");
+                return Arrays.asList("command", "settings","performance","world");
             } else if (args[0].equalsIgnoreCase("security")) {
                 return Arrays.asList("System-Shield");
             }
@@ -86,7 +87,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("stats")) {
-            return Arrays.asList("Invulnerable", "Fly", "Collidable", "SleepIgnore", "Invisibility", "VisualFire", "Op", "Reset", "List");
+            return Arrays.asList("Invulnerable", "Fly", "Collidable", "SleepIgnore", "Invisibility", "VisualFire", "Op", "Address","ClientName", "Reset", "List");
         }
 
         // Handle the fourth argument (player name) for stats commands that require a target player
@@ -253,12 +254,14 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
             // Tab-Complete für 'getLocation', 'tp', 'lastseen', 'removeGuard'
             if (args.length == 4) {
-                if (subCommand.equalsIgnoreCase("getlocation") || subCommand.equalsIgnoreCase("tp") || subCommand.equalsIgnoreCase("lastseen")) {
+                if (subCommand.equalsIgnoreCase("getlocation") || subCommand.equalsIgnoreCase("tp")) {
                     // Liste der online Spieler für getLocation, tp, lastseen
                     return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
                 } else if (subCommand.equals("removeguard")) {
                     // Liste der Guards für removeGuard
-                    return LocationAPI.guardLocations.keySet().stream().collect(Collectors.toList());
+                    return new ArrayList<>(LocationAPI.guardLocations.keySet());
+                } else if (subCommand.equalsIgnoreCase("lastseen")) {
+                    return Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList());
                 }
             }
             if (subCommand.equalsIgnoreCase("listGuard") && args.length == 4) {
@@ -314,12 +317,12 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("sound")) {
-            return new ArrayList<>(Arrays.asList("play","download","stopall","queue","showqueue","clearqueue","removequeue"));
+            return new ArrayList<>(Arrays.asList("play","stopall","queue","showqueue","clearqueue","removequeue"));
         }
 
         if (args.length == 4 && args[1].equalsIgnoreCase("sound")) {
             List<String> list = new ArrayList<>(GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList()));
-            list.add("all");
+            if (args[2].equalsIgnoreCase("play"))list.add("all");
             return list;
         }
 
@@ -332,14 +335,6 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 return new ArrayList<>(Arrays.asList("1.0"));
             }else if (args.length == 8) {
                 return new ArrayList<>(Arrays.asList("1.0"));
-            }
-        }
-
-        if (args[1].equalsIgnoreCase("sound") && args[2].equalsIgnoreCase("download")) {
-            if (args.length == 5) {
-                return new ArrayList<>(Arrays.asList("uri"));
-            }else if (args.length == 6) {
-                return new ArrayList<>(Arrays.asList("hash"));
             }
         }
 
@@ -361,6 +356,29 @@ public class SystemCommandTabCompleter implements TabCompleter {
             }else if (args.length == 9) {
                 return new ArrayList<>(Arrays.asList("273"));
             }
+        }
+
+
+        if (args[1].equalsIgnoreCase("ResourcePack") && args.length == 4) {
+            return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+        }
+
+        if (args[1].equalsIgnoreCase("ResourcePack") && args[2].equalsIgnoreCase("download")) {
+            if (args.length == 5) {
+                return new ArrayList<>(Arrays.asList("uri"));
+            }else if (args.length == 6) {
+                return new ArrayList<>(Arrays.asList("hash"));
+            }
+        }
+
+        if (args[1].equalsIgnoreCase("ResourcePack") && args[2].equalsIgnoreCase("remove")) {
+            if (args.length == 4) {
+                return new ArrayList<>(Arrays.asList("1","2"));
+            }
+        }
+
+        if (args.length == 3 && args[1].equalsIgnoreCase("resourcepack")) {
+            return new ArrayList<>(Arrays.asList("download","clear","remove"));
         }
 
         return Collections.emptyList();

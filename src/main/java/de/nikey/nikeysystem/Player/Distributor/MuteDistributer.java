@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
+import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.MuteAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
@@ -21,7 +22,7 @@ public class MuteDistributer {
                     return;
                 }
 
-                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(),ShieldCause.MUTE)) {
                     sender.sendMessage("§cError: missing permission");
                     return;
                 }
@@ -32,7 +33,7 @@ public class MuteDistributer {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
-                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(),ShieldCause.MUTE)) {
                     sender.sendMessage("§cError: missing permission");
                     return;
                 }
@@ -55,7 +56,7 @@ public class MuteDistributer {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
-                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(),ShieldCause.UNMUTE)) {
                     sender.sendMessage("§cError: missing permission");
                     return;
                 }
@@ -70,7 +71,7 @@ public class MuteDistributer {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
-                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(), ShieldCause.TOGGLE_MUTE)) {
                     sender.sendMessage("§cError: missing permission");
                     return;
                 }

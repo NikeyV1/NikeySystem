@@ -52,6 +52,9 @@ public class CommandRegister implements Listener {
                     }else if (args[2].equalsIgnoreCase("sound")) {
                         SoundDistributor.manageSound(player,args);
                         event.setCancelled(true);
+                    }else if (args[2].equalsIgnoreCase("ResourcePack")) {
+                        ResourcePackDistributor.ResourcePackManager(player,args);
+                        event.setCancelled(true);
                     }else if (args[2].equalsIgnoreCase("help")) {
                         player.sendMessage("§7The path 'System/Player' has following sub-paths: §fhide, permissions, stats ");
                         event.setCancelled(true);

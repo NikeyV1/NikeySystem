@@ -1,6 +1,7 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
 import de.nikey.nikeysystem.General.GeneralAPI;
+import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
@@ -31,7 +32,7 @@ public class SoundDistributor {
                 if (args[4].equalsIgnoreCase("all")) {
                     Sound myCustomSound = Sound.sound(Key.key(args[5], args[6]), Sound.Source.MASTER, 1f, 1f);
                     for (Player player : GeneralAPI.getOnlinePlayers(sender)) {
-                        if (PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+                        if (PermissionAPI.isAllowedToChange(sender.getName(),player.getName(), ShieldCause.SOUND_PLAY_ALL)) {
                             player.playSound(myCustomSound);
                             if (PermissionAPI.isSystemUser(player)) {
                                 player.sendActionBar(Component.text("Now Playing: ").color(TextColor.color(52, 183, 235))
@@ -51,7 +52,7 @@ public class SoundDistributor {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
-                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(),ShieldCause.SOUND_PLAY)) {
                     sender.sendMessage("§cError: missing permission");
                     return;
                 }
@@ -71,7 +72,7 @@ public class SoundDistributor {
                 if (args[4].equalsIgnoreCase("all")) {
                     Sound myCustomSound = Sound.sound(Key.key(args[5], args[6]), Sound.Source.MASTER, Float.parseFloat(args[7]), 1f);
                     for (Player player : GeneralAPI.getOnlinePlayers(sender)) {
-                        if (PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+                        if (PermissionAPI.isAllowedToChange(sender.getName(),player.getName(),ShieldCause.SOUND_PLAY_ALL)) {
                             player.playSound(myCustomSound);
                             if (PermissionAPI.isSystemUser(player)) {
                                 player.sendActionBar(Component.text("Now Playing: ").color(TextColor.color(52, 183, 235))
@@ -91,7 +92,7 @@ public class SoundDistributor {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
-                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(),ShieldCause.SOUND_PLAY)) {
                     sender.sendMessage("§cError: missing permission");
                     return;
                 }
@@ -110,7 +111,7 @@ public class SoundDistributor {
                 if (args[4].equalsIgnoreCase("all")) {
                     Sound myCustomSound = Sound.sound(Key.key(args[5], args[6]), Sound.Source.MASTER, Float.parseFloat(args[7]), Float.parseFloat(args[8]));
                     for (Player player : GeneralAPI.getOnlinePlayers(sender)) {
-                        if (PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+                        if (PermissionAPI.isAllowedToChange(sender.getName(),player.getName(),ShieldCause.SOUND_PLAY_ALL)) {
                             player.playSound(myCustomSound);
                             if (PermissionAPI.isSystemUser(player)) {
                                 player.sendActionBar(Component.text("Now Playing: ").color(TextColor.color(52, 183, 235))
@@ -130,7 +131,7 @@ public class SoundDistributor {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
-                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(),ShieldCause.SOUND_PLAY)) {
                     sender.sendMessage("§cError: missing permission");
                     return;
                 }
@@ -148,50 +149,22 @@ public class SoundDistributor {
                         .append(Component.text(player.getName()).color(NamedTextColor.GRAY)));
 
             }
-        }else if (cmd.equalsIgnoreCase("download")) {
-            if (args.length == 5) {
-                Player player = Bukkit.getPlayer(args[4]);
-                if (player == null || !HideAPI.canSee(sender.getName(), player.getName())) {
-                    sender.sendMessage("§cError: wrong usage");
-                    return;
-                }
-                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
-                    sender.sendMessage("§cError: missing permission");
-                    return;
-                }
-                ResourcePackInfo info = ResourcePackInfo.resourcePackInfo()
-                        .uri(URI.create(" https://download.mc-packs.net/pack/7d6ca4c1906ec46e3168459065788165f6c6c9ec.zip"))
-                        .hash("7d6ca4c1906ec46e3168459065788165f6c6c9ec")
-                        .build();
-                SoundAPI.sendResourcePack(player,info);
-            } else if (args.length == 7) {
-                Player player = Bukkit.getPlayer(args[4]);
-                if (player == null || !HideAPI.canSee(sender.getName(), player.getName())) {
-                    sender.sendMessage("§cError: wrong usage");
-                    return;
-                }
-                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
-                    sender.sendMessage("§cError: missing permission");
-                    return;
-                }
-                ResourcePackInfo info = ResourcePackInfo.resourcePackInfo()
-                        .uri(URI.create(args[5]))
-                        .hash(args[6])
-                        .build();
-                SoundAPI.sendResourcePack(player,info);
-            }
         }else if (cmd.equalsIgnoreCase("stopall")){
-            Player player = Bukkit.getPlayer(args[4]);
-            if (player == null || !HideAPI.canSee(sender.getName(), player.getName())) {
-                sender.sendMessage("§cError: wrong usage");
-                return;
-            }
-            if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
-                sender.sendMessage("§cError: missing permission");
-                return;
-            }
+            if (args.length == 4) {
+                sender.stopAllSounds();
+            }else if (args.length == 5) {
+                Player player = Bukkit.getPlayer(args[4]);
+                if (player == null || !HideAPI.canSee(sender.getName(), player.getName())) {
+                    sender.sendMessage("§cError: wrong usage");
+                    return;
+                }
+                if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(),ShieldCause.SOUND_STOPALL)) {
+                    sender.sendMessage("§cError: missing permission");
+                    return;
+                }
 
-            player.stopAllSounds();
+                player.stopAllSounds();
+            }
         }else if (cmd.equalsIgnoreCase("queue")) {
             if (args.length != 10) return;
 
@@ -200,7 +173,7 @@ public class SoundDistributor {
                 sender.sendMessage("§cError: wrong usage");
                 return;
             }
-            if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+            if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(),ShieldCause.SOUND_QUEUE)) {
                 sender.sendMessage("§cError: missing permission");
                 return;
             }
@@ -216,10 +189,6 @@ public class SoundDistributor {
             Player player = Bukkit.getPlayer(args[4]);
             if (player == null || !HideAPI.canSee(sender.getName(), player.getName())) {
                 sender.sendMessage("§cError: wrong usage");
-                return;
-            }
-            if (!PermissionAPI.isAllowedToChange(sender.getName(), player.getName())) {
-                sender.sendMessage("§cError: missing permission");
                 return;
             }
 
@@ -242,7 +211,7 @@ public class SoundDistributor {
                 sender.sendMessage("§cError: wrong usage");
                 return;
             }
-            if (!PermissionAPI.isAllowedToChange(sender.getName(), player.getName())) {
+            if (!PermissionAPI.isAllowedToChange(sender.getName(), player.getName(),ShieldCause.SOUND_QUEUE_CLEAR)) {
                 sender.sendMessage("§cError: missing permission");
                 return;
             }
@@ -266,7 +235,7 @@ public class SoundDistributor {
                 sender.sendMessage("§cError: wrong usage");
                 return;
             }
-            if (!PermissionAPI.isAllowedToChange(sender.getName(), player.getName())) {
+            if (!PermissionAPI.isAllowedToChange(sender.getName(), player.getName(),ShieldCause.SOUND_QUEUE_REMOVE)) {
                 sender.sendMessage("§cError: missing permission");
                 return;
             }

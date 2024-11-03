@@ -8,13 +8,15 @@ import de.nikey.nikeysystem.Player.Functions.*;
 import de.nikey.nikeysystem.General.CommandRegister;
 import de.nikey.nikeysystem.Player.Settings.HideSettings;
 import de.nikey.nikeysystem.Player.Settings.InventorySettings;
+import de.nikey.nikeysystem.Player.Settings.LocationSettings;
 import de.nikey.nikeysystem.Security.Distributor.SystemShieldDistributor;
 import de.nikey.nikeysystem.Security.Functions.SystemShieldFunctions;
 import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
 import de.nikey.nikeysystem.Server.Functions.CommandFunctions;
 import de.nikey.nikeysystem.Server.Functions.PerformanceFunctions;
 import de.nikey.nikeysystem.Server.Functions.SettingsFunctions;
-import de.nikey.nikeysystem.Server.Functions.SettingsInvFunctions;
+import de.nikey.nikeysystem.Server.Settings.ServerSettings;
+import de.nikey.nikeysystem.Server.Settings.WorldSettings;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
@@ -43,7 +45,7 @@ public final class NikeySystem extends JavaPlugin {
         manager.registerEvents(new CommandRegister(),this);
         manager.registerEvents(new CommandFunctions(), this);
         manager.registerEvents(new SystemShieldFunctions(), this);
-        manager.registerEvents(new SettingsInvFunctions(), this);
+        manager.registerEvents(new ServerSettings(), this);
         manager.registerEvents(new InventoryFunctions(), this);
         manager.registerEvents(new HideSettings(),this);
         manager.registerEvents(new SettingsFunctions(),this);
@@ -51,6 +53,9 @@ public final class NikeySystem extends JavaPlugin {
         manager.registerEvents(new LocationFunctions(),this);
         manager.registerEvents(new PerformanceFunctions(),this);
         manager.registerEvents(new InventorySettings(),this);
+        manager.registerEvents(new ResourcePackFunctions(),this);
+        manager.registerEvents(new WorldSettings(),this);
+        manager.registerEvents(new LocationSettings(),this);
         
 
         getCommand("system").setTabCompleter(new SystemCommandTabCompleter());

@@ -1,11 +1,13 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
+import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +26,7 @@ public class StatsDistributor {
             return;
         }
 
-        if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName())) {
+        if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName(), ShieldCause.STATS_CHANGE)) {
             player.sendMessage("§cError: missing permission");
             return;
         }
@@ -86,7 +88,11 @@ public class StatsDistributor {
                 target.setOp(true);
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set Operator §aon"+ChatColor.of("#f08d1d") +" for "+ target.getName());
             }
-        }else if (args[3].equalsIgnoreCase("Reset")) {
+        } else if (args[3].equalsIgnoreCase("Address")) {
+            player.sendMessage(ChatColor.of("#f08d1d") +"Address from §f" +target.getName() + ChatColor.of("#f08d1d") + " is §7" + target.getAddress().toString());
+        } else if (args[3].equalsIgnoreCase("ClientName")) {
+            player.sendMessage(ChatColor.of("#f08d1d") +"Client-Brand-Name from §f" +target.getName() + ChatColor.of("#f08d1d") + " is §7" + target.getClientBrandName());
+        } else if (args[3].equalsIgnoreCase("Reset")) {
             target.setInvulnerable(false);
             target.setAllowFlight(false);
             target.setFlying(false);

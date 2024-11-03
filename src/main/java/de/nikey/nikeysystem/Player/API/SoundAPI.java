@@ -16,13 +16,4 @@ public class SoundAPI {
     public static Map<Player, Queue<Sound>> soundQueues = new HashMap<>(); // Sound-Warteschlange für jeden Spieler
     public static Map<Player, Queue<Long>> durationQueues = new HashMap<>();
 
-    public static void sendResourcePack(Audience target, ResourcePackInfo info) {
-        final ResourcePackRequest request = ResourcePackRequest.resourcePackRequest()
-                .packs(info)
-                .prompt(Component.text("System needs download!"))
-                .required(true)
-                .build();
-
-        target.sendResourcePacks(request);
-    }
 }

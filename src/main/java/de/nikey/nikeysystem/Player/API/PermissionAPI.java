@@ -1,6 +1,10 @@
 package de.nikey.nikeysystem.Player.API;
 
+import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.Security.API.SystemShieldAPI;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -64,15 +68,24 @@ public class PermissionAPI {
         return isAdmin(player) || isModerator(player) || isOwner(player);
     }
 
-    public static boolean isAllowedToChange(String player, String target) {
+    public static boolean isAllowedToChange(String player, String target, ShieldCause cause) {
         if (isSystemUser(player)) {
 
             if (Objects.equals(player, target))return true;
-            if (SystemShieldAPI.isShieldUser(target)) return false;
+            if (SystemShieldAPI.isShieldUser(target)){
+                Player p = Bukkit.getPlayer(target);
+                if (p == null)return false;
 
-            if (!isSystemUser(target)) {
-                return true;
+                Component textComponent = Component.text("System Shield blocked cause: ")
+                        .color(NamedTextColor.DARK_GRAY)
+                        .append(Component.text(cause.name()).color(NamedTextColor.DARK_AQUA))
+                        .append(Component.text(" from ")).color(NamedTextColor.DARK_GRAY)
+                        .append(Component.text(player).color(NamedTextColor.WHITE));
+
+                p.sendActionBar(textComponent);
             }
+
+            if (!isSystemUser(target)) return true;
 
             if (isOwner(player)) {
                 return true;

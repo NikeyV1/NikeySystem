@@ -1,6 +1,7 @@
 package de.nikey.nikeysystem.Server.Distributor;
 
 import de.nikey.nikeysystem.General.GeneralAPI;
+import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
@@ -32,7 +33,6 @@ public class PerformanceDistributor {
         String cmd = args[3];
         if (cmd.isEmpty()) return;
 
-        // Mute Command
         if (cmd.equalsIgnoreCase("toggletpsbar")) {
             Player target = sender;
             if (args.length == 5) {
@@ -42,7 +42,7 @@ public class PerformanceDistributor {
                     return;
                 }
 
-                if (!PermissionAPI.isAllowedToChange(sender.getName(),target.getName())) {
+                if (!PermissionAPI.isAllowedToChange(sender.getName(),target.getName(), ShieldCause.PERFORMANCE_TPSBAR)) {
                     sender.sendMessage("§cError: missing permission");
                     return;
                 }

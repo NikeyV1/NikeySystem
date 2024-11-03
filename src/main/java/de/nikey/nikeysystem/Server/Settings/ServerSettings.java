@@ -1,4 +1,4 @@
-package de.nikey.nikeysystem.Server.Functions;
+package de.nikey.nikeysystem.Server.Settings;
 
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Server.API.SettingsAPI;
@@ -11,9 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.inventory.Inventory;
@@ -24,7 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.function.Consumer;
 
 
-public class SettingsInvFunctions implements Listener {
+public class ServerSettings implements Listener {
 
     private final String inventoryTitle = ChatColor.BLUE + "Server Settings";
 
@@ -46,10 +44,8 @@ public class SettingsInvFunctions implements Listener {
 
         addItemToInventory(inventory, 0, Material.PAPER, "MOTD changing");
         addItemToInventory(inventory, 1, Material.IRON_DOOR, "Whitelist toggle");
-        addItemToInventory(inventory, 2, Material.DIAMOND_SWORD, "PvP toggle");
-        addItemToInventory(inventory, 3, Material.ZOMBIE_HEAD, "Difficulty cycle");
-        addItemToInventory(inventory, 4, Material.PLAYER_HEAD, "Max players");
-        addItemToInventory(inventory, 5, Material.NAME_TAG, "Remove from /plugin");
+        addItemToInventory(inventory, 2, Material.PLAYER_HEAD, "Max players");
+        addItemToInventory(inventory, 3, Material.NAME_TAG, "Remove from /plugin");
 
         player.openInventory(inventory);
     }
@@ -85,9 +81,6 @@ public class SettingsInvFunctions implements Listener {
             case Slot.WHITELIST_TOGGLE:
                 toggleSetting(player, "Whitelist", Bukkit.getServer().hasWhitelist(), Bukkit.getServer()::setWhitelist);
                 break;
-            case Slot.DIFFICULTY_CHANGE:
-                cycleDifficulty(player);
-                break;
             case Slot.MAX_PLAYERS_CHANGE:
                 requestInput(player, "Enter the new maximum number of players in chat:", input -> {
                     try {
@@ -98,9 +91,6 @@ public class SettingsInvFunctions implements Listener {
                         player.sendMessage(ChatColor.RED + "Invalid number! Please try again.");
                     }
                 });
-                break;
-            case Slot.PVP:
-                toggleSetting(player, "PVP", player.getWorld().getPVP(), player.getWorld()::setPVP);
                 break;
             case Slot.REMOVE_FROM_PLUGINCMD:
                 boolean enabled = NikeySystem.getPlugin().getConfig().getBoolean("system.setting.remove_from_plugincmd");
@@ -126,18 +116,6 @@ public class SettingsInvFunctions implements Listener {
         SettingsAPI.inputRequests.put(player, onInputReceived);
     }
 
-    private void cycleDifficulty(Player player) {
-        Difficulty currentDifficulty = player.getWorld().getDifficulty();
-        Difficulty nextDifficulty = switch (currentDifficulty) {
-            case PEACEFUL -> Difficulty.EASY;
-            case EASY -> Difficulty.NORMAL;
-            case NORMAL -> Difficulty.HARD;
-            case HARD -> Difficulty.PEACEFUL;
-        };
-        player.getWorld().setDifficulty(nextDifficulty);
-        player.sendMessage(ChatColor.GREEN + "Difficulty set to " + nextDifficulty.name());
-    }
-
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
@@ -154,13 +132,11 @@ public class SettingsInvFunctions implements Listener {
         }
     }
 
-    private static class Slot {
+    public static class Slot {
         static final int MOTD_CHANGE = 0;
         static final int WHITELIST_TOGGLE = 1;
-        static final int PVP = 2;
-        static final int DIFFICULTY_CHANGE = 3;
-        static final int MAX_PLAYERS_CHANGE = 4;
-        static final int REMOVE_FROM_PLUGINCMD = 5;
+        static final int MAX_PLAYERS_CHANGE = 2;
+        static final int REMOVE_FROM_PLUGINCMD = 3;
 
     }
 

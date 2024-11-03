@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
+import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.InventoryAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
@@ -164,7 +165,7 @@ public class InventoryDistributor {
             sender.sendMessage("§cError: unknown item: " + itemName);
             return;
         }
-        if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+        if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(),ShieldCause.INVENTORY_ADD_ITEM)) {
             sender.sendMessage("§cError: missing permission");
             return;
         }
@@ -182,7 +183,7 @@ public class InventoryDistributor {
             sender.sendMessage("§cError: unknown item: " + itemName);
             return;
         }
-        if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName())) {
+        if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(),ShieldCause.INVENTORY_REMOVING_ITEM)) {
             sender.sendMessage("§cError: missing permission");
             return;
         }
@@ -226,7 +227,7 @@ public class InventoryDistributor {
     }
 
     private static void openInventory(Player player, Player target) {
-        if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName())) {
+        if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName(),ShieldCause.INVENTORY_OPEN_INVENTORY)) {
             player.sendMessage("§cError: missing permission");
             return;
         }
@@ -234,7 +235,7 @@ public class InventoryDistributor {
     }
 
     private static void openEc(Player player, Player target) {
-        if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName())) {
+        if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName(),ShieldCause.INVENTORY_OPEN_ENDERCHEST)) {
             player.sendMessage("§cError: missing permission");
             return;
         }
@@ -242,13 +243,12 @@ public class InventoryDistributor {
     }
 
     private static void openEq(Player player, Player target) {
-        if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName())) {
+        if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName(), ShieldCause.INVENTORY_OPEN_EQUIPMENT)) {
             player.sendMessage("§cError: missing permission");
             return;
         }
 
         EntityEquipment equipment = target.getEquipment();
-        assert equipment != null;
         ItemStack[] armorContents = equipment.getArmorContents();
         Inventory inventory = Bukkit.createInventory(null, 9, "Equipment");
         for (int i = 0; i < 4; i++) {

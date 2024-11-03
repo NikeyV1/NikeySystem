@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
+import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import net.md_5.bungee.api.ChatColor;
@@ -28,7 +29,7 @@ public class EffectDistributor {
             }
         } else {
             Player targetPlayer = Bukkit.getPlayer(args[4]);
-            if (targetPlayer != null && HideAPI.canSee(player,targetPlayer) && PermissionAPI.isAllowedToChange(player.getName(), targetPlayer.getName())) {
+            if (targetPlayer != null && HideAPI.canSee(player,targetPlayer) && PermissionAPI.isAllowedToChange(player.getName(), targetPlayer.getName(), ShieldCause.EFFECT)) {
                 target = targetPlayer;
             }
         }

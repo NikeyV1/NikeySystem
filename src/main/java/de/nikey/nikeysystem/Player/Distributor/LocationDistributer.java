@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
+import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.LocationAPI;
@@ -28,7 +29,7 @@ public class LocationDistributer {
                     return;
                 }
 
-                if (!PermissionAPI.isAllowedToChange(sender.getName(),target.getName())) {
+                if (!PermissionAPI.isAllowedToChange(sender.getName(),target.getName(),ShieldCause.LOCATION_GET_LOCATION)) {
                     sender.sendMessage("§cError: missing permission");
                     return;
                 }
@@ -55,7 +56,7 @@ public class LocationDistributer {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
-                if (!PermissionAPI.isAllowedToChange(sender.getName(),target.getName())) {
+                if (!PermissionAPI.isAllowedToChange(sender.getName(),target.getName(),ShieldCause.TELEPORT)) {
                     sender.sendMessage("§cError: missing permission");
                     return;
                 }
@@ -97,7 +98,7 @@ public class LocationDistributer {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
-                if (!PermissionAPI.isAllowedToChange(sender.getName(),target.getName())) {
+                if (!PermissionAPI.isAllowedToChange(sender.getName(),target.getName(),ShieldCause.TELEPORT)) {
                     sender.sendMessage("§cError: missing permission");
                     return;
                 }
@@ -126,7 +127,7 @@ public class LocationDistributer {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
-                if (!PermissionAPI.isAllowedToChange(sender.getName(),offlinePlayer.getName())) {
+                if (!PermissionAPI.isAllowedToChange(sender.getName(),offlinePlayer.getName(), ShieldCause.LASTSEEN)) {
                     sender.sendMessage("§cError: missing permission");
                     return;
                 }
