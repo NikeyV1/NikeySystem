@@ -177,13 +177,35 @@ public class WorldDistributor {
         }else if (cmd.equalsIgnoreCase("settings")) {
             WorldSettings.openSettingsInventory(sender);
         }else if (cmd.equalsIgnoreCase("load")) {
-            World world = Bukkit.getWorld(args[4]);
-            if (world == null) {
-                sender.sendMessage("§cError: world not found");
-                return;
+            if (args.length == 5) {
+                String worldName = args[4];
+                File worldFolder = new File(Bukkit.getWorldContainer(), worldName);
+
+        // Prüfen, ob der Ordner der Welt existiert
+                if (worldFolder.exists() && worldFolder.isDirectory()) {
+                    World world = Bukkit.getWorld(worldName);
+
+            // Wenn die Welt bereits geladen ist
+                    if (world != null) {
+                        sender.sendMessage(Component.text("World '").color(TextColor.color(25,167,80))
+                            .append(Component.text(world.getName()).color(NamedTextColor.WHITE))
+                            .append(Component.text("' is already loaded.").color(TextColor.color(25,167,80))));
+                    } else {
+                // Welt laden
+                        WorldCreator creator = new WorldCreator(worldName);
+                        world = Bukkit.createWorld(creator);
+                
+                        sender.sendMessage(Component.text("World '").color(TextColor.color(25,167,80))
+                            .append(Component.text(worldName).color(NamedTextColor.WHITE))
+                            .append(Component.text("' has been successfully loaded.").color(TextColor.color(25,167,80))));
+                    }
+                } else {
+            // Fehlermeldung, wenn die Welt nicht existiert
+                    sender.sendMessage(Component.text("Error: World '").color(NamedTextColor.RED)
+                        .append(Component.text(worldName).color(NamedTextColor.WHITE))
+                        .append(Component.text("' does not exist.").color(NamedTextColor.RED)));
+                }
             }
-
-
         }
     }
 }
