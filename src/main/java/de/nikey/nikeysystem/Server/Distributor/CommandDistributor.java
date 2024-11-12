@@ -52,6 +52,7 @@ public class CommandDistributor {
                     saveBlockedCommands();
                     player.sendMessage("§7Now §cblocking §7command: §f§n" + args[4]);
                 }
+                Bukkit.getServer().reloadCommandAliases();
             }
         }else if (args[3].equalsIgnoreCase("blockplayer")) {
             if (PermissionAPI.isAdmin(player.getName()) || PermissionAPI.isOwner(player.getName())) {
@@ -75,6 +76,7 @@ public class CommandDistributor {
                     player.sendMessage("§7Now §cblocking §7command for§8 "+target.getName()+": §n§f" + args[5]);
                     target.updateCommands();
                 }
+                Bukkit.getServer().reloadCommandAliases();
             }
         }else if (args[3].equalsIgnoreCase("list")) {
             List<String> messages = new ArrayList<>(CommandAPI.getDisabledCommands());

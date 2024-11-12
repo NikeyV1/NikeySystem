@@ -3,10 +3,10 @@ package de.nikey.nikeysystem.General;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.LocationAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.World;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.potion.PotionEffectType;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -379,6 +380,57 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         if (args.length == 3 && args[1].equalsIgnoreCase("resourcepack")) {
             return new ArrayList<>(Arrays.asList("download","clear","remove"));
+        }
+
+        if (args.length == 3 && args[1].equalsIgnoreCase("world")) {
+            return new ArrayList<>(Arrays.asList("create","delete","tp","list","settings","load"));
+        }
+
+        if (args[1].equalsIgnoreCase("world") && args[2].equalsIgnoreCase("create")) {
+            if (args.length == 4) {
+                return new ArrayList<>(Arrays.asList("name"));
+            }else if (args.length == 5) {
+                return new ArrayList<>(Arrays.asList("seed"));
+            }else if (args.length == 6) {
+                return Arrays.stream(World.Environment.values()).map(World.Environment::name).collect(Collectors.toList());
+            }else if (args.length == 7) {
+                return Arrays.stream(WorldType.values()).map(WorldType::name).collect(Collectors.toList());
+            }else if (args.length == 8) {
+                return new ArrayList<>(Arrays.asList("true","false"));
+            }
+        }
+
+        if (args[1].equalsIgnoreCase("world") && args[2].equalsIgnoreCase("delete")) {
+            if (args.length == 4) {
+                return Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());
+            }
+        }
+
+        if (args[1].equalsIgnoreCase("world") && args[2].equalsIgnoreCase("tp")) {
+            if (args.length == 4) {
+                return Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());
+            }
+        }
+
+        if (args[1].equalsIgnoreCase("world") && args[2].equalsIgnoreCase("load")) {
+            if (args.length == 4) {
+                File worldContainer = Bukkit.getWorldContainer();
+
+                // Durchlaufen aller Verzeichnisse im world-Ordner
+                List<String> worlds = new ArrayList<>();
+                if (worldContainer.listFiles() == null)return null;
+                for (File file : worldContainer.listFiles()) {
+                    if (file.isDirectory()) {
+                        String worldName = file.getName();
+                        List<String > folder = Arrays.asList("plugins","versions","logs","libraries","debug","config","cache");
+
+                        if (Bukkit.getWorld(worldName) == null && !folder.contains(worldName)) {
+                            worlds.add(worldName);
+                        }
+                    }
+                }
+                return worlds;
+            }
         }
 
         return Collections.emptyList();

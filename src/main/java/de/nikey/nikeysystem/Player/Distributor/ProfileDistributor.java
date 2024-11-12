@@ -105,7 +105,7 @@ public class ProfileDistributor {
                         player.setPlayerProfile(playerProfile);
 
                     } catch (IllegalStateException | IOException | NullPointerException exception) {
-                        player.sendMessage("§cFailed to reset skin Cause: "+ exception.getCause());
+                        sender.sendMessage("§cFailed to reset skin Cause: "+ exception.getCause());
                     }
                     sender.sendMessage(Component.text("Reset ").color(TextColor.color(211, 102, 217)).append(Component.text(player.getName()+"'s").color(NamedTextColor.WHITE)).append(Component.text(" skin").color(TextColor.color(211, 102, 217))));
                 }
@@ -146,7 +146,7 @@ public class ProfileDistributor {
                                 .append(Component.text(" skin to ")).append(Component.text(args[6]+"'s").color(NamedTextColor.WHITE))
                                 .append(Component.text(" skin").color(TextColor.color(211, 102, 217))));
                     } catch (IllegalStateException | IOException | NullPointerException exception) {
-                        player.sendMessage("§cFailed to set skin Cause: "+ exception.getCause());
+                        sender.sendMessage("§cFailed to set skin Cause: "+ exception.getCause());
                     }
                 }
             }
@@ -154,16 +154,10 @@ public class ProfileDistributor {
             if (args.length == 6) {
                 if (args[4].equalsIgnoreCase("set")) {
                     String newNickname = args[5];
-
-                    // Überprüfen der Länge und Format des Nicknames
-                    if (newNickname.length() < 3 || newNickname.length() > 16) {
-                        sender.sendMessage(Component.text("Error: name length must be between 3-16"));
-                        return;
-                    }
-
                     // Ändern des Namens in der Spieler-Tabliste und dem Nametag
                     sender.displayName(Component.text(newNickname));
                     sender.playerListName(Component.text(newNickname));
+                    
 
                 }
             }

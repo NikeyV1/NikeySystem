@@ -11,6 +11,7 @@ import de.nikey.nikeysystem.Player.Settings.InventorySettings;
 import de.nikey.nikeysystem.Player.Settings.LocationSettings;
 import de.nikey.nikeysystem.Security.Distributor.SystemShieldDistributor;
 import de.nikey.nikeysystem.Security.Functions.SystemShieldFunctions;
+import de.nikey.nikeysystem.Server.API.WorldAPI;
 import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
 import de.nikey.nikeysystem.Server.Functions.CommandFunctions;
 import de.nikey.nikeysystem.Server.Functions.PerformanceFunctions;
@@ -20,6 +21,7 @@ import de.nikey.nikeysystem.Server.Settings.WorldSettings;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -64,6 +66,8 @@ public final class NikeySystem extends JavaPlugin {
             world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, true);
             world.setGameRule(GameRule.SEND_COMMAND_FEEDBACK,true);
         }
+
+        WorldAPI.loadWorlds();
     }
 
     @Override

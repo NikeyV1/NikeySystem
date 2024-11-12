@@ -63,6 +63,7 @@ public class CommandFunctions implements Listener {
 
         if (!PermissionAPI.isSystemUser(event.getPlayer())) {
             event.getCommands().remove("system");
+            event.getCommands().remove("nikeysystem:system");
         }
 
         if (!PermissionAPI.isOwner(event.getPlayer().getName())) {

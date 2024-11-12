@@ -1,23 +1,29 @@
 package de.nikey.nikeysystem.Server.Distributor;
 
-import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
+import de.nikey.nikeysystem.Server.API.WorldAPI;
 import de.nikey.nikeysystem.Server.Settings.WorldSettings;
-import io.papermc.paper.entity.TeleportFlag;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
-public class WorldDistributor {
+public class WorldDistributor implements Listener {
     public static void worldManager(Player sender, String[] args) {
         String cmd = args[3];
         if (cmd.isEmpty()) return;
@@ -151,22 +157,12 @@ public class WorldDistributor {
 
             for (World world : Bukkit.getWorlds()) {
                 String worldName = world.getName();
-                Component worldComponent;
-
-                switch (worldName.toLowerCase()) {
-                    case "world":
-                        worldComponent = Component.text(worldName, NamedTextColor.GREEN);
-                        break;
-                    case "world_nether":
-                        worldComponent = Component.text(worldName, NamedTextColor.RED);
-                        break;
-                    case "world_the_end":
-                        worldComponent = Component.text(worldName, NamedTextColor.DARK_PURPLE);
-                        break;
-                    default:
-                        worldComponent = Component.text(worldName, NamedTextColor.BLUE);
-                        break;
-                }
+                Component worldComponent = switch (worldName.toLowerCase()) {
+                    case "world" -> Component.text(worldName, NamedTextColor.GREEN);
+                    case "world_nether" -> Component.text(worldName, NamedTextColor.RED);
+                    case "world_the_end" -> Component.text(worldName, NamedTextColor.YELLOW);
+                    default -> Component.text(worldName, NamedTextColor.BLUE);
+                };
 
                 // Add line break and append to the message
                 message = message.append(worldComponent).append(Component.text("\n"));
@@ -181,31 +177,99 @@ public class WorldDistributor {
                 String worldName = args[4];
                 File worldFolder = new File(Bukkit.getWorldContainer(), worldName);
 
-        // Prüfen, ob der Ordner der Welt existiert
+                // Prüfen, ob der Ordner der Welt existiert
                 if (worldFolder.exists() && worldFolder.isDirectory()) {
+                    List<String > folder = Arrays.asList("plugins","versions","logs","libraries","debug","config","cache");
+                    if (folder.contains(worldName)){
+                        sender.sendMessage(Component.text("World '").color(TextColor.color(25,167,80))
+                                .append(Component.text(worldName).color(NamedTextColor.WHITE))
+                                .append(Component.text("' is not a world").color(TextColor.color(25,167,80))));
+                        return;
+                    }
                     World world = Bukkit.getWorld(worldName);
-
-            // Wenn die Welt bereits geladen ist
+                    
                     if (world != null) {
                         sender.sendMessage(Component.text("World '").color(TextColor.color(25,167,80))
-                            .append(Component.text(world.getName()).color(NamedTextColor.WHITE))
-                            .append(Component.text("' is already loaded.").color(TextColor.color(25,167,80))));
+                                .append(Component.text(world.getName()).color(NamedTextColor.WHITE))
+                                .append(Component.text("' is already loaded").color(TextColor.color(25,167,80))));
                     } else {
-                // Welt laden
+                        // Welt laden
                         WorldCreator creator = new WorldCreator(worldName);
-                        world = Bukkit.createWorld(creator);
-                
+                        Bukkit.createWorld(creator);
+
                         sender.sendMessage(Component.text("World '").color(TextColor.color(25,167,80))
-                            .append(Component.text(worldName).color(NamedTextColor.WHITE))
-                            .append(Component.text("' has been successfully loaded.").color(TextColor.color(25,167,80))));
+                                .append(Component.text(worldName).color(NamedTextColor.WHITE))
+                                .append(Component.text("' has been successfully loaded").color(TextColor.color(25,167,80))));
                     }
                 } else {
-            // Fehlermeldung, wenn die Welt nicht existiert
+                    // Fehlermeldung, wenn die Welt nicht existiert
                     sender.sendMessage(Component.text("Error: World '").color(NamedTextColor.RED)
-                        .append(Component.text(worldName).color(NamedTextColor.WHITE))
-                        .append(Component.text("' does not exist.").color(NamedTextColor.RED)));
+                            .append(Component.text(worldName).color(NamedTextColor.WHITE))
+                            .append(Component.text("' does not exist").color(NamedTextColor.RED)));
+                }
+            }
+        } else if (cmd.equalsIgnoreCase("createTempWorld")) {
+            String worldName = "temp_" + sender.getName();
+
+            // Prüfen, ob die Welt bereits existiert
+            if (Bukkit.getWorld(worldName) != null) {
+                sender.sendMessage(Component.text("You already have a temp world").color(NamedTextColor.RED));
+                return;
+            }
+
+            // Temporäre Welt für den Spieler erstellen
+            WorldCreator creator = new WorldCreator(worldName);
+            World world = creator.createWorld();
+
+            // Benachrichtigung an den Spieler
+            WorldAPI.tempWorld.put(sender,world);
+            sender.sendMessage(
+                    Component.text("Your test world ")
+                            .color(TextColor.color(25, 167, 80))
+                            .append(Component.text(" has been created!").color(TextColor.color(25, 167, 80)))
+                            .append(Component.text("[Click to Teleport]")
+                                    .color(NamedTextColor.AQUA)
+                                    .decorate(TextDecoration.BOLD)
+                                    .clickEvent(ClickEvent.suggestCommand("/system server world tp " + worldName)))
+            );
+
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        unloadAndDeleteWorld(WorldAPI.tempWorld.get(event.getPlayer()));
+        WorldAPI.tempWorld.remove(event.getPlayer());
+    }
+
+
+    @EventHandler
+    public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
+        if (event.getFrom() == WorldAPI.tempWorld.get(event.getPlayer())) {
+            unloadAndDeleteWorld(event.getFrom());
+            WorldAPI.tempWorld.remove(event.getPlayer());
+        }
+    }
+
+    private void unloadAndDeleteWorld(World world) {
+        String worldName = world.getName();
+        Bukkit.unloadWorld(world, false);
+
+        File worldFolder = new File(Bukkit.getWorldContainer(), worldName);
+        deleteDirectory(worldFolder);
+    }
+
+    private void deleteDirectory(File directory) {
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteDirectory(file);
+                } else {
+                    file.delete();
                 }
             }
         }
+        directory.delete();
     }
 }

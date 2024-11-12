@@ -1,38 +1,59 @@
 package de.nikey.nikeysystem.Server.API;
 
 import de.nikey.nikeysystem.NikeySystem;
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.WorldCreator;
 import org.bukkit.entity.Player;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.function.Consumer;
+import java.util.List;
 
 public class WorldAPI {
 
-    public static List<String> getAutoStartingWorlds() {
-        return NikeySystem.getPlugin().getConfig().getStringList("system.world.autostartworlds");
+    public static HashMap<Player, World> tempWorld = new HashMap<>();
+
+    public static List<String> getAutoStarting() {
+        List<String> autostartWorlds = new ArrayList<>(NikeySystem.getPlugin().getConfig().getStringList("system.world.autostartworlds"));
+        File worldContainer = Bukkit.getWorldContainer();
+
+        autostartWorlds.removeIf(worldName -> !new File(worldContainer, worldName).exists());
+
+        NikeySystem.getPlugin().getConfig().set("system.world.autostartworlds", autostartWorlds);
+        NikeySystem.getPlugin().saveConfig();
+        return autostartWorlds;
     }
 
-    public static void addAutoStartToWorld(World world) {
+    public static void addAutoStart(World world) {
         List<String> worlds = NikeySystem.getPlugin().getConfig().getStringList("system.world.autostartworlds");
 
-        if (!worlds.contains(world)) {
-            worlds.add(world);
+        if (!worlds.contains(world.getName())) {
+            worlds.add(world.getName());
             NikeySystem.getPlugin().getConfig().set("system.world.autostartworlds", worlds);
             NikeySystem.getPlugin().saveConfig();
         }
     }
 
-    public static void unblockCommandForPlayer(Player player, String command) {
-        String playerName = player.getName();
-        List<String> blockedCommands = NikeySystem.getPlugin().getConfig().getStringList("blockedCommands." + playerName);
+    public static void removeAutoStart(World world) {
+        List<String> worlds = NikeySystem.getPlugin().getConfig().getStringList("system.world.autostartworlds");
 
-        if (blockedCommands.contains(command)) {
-            blockedCommands.remove(command);
-            NikeySystem.getPlugin().getConfig().set("blockedCommands." + playerName, blockedCommands);
+        if (worlds.contains(world.getName())) {
+            worlds.remove(world.getName());
+            NikeySystem.getPlugin().getConfig().set("system.world.autostartworlds", worlds);
             NikeySystem.getPlugin().saveConfig();
+        }
+    }
+
+    public static boolean isAutoStaring(World world) {
+        List<String> stringList = NikeySystem.getPlugin().getConfig().getStringList("system.world.autostartworlds");
+        return stringList.contains(world.getName());
+    }
+
+    public static void loadWorlds() {
+        for (String worlds : getAutoStarting()) {
+            Bukkit.createWorld(new WorldCreator(worlds));
         }
     }
 }
