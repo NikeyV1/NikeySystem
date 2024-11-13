@@ -16,6 +16,7 @@ import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
 import de.nikey.nikeysystem.Server.Functions.CommandFunctions;
 import de.nikey.nikeysystem.Server.Functions.PerformanceFunctions;
 import de.nikey.nikeysystem.Server.Functions.SettingsFunctions;
+import de.nikey.nikeysystem.Server.Functions.WorldFunctions;
 import de.nikey.nikeysystem.Server.Settings.ServerSettings;
 import de.nikey.nikeysystem.Server.Settings.WorldSettings;
 import org.bukkit.Bukkit;
@@ -58,6 +59,7 @@ public final class NikeySystem extends JavaPlugin {
         manager.registerEvents(new ResourcePackFunctions(),this);
         manager.registerEvents(new WorldSettings(),this);
         manager.registerEvents(new LocationSettings(),this);
+        manager.registerEvents(new WorldFunctions(),this);
         
 
         getCommand("system").setTabCompleter(new SystemCommandTabCompleter());
@@ -73,6 +75,8 @@ public final class NikeySystem extends JavaPlugin {
     @Override
     public void onDisable() {
         MuteAPI.saveMutedPlayers();
+        WorldFunctions.deleteAndUnloadTemporaryWorlds();
+        WorldFunctions.deleteTemporaryWorlds();
     }
 
     public static NikeySystem getPlugin() {

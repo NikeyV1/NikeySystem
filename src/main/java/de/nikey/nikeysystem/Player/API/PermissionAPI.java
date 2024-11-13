@@ -60,6 +60,10 @@ public class PermissionAPI {
         return player.equalsIgnoreCase("NikeyV1");
     }
 
+    public static String getOwner() {
+        return "NikeyV1";
+    }
+
     public static boolean isSystemUser(Player player) {
         return isAdmin(player.getName()) || isModerator(player.getName()) || isOwner(player.getName());
     }

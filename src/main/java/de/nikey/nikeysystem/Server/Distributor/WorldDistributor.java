@@ -12,18 +12,16 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
-public class WorldDistributor implements Listener {
+public class WorldDistributor {
     public static void worldManager(Player sender, String[] args) {
         String cmd = args[3];
         if (cmd.isEmpty()) return;
@@ -33,29 +31,36 @@ public class WorldDistributor implements Listener {
                 if (args.length == 5) {
                     WorldCreator creator = new WorldCreator(args[4]);
 
-                    World world = Bukkit.createWorld(creator);
+                    Bukkit.createWorld(creator);
+                    WorldAPI.setWorldOwner(creator.name(),sender.getName());
                     //Save world and load world missing
                     sender.sendMessage(Component.text("The world ").color(TextColor.color(25,167,80))
                             .append(Component.text(creator.name()).color(NamedTextColor.WHITE))
                             .append(Component.text(" was created").color(TextColor.color(25,167,80))));
                 } else if (args.length == 6) {
                     WorldCreator creator = new WorldCreator(args[4]);
-                    long l = Long.parseLong(args[5]);
-                    creator.seed(l);
+                    if (!args[5].equalsIgnoreCase("seed")) {
+                        long l = Long.parseLong(args[5]);
+                        creator.seed(l);
+                    }
 
                     Bukkit.createWorld(creator);
+                    WorldAPI.setWorldOwner(creator.name(),sender.getName());
                     sender.sendMessage(Component.text("The world ").color(TextColor.color(25,167,80))
                             .append(Component.text(creator.name()).color(NamedTextColor.WHITE))
                             .append(Component.text(" was created with seed: ").color(TextColor.color(25,167,80)))
                             .append(Component.text(creator.seed()).color(NamedTextColor.GRAY)));
                 }else if (args.length == 7) {
                     WorldCreator creator = new WorldCreator(args[4]);
-                    long l = Long.parseLong(args[5]);
-                    creator.seed(l);
+                    if (!args[5].equalsIgnoreCase("seed")) {
+                        long l = Long.parseLong(args[5]);
+                        creator.seed(l);
+                    }
                     World.Environment environment = World.Environment.valueOf(args[6]);
                     creator.environment(environment);
 
                     Bukkit.createWorld(creator);
+                    WorldAPI.setWorldOwner(creator.name(),sender.getName());
                     sender.sendMessage(Component.text("The world ").color(TextColor.color(25,167,80))
                             .append(Component.text(creator.name()).color(NamedTextColor.WHITE))
                             .append(Component.text(" was created with seed: ").color(TextColor.color(25,167,80)))
@@ -64,13 +69,16 @@ public class WorldDistributor implements Listener {
                             .append(Component.text(creator.environment().name()).color(NamedTextColor.DARK_AQUA)));
                 }else if (args.length == 8) {
                     WorldCreator creator = new WorldCreator(args[4]);
-                    long l = Long.parseLong(args[5]);
-                    creator.seed(l);
+                    if (!args[5].equalsIgnoreCase("seed")) {
+                        long l = Long.parseLong(args[5]);
+                        creator.seed(l);
+                    }
                     World.Environment environment = World.Environment.valueOf(args[6]);
                     creator.environment(environment);
                     creator.type(WorldType.valueOf(args[7]));
 
                     Bukkit.createWorld(creator);
+                    WorldAPI.setWorldOwner(creator.name(),sender.getName());
                     sender.sendMessage(Component.text("The world ").color(TextColor.color(25,167,80))
                             .append(Component.text(creator.name()).color(NamedTextColor.WHITE))
                             .append(Component.text(" was created with seed: ").color(TextColor.color(25,167,80)))
@@ -81,14 +89,17 @@ public class WorldDistributor implements Listener {
                             .append(Component.text(creator.type().name()).color(NamedTextColor.DARK_GREEN)));
                 }else if (args.length == 9) {
                     WorldCreator creator = new WorldCreator(args[4]);
-                    long l = Long.parseLong(args[5]);
-                    creator.seed(l);
+                    if (!args[5].equalsIgnoreCase("seed")) {
+                        long l = Long.parseLong(args[5]);
+                        creator.seed(l);
+                    }
                     World.Environment environment = World.Environment.valueOf(args[6]);
                     creator.environment(environment);
                     creator.type(WorldType.valueOf(args[7]));
                     creator.generateStructures(Boolean.parseBoolean(args[8]));
 
                     Bukkit.createWorld(creator);
+                    WorldAPI.setWorldOwner(creator.name(),sender.getName());
                     sender.sendMessage(Component.text("The world ").color(TextColor.color(25,167,80))
                             .append(Component.text(creator.name()).color(NamedTextColor.WHITE))
                             .append(Component.text(" was created with seed: ").color(TextColor.color(25,167,80)))
@@ -107,38 +118,39 @@ public class WorldDistributor implements Listener {
                     World world = Bukkit.getWorld(args[4]);
 
                     if (world == null) {
-                        sender.sendMessage("§cError: world not found");
+                        File worldContainer = Bukkit.getWorldContainer();
+                        File worldFile = findWorldFile(worldContainer, args[4]);
+
+                        if (worldFile != null) {
+                            WorldAPI.removeWorld(worldFile.getName());
+                            delete(worldFile);
+
+                            // Überprüfen, ob das Verzeichnis gelöscht wurde
+                            String message = !worldFile.exists() ? "successfully" : "couldn't be";
+                            sendDeleteMessage(sender, args[4], message);
+                        } else {
+                            sender.sendMessage("§cError: World not found.");
+                        }
                         return;
                     }
 
-                    World normal = Bukkit.getWorld("world");
+                    World mainWorld = Bukkit.getWorld("world");
                     for (Player player : Bukkit.getOnlinePlayers()) {
-                        if (player.getWorld() == world) {
-                            if (normal == null) {
+                        if (player.getWorld().equals(world)) {
+                            if (mainWorld != null) {
+                                player.teleport(mainWorld.getSpawnLocation());
+                            } else {
                                 player.kick();
-                                continue;
                             }
-                            player.teleport(normal.getSpawnLocation());
                         }
                     }
 
-                    File folder = world.getWorldFolder();
+                    File worldFolder = world.getWorldFolder();
                     Bukkit.unloadWorld(world, false);
-
-                    boolean delete = folder.delete();
-                    if (delete) {
-                        sender.sendMessage(Component.text("World '").color(TextColor.color(25,167,80))
-                                .append(Component.text(world.getName()).color(NamedTextColor.WHITE))
-                                .append(Component.text("' was ").color(TextColor.color(25,167,80)))
-                                .append(Component.text("successfully").color(NamedTextColor.GREEN))
-                                .append(Component.text(" deleted").color(TextColor.color(25,167,80))));
-                    }else {
-                        sender.sendMessage(Component.text("World '").color(TextColor.color(25,167,80))
-                                .append(Component.text(world.getName()).color(NamedTextColor.WHITE))
-                                .append(Component.text("' ").color(TextColor.color(25,167,80)))
-                                .append(Component.text("couldn't").color(NamedTextColor.RED))
-                                .append(Component.text(" be deleted").color(TextColor.color(25,167,80))));
-                    }
+                    WorldAPI.removeWorld(args[4]);
+                    delete(worldFolder);
+                    String message = !new File(Bukkit.getWorldContainer(), args[4]).exists() ? "successfully" : "couldn't be";
+                    sendDeleteMessage(sender, args[4], message);
                 }
             }
         } else if (cmd.equalsIgnoreCase("tp")) {
@@ -148,6 +160,13 @@ public class WorldDistributor implements Listener {
                 if (world == null) {
                     sender.sendMessage("§cError: world not found");
                     return;
+                }
+
+                if (WorldAPI.isCreatorOnly(world.getName())) {
+                    if (!WorldAPI.isWorldOwner(world.getName(),sender.getName())) {
+                        sender.sendMessage("§cYou are not allowed to enter this world!");
+                        return;
+                    }
                 }
 
                 sender.teleportAsync(world.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
@@ -222,11 +241,11 @@ public class WorldDistributor implements Listener {
             World world = creator.createWorld();
 
             // Benachrichtigung an den Spieler
-            WorldAPI.tempWorld.put(sender,world);
+            WorldAPI.setWorldOwner(worldName,sender.getName());
+            WorldAPI.tempWorld.put(sender.getName(),world);
             sender.sendMessage(
-                    Component.text("Your test world ")
+                    Component.text("Your test world has been created! ")
                             .color(TextColor.color(25, 167, 80))
-                            .append(Component.text(" has been created!").color(TextColor.color(25, 167, 80)))
                             .append(Component.text("[Click to Teleport]")
                                     .color(NamedTextColor.AQUA)
                                     .decorate(TextDecoration.BOLD)
@@ -236,40 +255,34 @@ public class WorldDistributor implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true)
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        unloadAndDeleteWorld(WorldAPI.tempWorld.get(event.getPlayer()));
-        WorldAPI.tempWorld.remove(event.getPlayer());
-    }
-
-
-    @EventHandler
-    public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
-        if (event.getFrom() == WorldAPI.tempWorld.get(event.getPlayer())) {
-            unloadAndDeleteWorld(event.getFrom());
-            WorldAPI.tempWorld.remove(event.getPlayer());
-        }
-    }
-
-    private void unloadAndDeleteWorld(World world) {
-        String worldName = world.getName();
-        Bukkit.unloadWorld(world, false);
-
-        File worldFolder = new File(Bukkit.getWorldContainer(), worldName);
-        deleteDirectory(worldFolder);
-    }
-
-    private void deleteDirectory(File directory) {
-        File[] files = directory.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    deleteDirectory(file);
-                } else {
-                    file.delete();
-                }
+    private static File findWorldFile(File container, String worldName) {
+        for (File file : container.listFiles()) {
+            Set<String> stringSet = Set.of("plugins", "versions", "logs", "libraries", "debug", "config", "cache");
+            if (file.isDirectory() && file.getName().equalsIgnoreCase(worldName) && !stringSet.contains(file.getName())) {
+                return file;
             }
         }
-        directory.delete();
+        return null;
+    }
+
+    private static void sendDeleteMessage(CommandSender sender, String worldName, String result) {
+        TextColor successColor = result.equals("successfully") ? NamedTextColor.GREEN : NamedTextColor.RED;
+        sender.sendMessage(Component.text("World '").color(TextColor.color(25, 167, 80))
+                .append(Component.text(worldName).color(NamedTextColor.WHITE))
+                .append(Component.text("' was ").color(TextColor.color(25, 167, 80)))
+                .append(Component.text(result).color(successColor))
+                .append(Component.text(" deleted").color(TextColor.color(25, 167, 80))));
+    }
+
+    public static void delete(File file) {
+        if (file.isDirectory()) {
+            File[] files = file.listFiles();
+            if (files == null)return;
+            for (File child : files) {
+                delete(child);
+            }
+        }
+
+        file.delete();
     }
 }

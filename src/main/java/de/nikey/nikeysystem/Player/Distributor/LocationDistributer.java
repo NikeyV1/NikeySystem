@@ -5,6 +5,7 @@ import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.LocationAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
+import de.nikey.nikeysystem.Server.API.WorldAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -46,9 +47,7 @@ public class LocationDistributer {
 
                 sender.sendMessage(teleportMessage);
             }
-        }
-        // Unmute Command
-        else if (cmd.equalsIgnoreCase("tp")) {
+        } else if (cmd.equalsIgnoreCase("tp")) {
             if (args.length == 5) {
                 // Teleport zu einem Spieler
                 Player target = Bukkit.getPlayer(args[4]);
@@ -70,13 +69,19 @@ public class LocationDistributer {
                     double z = Double.parseDouble(args[6]);
                     World world = sender.getWorld();
 
+                    if (WorldAPI.isCreatorOnly(world.getName())) {
+                        if (!WorldAPI.isWorldOwner(world.getName(),sender.getName())) {
+                            sender.sendMessage("§cYou are not allowed to enter this world!");
+                            return;
+                        }
+                    }
+
                     sender.teleport(new Location(world, x, y, z));
                     sender.sendMessage(ChatColor.BLUE + "Teleported to coordinates: §f" + x + ", " + y + ", " + z + "§9 in world §f" + world.getName());
                 } catch (NumberFormatException e) {
                     sender.sendMessage(ChatColor.RED + "Error: Invalid coordinates");
                 }
             } else if (args.length == 8) {
-                // Teleport zu x, y, z in einer bestimmten Welt
                 try {
                     double x = Double.parseDouble(args[4]);
                     double y = Double.parseDouble(args[5]);
@@ -86,6 +91,12 @@ public class LocationDistributer {
                     if (world == null) {
                         sender.sendMessage(ChatColor.RED + "World '" + args[4] + "' not found.");
                     } else {
+                        if (WorldAPI.isCreatorOnly(world.getName())) {
+                            if (!WorldAPI.isWorldOwner(world.getName(),sender.getName())) {
+                                sender.sendMessage("§cYou are not allowed to enter this world!");
+                                return;
+                            }
+                        }
                         sender.teleport(new Location(world, x, y, z));
                         sender.sendMessage(ChatColor.BLUE + "Teleported to coordinates: §f" + x + ", " + y + ", " + z + "§9 in world §f" + world.getName());
                     }
@@ -112,6 +123,12 @@ public class LocationDistributer {
                     if (world == null) {
                         sender.sendMessage(ChatColor.RED + "World '" + args[4] + "' not found.");
                     } else {
+                        if (WorldAPI.isCreatorOnly(world.getName())) {
+                            if (!WorldAPI.isWorldOwner(world.getName(),target.getName())) {
+                                sender.sendMessage("§f" + target.getName() + "§cis not allowed to enter this world!");
+                                return;
+                            }
+                        }
                         target.teleport(new Location(world, x, y, z));
                         sender.sendMessage(ChatColor.BLUE + "Teleported§f"+target.getName()+"§9 to coordinates: §f" + x + ", " + y + ", " + z + "§9 in world §f" + world.getName());
                     }

@@ -383,7 +383,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("world")) {
-            return new ArrayList<>(Arrays.asList("create","delete","tp","list","settings","load"));
+            return new ArrayList<>(Arrays.asList("create","delete","tp","list","settings","load","createTempWorld"));
         }
 
         if (args[1].equalsIgnoreCase("world") && args[2].equalsIgnoreCase("create")) {

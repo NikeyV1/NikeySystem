@@ -1,6 +1,5 @@
 package de.nikey.nikeysystem.Security.Functions;
 
-import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.Security.API.SystemShieldAPI;
@@ -10,16 +9,10 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.title.TitlePart;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.BanList;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.ban.IpBanList;
 import org.bukkit.ban.ProfileBanList;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,7 +20,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.RemoteServerCommandEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 

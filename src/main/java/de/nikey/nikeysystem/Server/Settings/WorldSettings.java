@@ -42,6 +42,8 @@ public class WorldSettings implements Listener {
         addItemToInventoryWithInt(inventory, 10, Material.SPYGLASS, "View distance", player.getWorld().getViewDistance());
         addItemToInventoryWithInt(inventory, 11, Material.SPYGLASS, "Simulation distance", player.getWorld().getSimulationDistance());
         addItemToInventoryWithBoolean(inventory, 12, Material.FIREWORK_ROCKET, "Auto Start", WorldAPI.isAutoStaring(player.getWorld()));
+        addItemToInventoryWithBoolean(inventory, 13, Material.PLAYER_HEAD, "Creator Only", WorldAPI.isCreatorOnly(player.getWorld().getName()));
+
 
         player.openInventory(inventory);
     }
@@ -340,6 +342,31 @@ public class WorldSettings implements Listener {
                 ));
                 item.setItemMeta(meta);
             }
+        }else if (slot == Slot.CREATORONLY) {
+
+            if (WorldAPI.isWorldOwner(player.getWorld().getName(),player.getName())) {
+                WorldAPI.setCreatorOnly(player.getWorld().getName(), !WorldAPI.isCreatorOnly(player.getWorld().getName()));
+            }
+            for (Player players : player.getWorld().getPlayers()) {
+                if (!WorldAPI.isWorldOwner(players.getWorld().getName(),players.getName()) && WorldAPI.isCreatorOnly(players.getWorld().getName())) {
+                    if (Bukkit.getWorld("world") != null) {
+                        players.teleport(Bukkit.getWorld("world").getSpawnLocation());
+                    } else {
+                        players.kick();
+                    }
+                }
+            }
+            ItemStack item = event.getInventory().getItem(Slot.CREATORONLY);
+            if (item != null && item.getItemMeta() != null) {
+                ItemMeta meta = item.getItemMeta();
+
+                meta.lore(List.of(
+                        Component.text("Creator Only: ")
+                                .color(NamedTextColor.GRAY)
+                                .append(Component.text(WorldAPI.isAutoStaring(player.getWorld())).color(NamedTextColor.YELLOW))
+                ));
+                item.setItemMeta(meta);
+            }
         }
     }
 
@@ -396,6 +423,7 @@ public class WorldSettings implements Listener {
         static final int VIEWDISTANCE = 10;
         static final int SIMULATIONDISTANCE = 11;
         static final int AUTOSTART = 12;
+        static final int CREATORONLY = 13;
 
     }
 }

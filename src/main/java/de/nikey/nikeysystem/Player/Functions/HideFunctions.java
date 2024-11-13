@@ -4,6 +4,7 @@ import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import de.nikey.nikeysystem.General.GeneralAPI;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.NikeySystem;
+import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.Player.API.PlayerSettingsAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -585,6 +586,7 @@ public class HideFunctions implements Listener {
 
         final String[] args = event.getMessage().split(" ");
         if (event.getMessage().contains("@a") || event.getMessage().contains("@e")) {
+            if (PermissionAPI.isOwner(player.getName()))return;
             player.sendMessage(ChatColor.RED + "Error: @ disabled");
             event.setCancelled(true);
             return;
