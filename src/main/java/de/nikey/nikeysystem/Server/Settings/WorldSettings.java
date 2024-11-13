@@ -12,6 +12,7 @@ import org.bukkit.entity.SpawnCategory;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -347,12 +348,15 @@ public class WorldSettings implements Listener {
             if (WorldAPI.isWorldOwner(player.getWorld().getName(),player.getName())) {
                 WorldAPI.setCreatorOnly(player.getWorld().getName(), !WorldAPI.isCreatorOnly(player.getWorld().getName()));
             }
-            for (Player players : player.getWorld().getPlayers()) {
-                if (!WorldAPI.isWorldOwner(players.getWorld().getName(),players.getName()) && WorldAPI.isCreatorOnly(players.getWorld().getName())) {
-                    if (Bukkit.getWorld("world") != null) {
-                        players.teleport(Bukkit.getWorld("world").getSpawnLocation());
+            World mainWorld = Bukkit.getWorld("world");
+            if (mainWorld != null) {
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    if (WorldAPI.isAllowedOnWorld(onlinePlayer.getName(), mainWorld.getName())) {
+                        if (!WorldAPI.isWorldOwner(mainWorld.getName(),onlinePlayer.getName())) {
+                            onlinePlayer.teleport(mainWorld.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                        }
                     } else {
-                        players.kick();
+                        onlinePlayer.kick(Component.text(""));
                     }
                 }
             }
@@ -363,7 +367,7 @@ public class WorldSettings implements Listener {
                 meta.lore(List.of(
                         Component.text("Creator Only: ")
                                 .color(NamedTextColor.GRAY)
-                                .append(Component.text(WorldAPI.isAutoStaring(player.getWorld())).color(NamedTextColor.YELLOW))
+                                .append(Component.text(WorldAPI.isCreatorOnly(player.getWorld().getName())).color(NamedTextColor.YELLOW))
                 ));
                 item.setItemMeta(meta);
             }

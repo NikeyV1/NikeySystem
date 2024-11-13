@@ -14,10 +14,11 @@ import java.util.List;
 import java.util.Objects;
 
 public class WorldAPI {
-
     public static HashMap<String , World> tempWorld = new HashMap<>();
 
     public static boolean isAllowedOnWorld(String player, String world) {
+        if (PermissionAPI.isOwner(player)) return true;
+
         if (isCreatorOnly(world)) {
             return isWorldOwner(world, player);
         }else {
