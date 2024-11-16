@@ -6,6 +6,7 @@ import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
@@ -14,6 +15,7 @@ import org.bukkit.entity.Player;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -154,11 +156,13 @@ public class ProfileDistributor {
             if (args.length == 6) {
                 if (args[4].equalsIgnoreCase("set")) {
                     String newNickname = args[5];
-                    // Ändern des Namens in der Spieler-Tabliste und dem Nametag
-                    sender.displayName(Component.text(newNickname));
-                    sender.playerListName(Component.text(newNickname));
-                    
+                    TextComponent name = Component.text(newNickname);
 
+                    sender.displayName(name);
+                    sender.playerListName(name);
+
+
+                    sender.sendMessage(Component.text("Your name is now ").color(TextColor.color(211, 102, 217)).append(Component.text(newNickname).color(NamedTextColor.WHITE)));
                 }
             }
         }

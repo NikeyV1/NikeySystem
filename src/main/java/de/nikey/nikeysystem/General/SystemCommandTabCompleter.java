@@ -112,7 +112,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 // Provide list of online player names for openinv, openec, and openeq
                 return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
             } else if (args[2].equalsIgnoreCase("openinv")) {
-                List<String> playerNames = GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+                List<String> playerNames = Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList());
                 for (InventoryType type : InventoryType.values()) {
                     if (!type.name().equalsIgnoreCase("Player")&& NikeySystem.getPlugin().getConfig().getBoolean("inventory.settings." + player.getName() + ".showinvtype")) {
                         playerNames.add(type.name());
@@ -300,7 +300,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("profile")) {
-            return new ArrayList<>(Arrays.asList("skin"));
+            return new ArrayList<>(Arrays.asList("skin","name"));
         }
 
         // Handle the fourth argument (player name) for permissions commands that require a target player
@@ -422,7 +422,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 for (File file : worldContainer.listFiles()) {
                     if (file.isDirectory()) {
                         String worldName = file.getName();
-                        List<String > folder = Arrays.asList("plugins","versions","logs","libraries","debug","config","cache");
+                        List<String > folder = Arrays.asList("plugins","versions","logs","libraries","debug","config","cache","crash-reports");
 
                         if (Bukkit.getWorld(worldName) == null && !folder.contains(worldName)) {
                             worlds.add(worldName);

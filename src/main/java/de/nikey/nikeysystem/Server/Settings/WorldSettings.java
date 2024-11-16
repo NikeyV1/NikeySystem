@@ -349,14 +349,17 @@ public class WorldSettings implements Listener {
                 WorldAPI.setCreatorOnly(player.getWorld().getName(), !WorldAPI.isCreatorOnly(player.getWorld().getName()));
             }
             World mainWorld = Bukkit.getWorld("world");
+
             if (mainWorld != null) {
                 for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                    if (WorldAPI.isAllowedOnWorld(onlinePlayer.getName(), mainWorld.getName())) {
-                        if (!WorldAPI.isWorldOwner(mainWorld.getName(),onlinePlayer.getName())) {
-                            onlinePlayer.teleport(mainWorld.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    if (onlinePlayer.getWorld() == player.getWorld()) {
+                        if (!WorldAPI.isAllowedOnWorld(onlinePlayer.getName(),player.getWorld().getName())) {
+                            if (WorldAPI.isAllowedOnWorld(onlinePlayer.getName(),mainWorld.getName())) {
+                                onlinePlayer.teleport(mainWorld.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                            }else {
+                                onlinePlayer.kick(Component.text(""));
+                            }
                         }
-                    } else {
-                        onlinePlayer.kick(Component.text(""));
                     }
                 }
             }

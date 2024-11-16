@@ -23,11 +23,14 @@ public class WorldFunctions implements Listener {
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         Player player = event.getPlayer();
         Location to = event.getTo();
+        Location from = event.getFrom();
 
-        if (WorldAPI.isAllowedOnWorld(player.getName(),to.getWorld().getName())) {
+        if (!WorldAPI.isAllowedOnWorld(player.getName(),to.getWorld().getName())) {
             if (PermissionAPI.isSystemUser(player.getName())) player.sendMessage("§cYou are not allowed to enter this world!");
-
             event.setCancelled(true);
+            if (WorldAPI.isAllowedOnWorld(player.getName(),from.getWorld().getName())) {
+                return;
+            }
 
             World mainWorld = Bukkit.getWorld("world");
             if (mainWorld != null) {
@@ -48,23 +51,19 @@ public class WorldFunctions implements Listener {
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        if (PermissionAPI.isOwner(player.getName()))return;
         World world = player.getWorld();
-        if (WorldAPI.isCreatorOnly(world.getName())) {
-            if (!WorldAPI.isWorldOwner(world.getName(),player.getName())){
-                if (PermissionAPI.isSystemUser(player.getName())) player.sendMessage("§cYou are not allowed to enter this world!");
-                World mainWorld = Bukkit.getWorld("world");
-                if (mainWorld != null) {
-                    for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
-                        if (WorldAPI.isAllowedOnWorld(onlinePlayer.getName(), mainWorld.getName())) {
-                            if (!WorldAPI.isWorldOwner(mainWorld.getName(),onlinePlayer.getName())) {
-                                onlinePlayer.teleport(mainWorld.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-                            }
-                        } else {
-                            onlinePlayer.kick(Component.text(""));
-                        }
-                    }
+
+        if (!WorldAPI.isAllowedOnWorld(player.getName(),world.getName())) {
+            if (PermissionAPI.isSystemUser(player.getName())) player.sendMessage("§cYou are not allowed to enter this world!");
+            World mainWorld = Bukkit.getWorld("world");
+            if (mainWorld != null) {
+                if (WorldAPI.isAllowedOnWorld(player.getName(),world.getName())) {
+                    player.teleport(mainWorld.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                }else {
+                    player.kick(Component.text(""));
                 }
+            }else {
+                player.kick(Component.text(""));
             }
         }
     }

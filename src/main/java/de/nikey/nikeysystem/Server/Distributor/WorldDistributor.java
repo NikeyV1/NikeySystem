@@ -198,7 +198,7 @@ public class WorldDistributor {
 
                 // Prüfen, ob der Ordner der Welt existiert
                 if (worldFolder.exists() && worldFolder.isDirectory()) {
-                    List<String > folder = Arrays.asList("plugins","versions","logs","libraries","debug","config","cache");
+                    List<String > folder = Arrays.asList("plugins","versions","logs","libraries","debug","config","cache","crash-reports");
                     if (folder.contains(worldName)){
                         sender.sendMessage(Component.text("World '").color(TextColor.color(25,167,80))
                                 .append(Component.text(worldName).color(NamedTextColor.WHITE))
@@ -212,7 +212,6 @@ public class WorldDistributor {
                                 .append(Component.text(world.getName()).color(NamedTextColor.WHITE))
                                 .append(Component.text("' is already loaded").color(TextColor.color(25,167,80))));
                     } else {
-                        // Welt laden
                         WorldCreator creator = new WorldCreator(worldName);
                         Bukkit.createWorld(creator);
 

@@ -1,6 +1,7 @@
 package de.nikey.nikeysystem;
 
 import de.nikey.nikeysystem.General.SystemCommandTabCompleter;
+import de.nikey.nikeysystem.Player.API.InventoryAPI;
 import de.nikey.nikeysystem.Player.API.MuteAPI;
 import de.nikey.nikeysystem.Player.Distributor.PermissionDistributor;
 import de.nikey.nikeysystem.Player.Distributor.HideDistributor;
@@ -22,7 +23,6 @@ import de.nikey.nikeysystem.Server.Settings.WorldSettings;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
-import org.bukkit.WorldCreator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -42,6 +42,8 @@ public final class NikeySystem extends JavaPlugin {
         CommandDistributor.loadBlockedCommands();
         SystemShieldDistributor.loadSystemShield();
         MuteAPI.loadMutedPlayers();
+        InventoryAPI.startup();
+
 
         PluginManager manager = Bukkit.getPluginManager();
         manager.registerEvents(new HideFunctions(),this);
@@ -77,6 +79,7 @@ public final class NikeySystem extends JavaPlugin {
         MuteAPI.saveMutedPlayers();
         WorldFunctions.deleteAndUnloadTemporaryWorlds();
         WorldFunctions.deleteTemporaryWorlds();
+        InventoryAPI.saveInventories();
     }
 
     public static NikeySystem getPlugin() {

@@ -24,7 +24,7 @@ public class InventorySettings implements Listener {
         Inventory inventory = Bukkit.createInventory(player, 9, Component.text("Inventory Settings").color(NamedTextColor.GRAY));
 
         ItemStack option1 = new ItemStack(Material.CHEST);
-        ItemStack option2 = new ItemStack(Material.IRON_INGOT);
+        ItemStack option2 = new ItemStack(Material.GLASS_PANE);
         ItemStack option3 = new ItemStack(Material.WHEAT_SEEDS);
 
         ItemMeta itemMeta = option1.getItemMeta();
@@ -33,7 +33,7 @@ public class InventorySettings implements Listener {
         option1.setItemMeta(itemMeta);
 
         ItemMeta itemMeta1 = option2.getItemMeta();
-        itemMeta1.displayName(Component.text("Toggle Item Pickup").color(NamedTextColor.DARK_AQUA));
+        itemMeta1.displayName(Component.text("Toggle Edit Offline Players").color(NamedTextColor.DARK_AQUA));
         option2.setItemMeta(itemMeta1);
 
         ItemMeta itemMeta2 = option3.getItemMeta();
@@ -41,7 +41,7 @@ public class InventorySettings implements Listener {
         option3.setItemMeta(itemMeta2);
 
         updateItemLore(option1, NikeySystem.getPlugin().getConfig().getBoolean("inventory.settings." + player.getName() + ".showinvtype"));
-        updateItemLore(option2,NikeySystem.getPlugin().getConfig().getBoolean("hide.settings." + player.getName() + ".itempickup"));
+        updateItemLore(option2,NikeySystem.getPlugin().getConfig().getBoolean("inventory.settings." + player.getName() + ".editofflineplayers"));
         updateItemLore(option3,NikeySystem.getPlugin().getConfig().getBoolean("hide.settings." + player.getName() + ".croptrample"));
 
         inventory.setItem(0,option1);
@@ -84,16 +84,16 @@ public class InventorySettings implements Listener {
                 NikeySystem.getPlugin().saveConfig();
             }
             updateItemLore(clickedItem,config.getBoolean("inventory.settings." + player.getName() + ".showinvtype"));
-        }else if (type == Material.IRON_INGOT) {
-            boolean picking = config.getBoolean("hide.settings." + player.getName() + ".itempickup");
-            if (picking) {
-                config.set("hide.settings." + player.getName() + ".itempickup",false);
+        }else if (type == Material.GLASS_PANE) {
+            boolean editOffPlayers = config.getBoolean("inventory.settings." + player.getName() + ".editofflineplayers");
+            if (editOffPlayers) {
+                config.set("inventory.settings." + player.getName() + ".editofflineplayers",false);
                 NikeySystem.getPlugin().saveConfig();
             }else {
-                config.set("hide.settings." + player.getName() + ".itempickup",true);
+                config.set("inventory.settings." + player.getName() + ".editofflineplayers",true);
                 NikeySystem.getPlugin().saveConfig();
             }
-            updateItemLore(clickedItem,config.getBoolean("hide.settings." + player.getName() + ".itempickup"));
+            updateItemLore(clickedItem,config.getBoolean("inventory.settings." + player.getName() + ".editofflineplayers"));
         }else if (type == Material.WHEAT_SEEDS) {
             if (config.getBoolean("hide.settings." + player.getName() + ".croptrample")) {
                 config.set("hide.settings." + player.getName() + ".croptrample",false);
