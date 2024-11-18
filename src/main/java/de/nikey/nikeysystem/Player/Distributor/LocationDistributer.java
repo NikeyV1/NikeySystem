@@ -199,7 +199,8 @@ public class LocationDistributer {
                     LocationAPI.guardLocations.forEach((name, location) -> {
                         double range = LocationAPI.guardRanges.getOrDefault(name, 10.0);
 
-                        Player creator = LocationAPI.guardCreators.get(name);
+                        String c = LocationAPI.guardCreators.get(name);
+                        Player creator = Bukkit.getPlayer(c);
 
                         // Prüfen, ob der Ersteller vorhanden ist
                         String creatorName = (creator != null) ? creator.getName() : "Unknown";

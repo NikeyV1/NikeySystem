@@ -88,7 +88,6 @@ public class PermissionAPI {
 
                 p.sendActionBar(textComponent);
             }
-
             if (!isSystemUser(target)) return true;
 
             if (isOwner(player)) {

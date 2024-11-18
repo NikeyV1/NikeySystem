@@ -29,26 +29,34 @@ public class LocationFunctions implements Listener {
         for (Map.Entry<String, Location> entry : LocationAPI.guardLocations.entrySet()) {
             String guardName = entry.getKey();
             Location guardLocation = entry.getValue();
-            if (player.getWorld() != guardLocation.getWorld())return;
+            if (player.getWorld() != guardLocation.getWorld()) continue;
+
             double range = LocationAPI.guardRanges.getOrDefault(guardName, 10.0);
             if (player.getLocation().distance(guardLocation) < range) {
+                // Wenn der Spieler gerade erst den Bereich betreten hat
                 if (!guardName.equals(LocationAPI.playerInGuardArea.get(player))) {
-                    if (!LocationAPI.guardCreators.get(guardName).equals(player)){
-                        if (PermissionAPI.isSystemUser(player))player.sendMessage("§8System: §eYou have entered the guarded area: §f" + guardName);
+                    if (!LocationAPI.guardCreators.get(guardName).equals(player.getName())) {
+                        if (PermissionAPI.isSystemUser(player))
+                            player.sendMessage("§8System: §eYou have entered the guarded area: §f" + guardName);
                         NikeySystem.getPlugin().getLogger().info(player.getName() + " entered guard area: " + guardName);
-                        LocationAPI.playerInGuardArea.put(player, guardName); // Speichern, dass der Spieler in diesem Guard-Bereich ist
-                        Player guardCreator = LocationAPI.guardCreators.get(guardName);
-                        if (guardCreator != null && !guardCreator.equals(player)) { // Nur, wenn der Ersteller nicht der gleiche Spieler ist
+
+                        // Nachricht an den Ersteller des Guards
+                        String f = LocationAPI.guardCreators.get(guardName);
+                        Player guardCreator = Bukkit.getPlayer(f);
+                        if (guardCreator != null && !guardCreator.equals(player)) {
                             guardCreator.sendMessage(ChatColor.WHITE + player.getName() + " §ehas entered guarded area: §f" + guardName);
-                            guardCreator.playSound(Sound.sound(Key.key("block.note_block.pling"), Sound.Source.MASTER,1,1));
+                            guardCreator.playSound(Sound.sound(Key.key("block.note_block.pling"), Sound.Source.MASTER, 1, 1));
                         }
                     }
                 }
+
+                // Aktualisieren, dass der Spieler sich im Guard-Bereich befindet
+                LocationAPI.playerInGuardArea.put(player, guardName);
                 isInGuardArea = true;
-                break;
             }
         }
 
+        // Wenn der Spieler keinen Guard-Bereich mehr betritt
         if (!isInGuardArea) {
             LocationAPI.playerInGuardArea.remove(player);
         }
