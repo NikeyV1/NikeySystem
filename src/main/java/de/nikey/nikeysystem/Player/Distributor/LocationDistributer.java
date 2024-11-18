@@ -211,6 +211,7 @@ public class LocationDistributer {
                 }
             }else if (args.length == 5 && args[4].equalsIgnoreCase("show")) {
                 for (Location location : LocationAPI.guardLocations.values()) {
+                    if (sender.getLocation().getWorld() != location.getWorld())continue;
                     Slime entity = (Slime) location.getWorld().spawnEntity(location, EntityType.SLIME);
                     entity.setGlowing(true);
                     entity.setVisibleByDefault(false);
