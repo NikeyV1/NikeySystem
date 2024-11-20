@@ -59,4 +59,8 @@ public class InventoryAPI implements Listener {
         // Offline-Inventare laden
         loadInventories();
     }
+
+    public static boolean hasOfflineEditing(String player) {
+        return NikeySystem.getPlugin().getConfig().getBoolean("inventory.settings." + player + ".editofflineplayers");
+    }
 }

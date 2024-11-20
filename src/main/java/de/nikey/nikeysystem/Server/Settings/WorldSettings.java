@@ -33,17 +33,18 @@ public class WorldSettings implements Listener {
         addItemToInventoryWithBoolean(inventory, 0, Material.TOTEM_OF_UNDYING, "Toggle Hardcore",player.getWorld().isHardcore());
         addItemToInventoryWithBoolean(inventory, 1, Material.DIAMOND_SWORD, "Toggle PVP",player.getWorld().getPVP());
         addItemToInventoryWithString(inventory, 2, Material.ZOMBIE_HEAD, "Difficulty cycle", player.getWorld().getDifficulty().name());
-        addItemToInventory(inventory, 3, Material.END_PORTAL_FRAME, "Void Damage Enabled");
-        addItemToInventory(inventory, 4, Material.SCAFFOLDING, "Void Damage Min Build Height Offset");
-        addItemToInventoryWithBoolean(inventory, 5, Material.ZOMBIE_VILLAGER_SPAWN_EGG, "Allow Monsters", player.getWorld().getAllowMonsters());
-        addItemToInventoryWithBoolean(inventory, 6, Material.GRASS_BLOCK, "Allow Animals", player.getWorld().getAllowAnimals());
-        addItemToInventoryWithBoolean(inventory, 7, Material.EMERALD, "Auto Save", player.getWorld().isAutoSave());
-        addSpawnLimitItem(inventory, 8, Material.ZOMBIE_SPAWN_EGG, "Set Monster Spawn Limit", SpawnCategory.MONSTER);
-        addSpawnLimitItem(inventory, 9, Material.PIG_SPAWN_EGG, "Set Animal Spawn Limit", SpawnCategory.ANIMAL);
-        addItemToInventoryWithInt(inventory, 10, Material.SPYGLASS, "View distance", player.getWorld().getViewDistance());
-        addItemToInventoryWithInt(inventory, 11, Material.SPYGLASS, "Simulation distance", player.getWorld().getSimulationDistance());
-        addItemToInventoryWithBoolean(inventory, 12, Material.FIREWORK_ROCKET, "Auto Start", WorldAPI.isAutoStaring(player.getWorld()));
-        addItemToInventoryWithBoolean(inventory, 13, Material.PLAYER_HEAD, "Creator Only", WorldAPI.isCreatorOnly(player.getWorld().getName()));
+        addItemToInventoryWithBoolean(inventory, 3, Material.END_PORTAL_FRAME, "Void Damage Enabled",player.getWorld().isVoidDamageEnabled());
+        addItemToInventoryWithInt(inventory, 4, Material.SCAFFOLDING, "Void Damage Min Build Height Offset", (int) player.getWorld().getVoidDamageMinBuildHeightOffset());
+        addItemToInventoryWithInt(inventory, 5, Material.IRON_SWORD, "Void Damage", (int) player.getWorld().getVoidDamageAmount());
+        addItemToInventoryWithBoolean(inventory, 6, Material.ZOMBIE_VILLAGER_SPAWN_EGG, "Allow Monsters", player.getWorld().getAllowMonsters());
+        addItemToInventoryWithBoolean(inventory, 7, Material.GRASS_BLOCK, "Allow Animals", player.getWorld().getAllowAnimals());
+        addItemToInventoryWithBoolean(inventory, 8, Material.EMERALD, "Auto Save", player.getWorld().isAutoSave());
+        addSpawnLimitItem(inventory, 9, Material.ZOMBIE_SPAWN_EGG, "Set Monster Spawn Limit", player.getWorld().getSpawnLimit(SpawnCategory.MONSTER));
+        addSpawnLimitItem(inventory, 10, Material.PIG_SPAWN_EGG, "Set Animal Spawn Limit",  player.getWorld().getSpawnLimit(SpawnCategory.ANIMAL));
+        addItemToInventoryWithInt(inventory, 11, Material.SPYGLASS, "View distance", player.getWorld().getViewDistance());
+        addItemToInventoryWithInt(inventory, 12, Material.SPYGLASS, "Simulation distance", player.getWorld().getSimulationDistance());
+        addItemToInventoryWithBoolean(inventory, 13, Material.FIREWORK_ROCKET, "Auto Start", WorldAPI.isAutoStaring(player.getWorld()));
+        addItemToInventoryWithBoolean(inventory, 14, Material.PLAYER_HEAD, "Creator Only", WorldAPI.isCreatorOnly(player.getWorld().getName()));
 
 
         player.openInventory(inventory);
@@ -106,14 +107,13 @@ public class WorldSettings implements Listener {
         inventory.setItem(slot, item);
     }
 
-    private static void addSpawnLimitItem(Inventory inventory, int slot, Material material, String displayName, SpawnCategory category) {
+    private static void addSpawnLimitItem(Inventory inventory, int slot, Material material, String displayName, int current) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
             meta.setDisplayName(ChatColor.GOLD + displayName);
-            int currentLimit = getSpawnLimit(category);
             List<Component> lore = new ArrayList<>();
-            lore.add(Component.text("Current Limit: " + currentLimit).color(NamedTextColor.GRAY));
+            lore.add(Component.text("Current Limit: " + current).color(NamedTextColor.GRAY));
             meta.lore(lore);
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             meta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
@@ -242,7 +242,6 @@ public class WorldSettings implements Listener {
             if (item != null && item.getItemMeta() != null) {
                 ItemMeta meta = item.getItemMeta();
 
-                // Aktualisiere die Lore mit dem neuen Offset-Wert
                 meta.lore(List.of(
                         Component.text("Autosave: ")
                                 .color(NamedTextColor.GRAY)
@@ -374,6 +373,23 @@ public class WorldSettings implements Listener {
                 ));
                 item.setItemMeta(meta);
             }
+        }else if (slot == Slot.VOIDDAMAGEAMOUNT) {
+            int currentOffset = (int) player.getWorld().getVoidDamageAmount();
+            int adjustment = event.isLeftClick() ? 1 : -1;
+            int newOffset = currentOffset + adjustment;
+
+            player.getWorld().setVoidDamageAmount(newOffset);
+            ItemStack item = event.getInventory().getItem(Slot.VOIDDAMAGEAMOUNT);
+            if (item != null && item.getItemMeta() != null) {
+                ItemMeta meta = item.getItemMeta();
+
+                meta.lore(List.of(
+                        Component.text("Void-Damage amount: ")
+                                .color(NamedTextColor.GRAY)
+                                .append(Component.text(player.getWorld().getVoidDamageAmount()).color(NamedTextColor.YELLOW))
+                ));
+                item.setItemMeta(meta);
+            }
         }
     }
 
@@ -422,15 +438,16 @@ public class WorldSettings implements Listener {
         static final int DIFFICULTY = 2;
         static final int VOIDDAMAGE = 3;
         static final int VOIDDAMAGEMINBUILDHIGHTOFFSET = 4;
-        static final int ALLOWMONSTERS = 5;
-        static final int ALLOWANIMALS = 6;
-        static final int AUTOSAVE = 7;
-        static final int MONSTERSPAWNLIMIT = 8;
-        static final int ANIMALSPAWNLIMIT = 9;
-        static final int VIEWDISTANCE = 10;
-        static final int SIMULATIONDISTANCE = 11;
-        static final int AUTOSTART = 12;
-        static final int CREATORONLY = 13;
+        static final int VOIDDAMAGEAMOUNT = 5;
+        static final int ALLOWMONSTERS = 6;
+        static final int ALLOWANIMALS = 7;
+        static final int AUTOSAVE = 8;
+        static final int MONSTERSPAWNLIMIT = 9;
+        static final int ANIMALSPAWNLIMIT = 10;
+        static final int VIEWDISTANCE = 11;
+        static final int SIMULATIONDISTANCE = 12;
+        static final int AUTOSTART = 13;
+        static final int CREATORONLY = 14;
 
     }
 }

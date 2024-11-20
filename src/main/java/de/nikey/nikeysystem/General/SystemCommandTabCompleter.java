@@ -88,7 +88,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("stats")) {
-            return Arrays.asList("Invulnerable", "Fly", "Collidable", "SleepIgnore", "Invisibility", "VisualFire", "Op", "Address","ClientName", "Reset", "List");
+            return Arrays.asList("Invulnerable", "Fly", "Collidable", "SleepIgnore", "Invisibility", "VisualFire", "Op", "Address","ClientName", "Locale", "Reset", "List");
         }
 
         // Handle the fourth argument (player name) for stats commands that require a target player

@@ -96,10 +96,10 @@ public class InventorySettings implements Listener {
             updateItemLore(clickedItem,config.getBoolean("inventory.settings." + player.getName() + ".editofflineplayers"));
         }else if (type == Material.WHEAT_SEEDS) {
             if (config.getBoolean("hide.settings." + player.getName() + ".croptrample")) {
-                config.set("hide.settings." + player.getName() + ".croptrample",false);
+                //config.set("hide.settings." + player.getName() + ".croptrample",false);
                 NikeySystem.getPlugin().saveConfig();
             }else {
-                config.set("hide.settings." + player.getName() + ".croptrample",true);
+                //config.set("hide.settings." + player.getName() + ".croptrample",true);
                 NikeySystem.getPlugin().saveConfig();
             }
             updateItemLore(clickedItem,config.getBoolean("hide.settings." + player.getName() + ".croptrample"));

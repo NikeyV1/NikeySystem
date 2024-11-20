@@ -7,7 +7,9 @@ import de.nikey.nikeysystem.Player.API.InventoryAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.Player.Settings.HideSettings;
 import de.nikey.nikeysystem.Player.Settings.InventorySettings;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -22,6 +24,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.UUID;
 
@@ -317,7 +320,6 @@ public class InventoryDistributor implements Listener {
 
         if (target.isOnline()) {
             openInventory(player, (Player) target);
-            return;
         } else {
 
             UUID targetUUID = target.getUniqueId();
@@ -326,8 +328,16 @@ public class InventoryDistributor implements Listener {
                 return;
             }
 
-            Inventory virtualInventory = Bukkit.createInventory(null, 45, Component.text("Player"));
+            Inventory virtualInventory = Bukkit.createInventory(null, 45, Component.text("OfflinePlayer: " + target.getName()));
             virtualInventory.setContents(offlineInventories.get(targetUUID));
+            ItemStack barrier = new ItemStack(Material.BARRIER);
+            ItemMeta meta = barrier.getItemMeta();
+            meta.displayName(Component.text("Unavailable Slot").color(NamedTextColor.RED));
+            barrier.setItemMeta(meta);
+
+            for (int i = 41; i < 45; i++) {
+                virtualInventory.setItem(i, barrier);
+            }
             player.openInventory(virtualInventory);
         }
     }

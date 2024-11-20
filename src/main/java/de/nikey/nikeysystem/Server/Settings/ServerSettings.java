@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Difficulty;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,6 +20,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 
+import java.io.File;
+import java.io.IOException;
 import java.util.function.Consumer;
 
 
@@ -46,6 +49,8 @@ public class ServerSettings implements Listener {
         addItemToInventory(inventory, 1, Material.IRON_DOOR, "Whitelist toggle");
         addItemToInventory(inventory, 2, Material.PLAYER_HEAD, "Max players");
         addItemToInventory(inventory, 3, Material.NAME_TAG, "Remove from /plugin");
+        String endStatus = isEndAllowed() ? "Enabled" : "Disabled";
+        addItemToInventory(inventory, 4, Material.END_PORTAL_FRAME, "End Toggle: " + endStatus);
 
         player.openInventory(inventory);
     }
@@ -102,6 +107,9 @@ public class ServerSettings implements Listener {
                     player.sendMessage(Component.text("The system is now ").color(NamedTextColor.GRAY).append(Component.text("removed").color(NamedTextColor.RED)).append(Component.text(" from /plugin command").color(NamedTextColor.GRAY)));
                 }
                 break;
+            case Slot.END:
+                toggleAllowEnd(player);
+                break;
         }
     }
 
@@ -132,11 +140,40 @@ public class ServerSettings implements Listener {
         }
     }
 
+    private boolean isEndAllowed() {
+        File bukkitYmlFile = new File("plugins/yourplugin/bukkit.yml");
+        if (!bukkitYmlFile.exists()) {
+            return false;  // Standardmäßig false, wenn die Datei nicht existiert
+        }
+        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(bukkitYmlFile);
+        return yaml.getBoolean("settings.allow-end", true);  // Standardwert true, wenn nicht gesetzt
+    }
+
+    private void toggleAllowEnd(Player player) {
+        File bukkitYmlFile = new File(Bukkit.getWorldContainer()+"bukkit.yml");
+        if (!bukkitYmlFile.exists()) {
+            player.sendMessage(ChatColor.RED + "Error: bukkit.yml not found!");
+            return;
+        }
+
+        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(bukkitYmlFile);
+        boolean currentStatus = yaml.getBoolean("settings.allow-end", true);
+        yaml.set("settings.allow-end", !currentStatus);  // Umgeschaltet auf den gegenteiligen Wert
+
+        try {
+            yaml.save(bukkitYmlFile);  // Änderungen speichern
+            player.sendMessage(ChatColor.GREEN + "The End is now " + (!currentStatus ? "enabled" : "disabled"));
+        } catch (IOException e) {
+            player.sendMessage(ChatColor.RED + "Error: saving bukkit.yml: " + e.getMessage());
+        }
+    }
+
     public static class Slot {
         static final int MOTD_CHANGE = 0;
         static final int WHITELIST_TOGGLE = 1;
         static final int MAX_PLAYERS_CHANGE = 2;
         static final int REMOVE_FROM_PLUGINCMD = 3;
+        static final int END = 4;
 
     }
 

@@ -1,15 +1,22 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
 import de.nikey.nikeysystem.General.ShieldCause;
+import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 @SuppressWarnings("ALL")
 public class StatsDistributor {
@@ -19,8 +26,12 @@ public class StatsDistributor {
             return;
         }
 
-
-        Player target = Bukkit.getPlayer(args[4]);
+        Player target;
+        if (args.length >= 5) {
+            target = Bukkit.getPlayer(args[4]);
+        }else {
+            target = player;
+        }
         if (target == null || !HideAPI.canSee(player,target)) {
             player.sendMessage("§cError: target not found!");
             return;
@@ -89,14 +100,16 @@ public class StatsDistributor {
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set Operator §aon"+ChatColor.of("#f08d1d") +" for "+ target.getName());
             }
         } else if (args[3].equalsIgnoreCase("Address")) {
-            player.sendMessage(ChatColor.of("#f08d1d") +"Address from §f" +target.getName() + ChatColor.of("#f08d1d") + " is §7" + target.getAddress().toString());
+            player.sendMessage(ChatColor.of("#f08d1d") +"Address from §f" +target.getName() + ChatColor.of("#f08d1d") + " is §7" + target.getAddress().toString() + "/" +target.getAddress().getAddress().getHostAddress());
         } else if (args[3].equalsIgnoreCase("ClientName")) {
             player.sendMessage(ChatColor.of("#f08d1d") +"Client-Brand-Name from §f" +target.getName() + ChatColor.of("#f08d1d") + " is §7" + target.getClientBrandName());
+        }else if (args[3].equalsIgnoreCase("Locale")) {
+            player.sendMessage(ChatColor.of("#f08d1d") +"Locale from §f" +target.getName() + ChatColor.of("#f08d1d") + " is §7" + target.locale());
         } else if (args[3].equalsIgnoreCase("Reset")) {
             target.setInvulnerable(false);
             target.setAllowFlight(false);
             target.setFlying(false);
-            target.setCollidable(false);
+            target.setCollidable(true);
             target.setSleepingIgnored(false);
             target.setInvisible(false);
             target.setVisualFire(false);
@@ -133,6 +146,9 @@ public class StatsDistributor {
             if (target.isOp()) {
                 messages.add("§bOp");
             }
+            messages.add("§b"+target.getClientBrandName());
+
+            messages.add("§b"+target.locale().toString());
 
             String message = "§7" + playerName + " has ";
             if (messages.isEmpty()) {
