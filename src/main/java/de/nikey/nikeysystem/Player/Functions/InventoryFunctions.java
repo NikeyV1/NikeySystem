@@ -204,5 +204,4 @@ public class InventoryFunctions implements Listener {
             inventory.setItemInOffHand(savedInventory[40]);
         }
     }
-
 }

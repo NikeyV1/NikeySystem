@@ -5,6 +5,7 @@ import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.LocationAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
+import de.nikey.nikeysystem.Player.Settings.LocationSettings;
 import de.nikey.nikeysystem.Server.API.WorldAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -229,6 +230,16 @@ public class LocationDistributer {
                             entity.remove();;
                         }
                     }.runTaskLater(NikeySystem.getPlugin(),50);
+                }
+            }
+        } else if (cmd.equalsIgnoreCase("settings")) {
+            if (args.length == 5) {
+                if (LocationAPI.guardLocations.containsKey(args[4])) {
+                    if (LocationAPI.guardCreators.containsValue(sender.getName()) || PermissionAPI.isAllowedToChange(sender.getName(),LocationAPI.guardCreators.get(args[4]) , ShieldCause.LOCATION_GUARD_CHANGE)) {
+                        LocationSettings.openSettingsMenu(sender,args[4]);
+                    }else {
+                        sender.sendMessage("§cError: missing permission");
+                    }
                 }
             }
         }

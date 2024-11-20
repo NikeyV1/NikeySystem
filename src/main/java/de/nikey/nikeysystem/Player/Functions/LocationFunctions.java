@@ -14,9 +14,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockEvent;
+import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 
+import java.util.List;
 import java.util.Map;
 
 public class LocationFunctions implements Listener {
@@ -29,11 +32,18 @@ public class LocationFunctions implements Listener {
         for (Map.Entry<String, Location> entry : LocationAPI.guardLocations.entrySet()) {
             String guardName = entry.getKey();
             Location guardLocation = entry.getValue();
+
             if (player.getWorld() != guardLocation.getWorld()) continue;
 
             double range = LocationAPI.guardRanges.getOrDefault(guardName, 10.0);
             if (player.getLocation().distance(guardLocation) < range) {
-                // Wenn der Spieler gerade erst den Bereich betreten hat
+
+                List<String> excludedPlayers = NikeySystem.getPlugin().getConfig().getStringList("location.settings." + guardName + ".exclude");
+                if (excludedPlayers.contains(player.getName())) continue;
+
+                List<String> includedPlayers = NikeySystem.getPlugin().getConfig().getStringList("location.settings." + guardName + ".include");
+                if (!includedPlayers.isEmpty() && !includedPlayers.contains(player.getName())) continue;
+
                 if (!guardName.equals(LocationAPI.playerInGuardArea.get(player))) {
                     if (!LocationAPI.guardCreators.get(guardName).equals(player.getName())) {
                         if (PermissionAPI.isSystemUser(player))
@@ -70,5 +80,8 @@ public class LocationFunctions implements Listener {
             }
         }
     }
+
+
+
 
 }

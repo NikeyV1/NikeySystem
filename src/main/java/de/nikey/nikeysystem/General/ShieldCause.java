@@ -42,6 +42,10 @@ public enum ShieldCause {
      */
     LOCATION_GET_LOCATION,
     /**
+     * Changing a guard that isn't allowed
+     */
+    LOCATION_GUARD_CHANGE,
+    /**
      * Teleporting to target isn't allowed
      */
     TELEPORT,

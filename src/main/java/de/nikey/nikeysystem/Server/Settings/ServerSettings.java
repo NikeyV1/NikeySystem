@@ -21,7 +21,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
 import java.util.function.Consumer;
 
 
@@ -79,6 +83,7 @@ public class ServerSettings implements Listener {
             case Slot.MOTD_CHANGE:
                 requestInput(player, "Enter the new MOTD in chat:", input -> {
                     String motd = ChatColor.translateAlternateColorCodes('&', input);
+                    saveMOTD(player,motd);
                     Bukkit.getServer().setMotd(motd);
                     player.sendMessage(ChatColor.GREEN + "MOTD has been updated to: "+ChatColor.RESET + motd);
                 });
@@ -109,6 +114,17 @@ public class ServerSettings implements Listener {
                 break;
             case Slot.END:
                 toggleAllowEnd(player);
+                Component endStatus = isEndAllowed() ? Component.text("Enabled").color(NamedTextColor.GREEN) : Component.text("Disabled").color(NamedTextColor.RED);
+                ItemStack item = event.getInventory().getItem(Slot.END);
+                if (item != null && item.getItemMeta() != null) {
+                    ItemMeta meta = item.getItemMeta();
+
+                    meta.displayName(Component.text("End Toggle: ").color(NamedTextColor.GOLD).append(endStatus));
+                    meta.lore(List.of(
+                            Component.text("Restart needed").color(NamedTextColor.RED)
+                    ));
+                    item.setItemMeta(meta);
+                }
                 break;
         }
     }
@@ -141,16 +157,46 @@ public class ServerSettings implements Listener {
     }
 
     private boolean isEndAllowed() {
-        File bukkitYmlFile = new File("plugins/yourplugin/bukkit.yml");
+        File bukkitYmlFile = new File(Bukkit.getWorldContainer()+"/bukkit.yml");
         if (!bukkitYmlFile.exists()) {
-            return false;  // Standardmäßig false, wenn die Datei nicht existiert
+            return false;
         }
         YamlConfiguration yaml = YamlConfiguration.loadConfiguration(bukkitYmlFile);
-        return yaml.getBoolean("settings.allow-end", true);  // Standardwert true, wenn nicht gesetzt
+        return yaml.getBoolean("settings.allow-end", true);
+    }
+
+    private void saveMOTD(Player player, String motd) {
+        File propertiesFile = new File(Bukkit.getWorldContainer(), "server.properties");
+
+        if (!propertiesFile.exists()) {
+            player.sendMessage(ChatColor.RED + "Error: server.properties not found!");
+            return;
+        }
+
+        Properties properties = new Properties();
+
+        // Properties-Datei laden
+        try (FileInputStream input = new FileInputStream(propertiesFile)) {
+            properties.load(input);
+        } catch (IOException e) {
+            player.sendMessage(ChatColor.RED + "Error loading server.properties: " + e.getMessage());
+            return;
+        }
+
+        // MOTD aktualisieren
+        properties.setProperty("motd", motd);
+
+        // Properties-Datei speichern
+        try (FileOutputStream output = new FileOutputStream(propertiesFile)) {
+            properties.store(output, "Updated MOTD by Plugin");
+            player.sendMessage(ChatColor.GREEN + "MOTD updated successfully!");
+        } catch (IOException e) {
+            player.sendMessage(ChatColor.RED + "Error saving server.properties: " + e.getMessage());
+        }
     }
 
     private void toggleAllowEnd(Player player) {
-        File bukkitYmlFile = new File(Bukkit.getWorldContainer()+"bukkit.yml");
+        File bukkitYmlFile = new File(Bukkit.getWorldContainer()+"/bukkit.yml");
         if (!bukkitYmlFile.exists()) {
             player.sendMessage(ChatColor.RED + "Error: bukkit.yml not found!");
             return;
@@ -162,7 +208,7 @@ public class ServerSettings implements Listener {
 
         try {
             yaml.save(bukkitYmlFile);  // Änderungen speichern
-            player.sendMessage(ChatColor.GREEN + "The End is now " + (!currentStatus ? "enabled" : "disabled"));
+            player.sendMessage(ChatColor.GREEN + "The End is now " + (!currentStatus ? "§aenabled" : "§cdisabled"));
         } catch (IOException e) {
             player.sendMessage(ChatColor.RED + "Error: saving bukkit.yml: " + e.getMessage());
         }

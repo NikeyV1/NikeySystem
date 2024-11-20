@@ -248,7 +248,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         if (args.length >= 3 && args[1].equalsIgnoreCase("location")) {
             // Second argument (subcommands for mute)
             if (args.length == 3) {
-                return Arrays.asList("getLocation", "tp", "lastseen", "placeGuard", "removeGuard", "listGuard");
+                return Arrays.asList("getLocation", "tp", "lastseen", "placeGuard", "removeGuard", "listGuard", "settings");
             }
 
             String subCommand = args[2].toLowerCase();
@@ -258,7 +258,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 if (subCommand.equalsIgnoreCase("getlocation") || subCommand.equalsIgnoreCase("tp")) {
                     // Liste der online Spieler für getLocation, tp, lastseen
                     return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
-                } else if (subCommand.equals("removeguard")) {
+                } else if (subCommand.equals("removeguard") || subCommand.equalsIgnoreCase("settings")) {
                     // Liste der Guards für removeGuard
                     return new ArrayList<>(LocationAPI.guardLocations.keySet());
                 } else if (subCommand.equalsIgnoreCase("lastseen")) {
