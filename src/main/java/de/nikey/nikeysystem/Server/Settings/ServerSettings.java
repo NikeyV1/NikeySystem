@@ -55,6 +55,9 @@ public class ServerSettings implements Listener {
         addItemToInventory(inventory, 3, Material.NAME_TAG, "Remove from /plugin");
         String endStatus = isEndAllowed() ? "Enabled" : "Disabled";
         addItemToInventory(inventory, 4, Material.END_PORTAL_FRAME, "End Toggle: " + endStatus);
+        boolean on = NikeySystem.getPlugin().getConfig().getBoolean("system.setting.system_command_logging");
+        Component onStatus = on ? Component.text("Enabled").color(NamedTextColor.GREEN) : Component.text("Disabled").color(NamedTextColor.RED);
+        addItemToInventory(inventory,5,Material.WRITTEN_BOOK,"System command logging: "+ onStatus);
 
         player.openInventory(inventory);
     }
@@ -124,6 +127,35 @@ public class ServerSettings implements Listener {
                             Component.text("Restart needed").color(NamedTextColor.RED)
                     ));
                     item.setItemMeta(meta);
+                }
+                break;
+            case Slot.SYSTEM_LOGGING:
+                boolean on = NikeySystem.getPlugin().getConfig().getBoolean("system.setting.system_command_logging");
+                Component onStatus = on ? Component.text("Enabled").color(NamedTextColor.GREEN) : Component.text("Disabled").color(NamedTextColor.RED);
+                if (on) {
+                    NikeySystem.getPlugin().getConfig().set("system.setting.system_command_logging",false);
+                    ItemStack i = event.getInventory().getItem(Slot.END);
+                    if (i != null && i.getItemMeta() != null) {
+                        ItemMeta meta = i.getItemMeta();
+
+                        meta.displayName(Component.text("System command logging: "+onStatus).color(NamedTextColor.GOLD));
+                        i.setItemMeta(meta);
+                    }
+                    player.sendMessage(Component.text("The system command is now ").color(NamedTextColor.GRAY)
+                            .append(Component.text("enabled").color(NamedTextColor.GREEN))
+                            .append(Component.text(" in the console").color(NamedTextColor.GRAY)));
+                }else {
+                    NikeySystem.getPlugin().getConfig().set("system.setting.system_command_logging",true);
+                    ItemStack i = event.getInventory().getItem(Slot.END);
+                    if (i != null && i.getItemMeta() != null) {
+                        ItemMeta meta = i.getItemMeta();
+
+                        meta.displayName(Component.text("System command logging: "+ onStatus).color(NamedTextColor.GOLD));
+                        i.setItemMeta(meta);
+                    }
+                    player.sendMessage(Component.text("The system command is now ").color(NamedTextColor.GRAY)
+                            .append(Component.text("removed").color(NamedTextColor.RED))
+                            .append(Component.text(" from server console").color(NamedTextColor.GRAY)));
                 }
                 break;
         }
@@ -220,6 +252,7 @@ public class ServerSettings implements Listener {
         static final int MAX_PLAYERS_CHANGE = 2;
         static final int REMOVE_FROM_PLUGINCMD = 3;
         static final int END = 4;
+        static final int SYSTEM_LOGGING = 5;
 
     }
 

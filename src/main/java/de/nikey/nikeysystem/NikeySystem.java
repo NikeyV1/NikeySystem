@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem;
 
+import de.nikey.nikeysystem.General.CommandFilter;
 import de.nikey.nikeysystem.General.SystemCommandTabCompleter;
 import de.nikey.nikeysystem.Player.API.InventoryAPI;
 import de.nikey.nikeysystem.Player.API.MuteAPI;
@@ -26,6 +27,11 @@ import org.bukkit.World;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.logging.Filter;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
+
 public final class NikeySystem extends JavaPlugin {
 
 
@@ -43,7 +49,6 @@ public final class NikeySystem extends JavaPlugin {
         SystemShieldDistributor.loadSystemShield();
         MuteAPI.loadMutedPlayers();
         InventoryAPI.startup();
-
 
         PluginManager manager = Bukkit.getPluginManager();
         manager.registerEvents(new HideFunctions(),this);
@@ -72,6 +77,22 @@ public final class NikeySystem extends JavaPlugin {
         }
 
         WorldAPI.loadWorlds();
+    }
+
+    private void applyLoggingFilter() {
+        Logger logger = getLogger();
+
+        logger.setFilter(new Filter() {
+            @Override
+            public boolean isLoggable(LogRecord record) {
+                // Check if logging for /system is disabled
+                boolean loggingEnabled = getConfig().getBoolean("system.setting.system_command_logging");
+
+                // Suppress /system command logs if logging is disabled
+                Bukkit.broadcastMessage(record.getMessage() + loggingEnabled);
+                return loggingEnabled && !record.getMessage().contains("issued server command: /system");// Allow all other messages
+            }
+        });
     }
 
     @Override

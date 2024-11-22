@@ -12,6 +12,7 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.*;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -186,6 +187,14 @@ public class LocationDistributer {
                     LocationAPI.guardLocations.remove(guardName);
                     LocationAPI.guardRanges.remove(guardName);
                     LocationAPI.guardCreators.remove(guardName);
+
+                    FileConfiguration config = NikeySystem.getPlugin().getConfig();
+                    String configPath = "location.settings." + guardName;
+                    if (config.contains(configPath)) {
+                        config.set(configPath, null);
+                        NikeySystem.getPlugin().saveConfig();
+                    }
+
                     sender.sendMessage(ChatColor.BLUE + "Guard §f'" + guardName + "'§9 has been §cremoved.");
                 } else {
                     sender.sendMessage("§cError: guard not found");
