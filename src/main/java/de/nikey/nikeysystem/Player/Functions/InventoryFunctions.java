@@ -5,6 +5,7 @@ import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.ChatAPI;
 import de.nikey.nikeysystem.Player.API.InventoryAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
+import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -14,13 +15,13 @@ import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.*;
 
 import java.io.IOException;
@@ -56,6 +57,7 @@ public class InventoryFunctions implements Listener {
             player.getInventory().setItemInOffHand(inventory.getItem(8));
         }
     }
+
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
@@ -155,7 +157,7 @@ public class InventoryFunctions implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOW)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         if (!offlineInventories.containsKey(player.getUniqueId())) {
@@ -183,6 +185,28 @@ public class InventoryFunctions implements Listener {
             restorePlayerInventory(player, savedInventory);
         }
     }
+
+
+    @EventHandler
+    public void onPlayerInventorySlotChange(PlayerInventorySlotChangeEvent event) {
+        Player player = event.getPlayer();
+        UUID playerUUID = player.getUniqueId();
+
+        // Aktuelles Inventar speichern
+        offlineInventories.put(playerUUID, player.getInventory().getContents());
+
+        // Inventardaten auch in der Datei speichern
+        inventoryData.set(playerUUID.toString(), player.getInventory().getContents());
+        try {
+            inventoryData.save(inventoryFile);
+        } catch (IOException e) {
+            ChatAPI.sendManagementMessage(Component.text("Error saving inventory for player " ).color(NamedTextColor.RED)
+                    .append(Component.text(player.getName()).color(NamedTextColor.WHITE))
+                    .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)));
+            NikeySystem.getPlugin().getLogger().severe("Error saving inventory for player " + player.getName() + ": " + e.getMessage());
+        }
+    }
+
 
     private void restorePlayerInventory(Player player, ItemStack[] savedInventory) {
         PlayerInventory inventory = player.getInventory();

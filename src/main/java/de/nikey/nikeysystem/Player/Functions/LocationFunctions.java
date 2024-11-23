@@ -42,14 +42,7 @@ public class LocationFunctions implements Listener {
 
             double range = LocationAPI.guardRanges.getOrDefault(guardName, 12.0);
             if (player.getLocation().distance(guardLocation) < range) {
-
-                List<String> excludedPlayers = NikeySystem.getPlugin().getConfig().getStringList("location.settings." + guardName + ".exclude");
-                if (excludedPlayers.contains(player.getName())) continue;
-
-                List<String> includedPlayers = NikeySystem.getPlugin().getConfig().getStringList("location.settings." + guardName + ".include");
-                if (!includedPlayers.isEmpty() && !includedPlayers.contains(player.getName())) continue;
-
-                if (!guardName.equals(LocationAPI.playerInGuardArea.get(player))) {
+                if (!guardName.equals(LocationAPI.playerInGuardArea.get(player)) && LocationAPI.isPlayerExcluded(player,guardName)) {
                     if (!LocationAPI.guardCreators.get(guardName).equals(player.getName())) {
                         if (PermissionAPI.isSystemUser(player))
                             player.sendMessage("§8System: §eYou have entered the guarded area: §f" + guardName);

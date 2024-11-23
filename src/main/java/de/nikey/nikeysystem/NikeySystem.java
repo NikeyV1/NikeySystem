@@ -80,6 +80,7 @@ public final class NikeySystem extends JavaPlugin {
     }
 
     private void applyLoggingFilter() {
+
         Logger logger = getLogger();
 
         logger.setFilter(new Filter() {
