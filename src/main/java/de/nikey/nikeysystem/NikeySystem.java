@@ -1,7 +1,7 @@
 package de.nikey.nikeysystem;
 
-import de.nikey.nikeysystem.General.CommandFilter;
 import de.nikey.nikeysystem.General.SystemCommandTabCompleter;
+import de.nikey.nikeysystem.Player.API.ChatAPI;
 import de.nikey.nikeysystem.Player.API.InventoryAPI;
 import de.nikey.nikeysystem.Player.API.MuteAPI;
 import de.nikey.nikeysystem.Player.Distributor.PermissionDistributor;
@@ -21,16 +21,17 @@ import de.nikey.nikeysystem.Server.Functions.SettingsFunctions;
 import de.nikey.nikeysystem.Server.Functions.WorldFunctions;
 import de.nikey.nikeysystem.Server.Settings.ServerSettings;
 import de.nikey.nikeysystem.Server.Settings.WorldSettings;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.logging.Filter;
-import java.util.logging.Level;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
+import java.io.IOException;
+import java.util.UUID;
 
 public final class NikeySystem extends JavaPlugin {
 
@@ -78,23 +79,26 @@ public final class NikeySystem extends JavaPlugin {
 
         WorldAPI.loadWorlds();
     }
+    public void saveAllPlayerInventories() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            UUID playerUUID = player.getUniqueId();
 
-    private void applyLoggingFilter() {
+            // Speichern des Inventars in offlineInventories
+            InventoryAPI.offlineInventories.put(playerUUID, player.getInventory().getContents());
 
-        Logger logger = getLogger();
-
-        logger.setFilter(new Filter() {
-            @Override
-            public boolean isLoggable(LogRecord record) {
-                // Check if logging for /system is disabled
-                boolean loggingEnabled = getConfig().getBoolean("system.setting.system_command_logging");
-
-                // Suppress /system command logs if logging is disabled
-                Bukkit.broadcastMessage(record.getMessage() + loggingEnabled);
-                return loggingEnabled && !record.getMessage().contains("issued server command: /system");// Allow all other messages
+            // Speichern in der Datei
+            InventoryAPI.inventoryData.set(playerUUID.toString(), player.getInventory().getContents());
+            try {
+                InventoryAPI.inventoryData.save(InventoryAPI.inventoryFile);
+            } catch (IOException e) {
+                ChatAPI.sendManagementMessage(Component.text("Error saving inventory for player ").color(NamedTextColor.RED)
+                        .append(Component.text(player.getName()).color(NamedTextColor.WHITE))
+                        .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)));
+                getLogger().severe("Error saving inventory for player " + player.getName() + ": " + e.getMessage());
             }
-        });
+        }
     }
+
 
     @Override
     public void onDisable() {
@@ -102,6 +106,7 @@ public final class NikeySystem extends JavaPlugin {
         WorldFunctions.deleteAndUnloadTemporaryWorlds();
         WorldFunctions.deleteTemporaryWorlds();
         InventoryAPI.saveInventories();
+        saveAllPlayerInventories();
     }
 
     public static NikeySystem getPlugin() {

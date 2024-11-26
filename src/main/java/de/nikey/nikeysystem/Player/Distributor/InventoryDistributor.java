@@ -341,5 +341,4 @@ public class InventoryDistributor implements Listener {
             player.openInventory(virtualInventory);
         }
     }
-
 }

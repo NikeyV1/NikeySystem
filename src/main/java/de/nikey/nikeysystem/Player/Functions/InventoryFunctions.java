@@ -130,6 +130,7 @@ public class InventoryFunctions implements Listener {
                     .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)));
             NikeySystem.getPlugin().getLogger().severe("Error saving inventory for player " + player.getName() + ": " + e.getMessage());
         }
+        Bukkit.broadcastMessage("Quit updated");
     }
 
     @EventHandler
@@ -152,18 +153,40 @@ public class InventoryFunctions implements Listener {
                 NikeySystem.getPlugin().getLogger().severe("Error saving inventory for player " + target.getName() + ": " + e.getMessage());
                 return;
             }
+
+            inventoryData.set("offlineEdited." + target.getUniqueId(), true);
             event.getPlayer().sendMessage(Component.text(target.getName()+"'s ").color(NamedTextColor.WHITE)
                     .append(Component.text("inventory was saved").color(NamedTextColor.GREEN)));
         }
     }
 
+
+
     @EventHandler(priority = EventPriority.LOW)
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        if (!offlineInventories.containsKey(player.getUniqueId())) {
-            UUID playerUUID = player.getUniqueId();
+        UUID playerUUID = player.getUniqueId();
 
-            // Aktuelles Inventar speichern
+        // Prüfen, ob der Spieler offline bearbeitet wurde
+        if (inventoryData.getBoolean("offlineEdited." + playerUUID, false)) {
+            ItemStack[] savedInventory = offlineInventories.get(playerUUID);
+
+            // Wiederherstellen des Inventars
+            if (savedInventory != null) {
+                restorePlayerInventory(player, savedInventory);
+                inventoryData.set("offlineEdited." + playerUUID, null); // Entfernen der Markierung
+                Bukkit.broadcastMessage("Join loaded");
+                try {
+                    inventoryData.save(inventoryFile);
+                } catch (IOException e) {
+                    ChatAPI.sendManagementMessage(Component.text("Error removing offline edit marker for player ").color(NamedTextColor.RED)
+                            .append(Component.text(player.getName()).color(NamedTextColor.WHITE))
+                            .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)));
+                    NikeySystem.getPlugin().getLogger().severe("Error removing offline edit marker for player " + player.getName() + ": " + e.getMessage());
+                }
+            }
+        }else {
+            Bukkit.broadcastMessage("Join updated");
             offlineInventories.put(playerUUID, player.getInventory().getContents());
 
             // Inventardaten auch in der Datei speichern
@@ -176,37 +199,8 @@ public class InventoryFunctions implements Listener {
                         .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)));
                 NikeySystem.getPlugin().getLogger().severe("Error saving inventory for player " + player.getName() + ": " + e.getMessage());
             }
-            return;
-        }
-        if (player.getInventory().getContents() != offlineInventories.get(player.getUniqueId())) {
-            ItemStack[] savedInventory = offlineInventories.get(player.getUniqueId());
-
-            // Wiederherstellen des Inventars
-            restorePlayerInventory(player, savedInventory);
         }
     }
-
-
-    @EventHandler
-    public void onPlayerInventorySlotChange(PlayerInventorySlotChangeEvent event) {
-        Player player = event.getPlayer();
-        UUID playerUUID = player.getUniqueId();
-
-        // Aktuelles Inventar speichern
-        offlineInventories.put(playerUUID, player.getInventory().getContents());
-
-        // Inventardaten auch in der Datei speichern
-        inventoryData.set(playerUUID.toString(), player.getInventory().getContents());
-        try {
-            inventoryData.save(inventoryFile);
-        } catch (IOException e) {
-            ChatAPI.sendManagementMessage(Component.text("Error saving inventory for player " ).color(NamedTextColor.RED)
-                    .append(Component.text(player.getName()).color(NamedTextColor.WHITE))
-                    .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)));
-            NikeySystem.getPlugin().getLogger().severe("Error saving inventory for player " + player.getName() + ": " + e.getMessage());
-        }
-    }
-
 
     private void restorePlayerInventory(Player player, ItemStack[] savedInventory) {
         PlayerInventory inventory = player.getInventory();
