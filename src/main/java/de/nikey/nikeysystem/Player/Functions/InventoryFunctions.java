@@ -130,7 +130,6 @@ public class InventoryFunctions implements Listener {
                     .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)));
             NikeySystem.getPlugin().getLogger().severe("Error saving inventory for player " + player.getName() + ": " + e.getMessage());
         }
-        Bukkit.broadcastMessage("Quit updated");
     }
 
     @EventHandler
@@ -154,7 +153,8 @@ public class InventoryFunctions implements Listener {
                 return;
             }
 
-            inventoryData.set("offlineEdited." + target.getUniqueId(), true);
+            NikeySystem.getPlugin().getConfig().set("offlineEdited." + target.getUniqueId(), true);
+            NikeySystem.getPlugin().saveConfig();
             event.getPlayer().sendMessage(Component.text(target.getName()+"'s ").color(NamedTextColor.WHITE)
                     .append(Component.text("inventory was saved").color(NamedTextColor.GREEN)));
         }
@@ -168,14 +168,14 @@ public class InventoryFunctions implements Listener {
         UUID playerUUID = player.getUniqueId();
 
         // Prüfen, ob der Spieler offline bearbeitet wurde
-        if (inventoryData.getBoolean("offlineEdited." + playerUUID, false)) {
+        if (NikeySystem.getPlugin().getConfig().getBoolean("offlineEdited." + playerUUID, false)) {
             ItemStack[] savedInventory = offlineInventories.get(playerUUID);
 
             // Wiederherstellen des Inventars
             if (savedInventory != null) {
                 restorePlayerInventory(player, savedInventory);
-                inventoryData.set("offlineEdited." + playerUUID, null); // Entfernen der Markierung
-                Bukkit.broadcastMessage("Join loaded");
+                NikeySystem.getPlugin().getConfig().set("offlineEdited." + playerUUID, null);
+                NikeySystem.getPlugin().saveConfig();
                 try {
                     inventoryData.save(inventoryFile);
                 } catch (IOException e) {
@@ -186,7 +186,6 @@ public class InventoryFunctions implements Listener {
                 }
             }
         }else {
-            Bukkit.broadcastMessage("Join updated");
             offlineInventories.put(playerUUID, player.getInventory().getContents());
 
             // Inventardaten auch in der Datei speichern

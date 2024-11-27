@@ -50,6 +50,8 @@ public final class NikeySystem extends JavaPlugin {
         SystemShieldDistributor.loadSystemShield();
         MuteAPI.loadMutedPlayers();
         InventoryAPI.startup();
+        WorldFunctions.deleteTemporaryWorlds();
+        WorldAPI.loadWorlds();
 
         PluginManager manager = Bukkit.getPluginManager();
         manager.registerEvents(new HideFunctions(),this);
@@ -76,8 +78,6 @@ public final class NikeySystem extends JavaPlugin {
             world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, true);
             world.setGameRule(GameRule.SEND_COMMAND_FEEDBACK,true);
         }
-
-        WorldAPI.loadWorlds();
     }
     public void saveAllPlayerInventories() {
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -88,6 +88,7 @@ public final class NikeySystem extends JavaPlugin {
 
             // Speichern in der Datei
             InventoryAPI.inventoryData.set(playerUUID.toString(), player.getInventory().getContents());
+            getLogger().info("Saving " + player.getName() + "'s inv");
             try {
                 InventoryAPI.inventoryData.save(InventoryAPI.inventoryFile);
             } catch (IOException e) {
