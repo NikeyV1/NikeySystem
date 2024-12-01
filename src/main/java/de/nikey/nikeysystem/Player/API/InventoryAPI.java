@@ -54,7 +54,7 @@ public class InventoryAPI implements Listener {
             try {
                 inventoryFile.createNewFile();
             } catch (IOException | SecurityException ex) {
-                ChatAPI.sendManagementMessage(Component.text("Failed to save inventories: " + ex.getMessage()));
+                ChatAPI.sendManagementMessage(Component.text("Failed to save inventories: " + ex.getMessage()), ChatAPI.ManagementType.ERROR);
             }
         }
         inventoryData = YamlConfiguration.loadConfiguration(inventoryFile);

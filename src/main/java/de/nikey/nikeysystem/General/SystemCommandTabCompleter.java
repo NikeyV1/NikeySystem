@@ -438,21 +438,24 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 4 && args[1].equalsIgnoreCase("backup")) {
-            if (args[2].equalsIgnoreCase("create") || args[2].equalsIgnoreCase("load")) {
+            if (args[2].equalsIgnoreCase("create")) {
                 return new ArrayList<>(List.of("name"));
             }
         }
 
-        if (args.length == 4 && args[2].equalsIgnoreCase("delete")) {
-            File backupFolder = new File(NikeySystem.getPlugin().getDataFolder().getParentFile(), "Backups");
-            File[] backupFiles = backupFolder.listFiles((dir, name) -> name.endsWith(".zip") || name.endsWith(".tar"));
-
-            if (backupFiles == null) return new ArrayList<>();
-            List<String> backupNames = new ArrayList<>();
-            for (File file : backupFiles) {
-                backupNames.add(file.getName());
+        if (args.length == 4) {
+            if (args[2].equalsIgnoreCase("delete") || args[2].equalsIgnoreCase("load")) {
+                File[] backups = new File(NikeySystem.getPlugin().getDataFolder().getParentFile().getParent(), "Backups").listFiles();
+                ArrayList<String> backupNames = new ArrayList<>();
+                for (File backup : backups) {
+                    backupNames.add(backup.getName());
+                }
+                return backupNames;
             }
-            return backupNames;
+
+            if (args[2].equalsIgnoreCase("setautointerval")) {
+                return Arrays.asList("1d","1w","30m","10h");
+            }
         }
 
         return Collections.emptyList();

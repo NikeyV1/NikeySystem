@@ -127,7 +127,7 @@ public class InventoryFunctions implements Listener {
         } catch (IOException e) {
             ChatAPI.sendManagementMessage(Component.text("Error saving inventory for player " ).color(NamedTextColor.RED)
                     .append(Component.text(player.getName()).color(NamedTextColor.WHITE))
-                    .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)));
+                    .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)), ChatAPI.ManagementType.ERROR);
             NikeySystem.getPlugin().getLogger().severe("Error saving inventory for player " + player.getName() + ": " + e.getMessage());
         }
     }
@@ -148,7 +148,7 @@ public class InventoryFunctions implements Listener {
             } catch (IOException e) {
                 ChatAPI.sendManagementMessage(Component.text("Error saving inventory for player " ).color(NamedTextColor.RED)
                         .append(Component.text(target.getName()).color(NamedTextColor.WHITE))
-                        .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)));
+                        .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)), ChatAPI.ManagementType.ERROR);
                 NikeySystem.getPlugin().getLogger().severe("Error saving inventory for player " + target.getName() + ": " + e.getMessage());
                 return;
             }
@@ -181,7 +181,7 @@ public class InventoryFunctions implements Listener {
                 } catch (IOException e) {
                     ChatAPI.sendManagementMessage(Component.text("Error removing offline edit marker for player ").color(NamedTextColor.RED)
                             .append(Component.text(player.getName()).color(NamedTextColor.WHITE))
-                            .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)));
+                            .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)), ChatAPI.ManagementType.ERROR);
                     NikeySystem.getPlugin().getLogger().severe("Error removing offline edit marker for player " + player.getName() + ": " + e.getMessage());
                 }
             }
@@ -195,7 +195,7 @@ public class InventoryFunctions implements Listener {
             } catch (IOException e) {
                 ChatAPI.sendManagementMessage(Component.text("Error saving inventory for player " ).color(NamedTextColor.RED)
                         .append(Component.text(player.getName()).color(NamedTextColor.WHITE))
-                        .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)));
+                        .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)), ChatAPI.ManagementType.ERROR);
                 NikeySystem.getPlugin().getLogger().severe("Error saving inventory for player " + player.getName() + ": " + e.getMessage());
             }
         }

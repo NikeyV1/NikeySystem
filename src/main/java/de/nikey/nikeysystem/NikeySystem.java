@@ -96,7 +96,7 @@ public final class NikeySystem extends JavaPlugin {
             } catch (IOException e) {
                 ChatAPI.sendManagementMessage(Component.text("Error saving inventory for player ").color(NamedTextColor.RED)
                         .append(Component.text(player.getName()).color(NamedTextColor.WHITE))
-                        .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)));
+                        .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)), ChatAPI.ManagementType.ERROR);
                 getLogger().severe("Error saving inventory for player " + player.getName() + ": " + e.getMessage());
             }
         }
