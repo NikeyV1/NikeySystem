@@ -45,7 +45,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
             if (args[0].equalsIgnoreCase("player")) {
                 return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "mute", "location","profile","sound","resourcepack");
             } else if (args[0].equalsIgnoreCase("server")) {
-                return Arrays.asList("command", "settings","performance","world");
+                return Arrays.asList("command", "settings","performance","world", "backup");
             } else if (args[0].equalsIgnoreCase("security")) {
                 return Arrays.asList("System-Shield");
             }
@@ -431,6 +431,28 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 }
                 return worlds;
             }
+        }
+
+        if (args.length == 3 && args[1].equalsIgnoreCase("backup")) {
+            return new ArrayList<>(Arrays.asList("list","create","delete","load","setautointerval","setdeletetime"));
+        }
+
+        if (args.length == 4 && args[1].equalsIgnoreCase("backup")) {
+            if (args[2].equalsIgnoreCase("create") || args[2].equalsIgnoreCase("load")) {
+                return new ArrayList<>(List.of("name"));
+            }
+        }
+
+        if (args.length == 4 && args[2].equalsIgnoreCase("delete")) {
+            File backupFolder = new File(NikeySystem.getPlugin().getDataFolder().getParentFile(), "Backups");
+            File[] backupFiles = backupFolder.listFiles((dir, name) -> name.endsWith(".zip") || name.endsWith(".tar"));
+
+            if (backupFiles == null) return new ArrayList<>();
+            List<String> backupNames = new ArrayList<>();
+            for (File file : backupFiles) {
+                backupNames.add(file.getName());
+            }
+            return backupNames;
         }
 
         return Collections.emptyList();

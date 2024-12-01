@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 public class ChatAPI {
 
-    private static final Component managementChannel = Component.text("[Management Channel]").color(TextColor.color(50, 168, 98));
+    private static final Component managementChannel = Component.text("[Management Channel] ").color(TextColor.color(50, 168, 98));
 
     public static void sendManagementMessage(Component message) {
         for (Player player : Bukkit.getOnlinePlayers()) {

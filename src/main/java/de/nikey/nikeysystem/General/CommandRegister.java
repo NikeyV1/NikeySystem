@@ -4,10 +4,7 @@ import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.Player.Distributor.*;
 import de.nikey.nikeysystem.Security.Distributor.SystemShieldDistributor;
-import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
-import de.nikey.nikeysystem.Server.Distributor.PerformanceDistributor;
-import de.nikey.nikeysystem.Server.Distributor.SettingsDistributor;
-import de.nikey.nikeysystem.Server.Distributor.WorldDistributor;
+import de.nikey.nikeysystem.Server.Distributor.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -72,6 +69,9 @@ public class CommandRegister implements Listener {
                         event.setCancelled(true);
                     }else if (args[2].equalsIgnoreCase("World")) {
                         WorldDistributor.worldManager(player,args);
+                        event.setCancelled(true);
+                    }else if (args[2].equalsIgnoreCase("Backup")) {
+                        BackupDistributor.manageBackup(player,args);
                         event.setCancelled(true);
                     }
                 } else if (args[1].equalsIgnoreCase("Security")) {

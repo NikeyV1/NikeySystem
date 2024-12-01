@@ -71,7 +71,6 @@ public class BackupSettings implements Listener {
                 config.set("settings.auto_backup", !autoBackup);
                 plugin.saveConfig();
                 player.sendMessage("§aAutoBackup " + (autoBackup ? "disabled" : "enabled") + "!");
-                openBackupMenu(player);
             }
             case PAPER -> {
                 player.sendMessage("§ePlease use: /backup setAutoInterval [minutes]");
@@ -80,7 +79,7 @@ public class BackupSettings implements Listener {
             case CHEST -> {
                 player.sendMessage("§eCreating backup...");
                 Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-                    plugin.createBackup();
+
                     player.sendMessage("§aBackup created successfully!");
                 });
             }

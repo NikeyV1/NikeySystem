@@ -14,6 +14,7 @@ import de.nikey.nikeysystem.Player.Settings.LocationSettings;
 import de.nikey.nikeysystem.Security.Distributor.SystemShieldDistributor;
 import de.nikey.nikeysystem.Security.Functions.SystemShieldFunctions;
 import de.nikey.nikeysystem.Server.API.WorldAPI;
+import de.nikey.nikeysystem.Server.Distributor.BackupDistributor;
 import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
 import de.nikey.nikeysystem.Server.Functions.CommandFunctions;
 import de.nikey.nikeysystem.Server.Functions.PerformanceFunctions;
@@ -52,6 +53,7 @@ public final class NikeySystem extends JavaPlugin {
         InventoryAPI.startup();
         WorldFunctions.deleteTemporaryWorlds();
         WorldAPI.loadWorlds();
+        BackupDistributor.startup();
 
         PluginManager manager = Bukkit.getPluginManager();
         manager.registerEvents(new HideFunctions(),this);
