@@ -36,4 +36,36 @@ public class BackupAPI {
                     value * 1000;
         };
     }
+
+    public static String formatTime(long millis) {
+        if (millis < 0) {
+            throw new IllegalArgumentException("Time in milliseconds cannot be negative.");
+        }
+
+        // Konvertiere Millisekunden in passende Einheiten
+        long weeks = millis / (7 * 24 * 60 * 60 * 1000);
+        millis %= (7 * 24 * 60 * 60 * 1000);
+
+        long days = millis / (24 * 60 * 60 * 1000);
+        millis %= (24 * 60 * 60 * 1000);
+
+        long hours = millis / (60 * 60 * 1000);
+        millis %= (60 * 60 * 1000);
+
+        long minutes = millis / (60 * 1000);
+        millis %= (60 * 1000);
+
+        long seconds = millis / 1000;
+
+        // Baue die Ausgabe auf
+        StringBuilder result = new StringBuilder();
+        if (weeks > 0) result.append(weeks).append("w ");
+        if (days > 0) result.append(days).append("d ");
+        if (hours > 0) result.append(hours).append("h ");
+        if (minutes > 0) result.append(minutes).append("m ");
+        if (seconds > 0) result.append(seconds).append("s ");
+
+        // Rückgabe, Leerzeichen am Ende entfernen
+        return result.toString().trim();
+    }
 }

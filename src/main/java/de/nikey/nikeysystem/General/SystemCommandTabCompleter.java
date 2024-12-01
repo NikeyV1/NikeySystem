@@ -453,7 +453,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 return backupNames;
             }
 
-            if (args[2].equalsIgnoreCase("setautointerval")) {
+            if (args[2].equalsIgnoreCase("setautointerval") || args[2].equalsIgnoreCase("setdeletetime")) {
                 return Arrays.asList("1d","1w","30m","10h");
             }
         }

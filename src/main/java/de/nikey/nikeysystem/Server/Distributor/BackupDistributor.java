@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+import static de.nikey.nikeysystem.Server.API.BackupAPI.formatTime;
 import static de.nikey.nikeysystem.Server.API.BackupAPI.parseTime;
 import static org.bukkit.Bukkit.getServer;
 
@@ -64,6 +65,13 @@ public class BackupDistributor {
             loadBackup(sender, args[4]);
         }else if (cmd.equalsIgnoreCase("setautointerval")) {
             if (args.length < 5) {
+                String time = formatTime(NikeySystem.getPlugin().getConfig().getLong("settings.backup_interval"));
+                if (time.isEmpty()) {
+                    sender.sendMessage(Component.text("The current interval time is not set").color(TextColor.color(138, 138, 135)));
+                }else {
+                    sender.sendMessage(Component.text("The current interval time is ").color(TextColor.color(138, 138, 135))
+                            .append(Component.text(time).color(NamedTextColor.WHITE)));
+                }
                 return;
             }
             try {
@@ -80,6 +88,13 @@ public class BackupDistributor {
             }
         }else if (cmd.equalsIgnoreCase("setdeletetime")) {
             if (args.length < 5) {
+                String time = formatTime(NikeySystem.getPlugin().getConfig().getLong("backup.auto_delete_interval"));
+                if (time.isEmpty()) {
+                    sender.sendMessage(Component.text("The current delete interval time is not set").color(TextColor.color(138, 138, 135)));
+                }else {
+                    sender.sendMessage(Component.text("The current delete interval time is ").color(TextColor.color(138, 138, 135))
+                            .append(Component.text(time).color(NamedTextColor.WHITE)));
+                }
                 return;
             }
 
@@ -248,7 +263,29 @@ public class BackupDistributor {
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     Path target = getServerFolder().toPath().resolve(backupToLoad.toPath().relativize(file));
                     Files.createDirectories(target.getParent());
-                    Files.copy(file, target, StandardCopyOption.REPLACE_EXISTING);
+                    try {
+                        Files.copy(file, target, StandardCopyOption.REPLACE_EXISTING);
+                    } catch (IOException e) {
+                        // Wenn die Datei in Benutzung ist, überspringen
+                        if (e.getMessage().contains("Das System kann die angegebene Datei nicht finden") ||
+                                e.getMessage().contains("Die Datei wird von einem anderen Prozess verwendet")) {
+                            System.err.println("Skipping file (in use): " + file);
+                            // Optionale Nachricht an den Benutzer senden
+                            sender.sendMessage("§eSkipping file (in use): " + file);
+                            return FileVisitResult.CONTINUE;
+                        }
+                        // Anderen Fehler ausgeben
+                        System.err.println("Failed to copy file: " + file.toString());
+                        e.printStackTrace();
+                        sender.sendMessage("§cFailed to copy file: " + file.toString());
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    // Optional: Verzeichnisse nach dem Kopieren löschen oder überspringen
                     return FileVisitResult.CONTINUE;
                 }
             });
@@ -278,7 +315,7 @@ public class BackupDistributor {
             return;
         }
 
-        ChatAPI.sendManagementMessage(Component.text("Backup delete scheduler started with interval: " + deleteInterval + " ms"), ChatAPI.ManagementType.INFO);
+        ChatAPI.sendManagementMessage(Component.text("Backup delete scheduler started with interval: " ,ChatAPI.infoColor).append(Component.text(formatTime(deleteInterval))), ChatAPI.ManagementType.INFO,true);
 
         // Konvertiere das Intervall von Millisekunden in Ticks
         long intervalInTicks = deleteInterval / 50;
@@ -345,7 +382,7 @@ public class BackupDistributor {
             String name = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
             createBackup(name);
         }, interval / 50, interval / 50); // Bukkit verwendet Ticks (1 Tick = 50 ms)
-        ChatAPI.sendManagementMessage(Component.text("Backup scheduler started with interval: " + interval + " ms"), ChatAPI.ManagementType.INFO);
+        ChatAPI.sendManagementMessage(Component.text("Backup scheduler started with interval: " ,ChatAPI.infoColor).append(Component.text(formatTime(interval))), ChatAPI.ManagementType.INFO,true);
         NikeySystem.getPlugin().getLogger().info("Backup scheduler started with interval: " + interval + " ms");
     }
 

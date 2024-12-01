@@ -11,8 +11,38 @@ public class ChatAPI {
 
     private static final Component managementChannel = Component.text("[Management Channel] ").color(TextColor.color(50, 168, 98));
 
+    public static final TextColor infoColor = TextColor.color(30, 144, 255);
+    public static final TextColor errorColor = NamedTextColor.RED;
+    public static final TextColor criticalErrorColor = TextColor.color(178, 34, 34);
+
     public static void sendManagementMessage(Component message, ManagementType type) {
 
+        TextColor color;
+
+        switch (type) {
+            case INFO -> color = TextColor.color(30, 144, 255); // Dodger Blue
+            case ERROR -> color = NamedTextColor.RED; // Bright Red
+            case CRITICAL_ERROR -> color = TextColor.color(178, 34, 34);
+            default -> color = NamedTextColor.WHITE; // Fallback color
+        }
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (PermissionAPI.isAdmin(player.getName()) || PermissionAPI.isOwner(player.getName())) {
+                player.sendMessage(managementChannel.append(message.color(color)));
+            }
+        }
+    }
+
+    public static void sendManagementMessage(Component message, ManagementType type, boolean useCustomColor) {
+
+        if (useCustomColor) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (PermissionAPI.isAdmin(player.getName()) || PermissionAPI.isOwner(player.getName())) {
+                    player.sendMessage(managementChannel.append(message));
+                }
+            }
+            return;
+        }
         TextColor color;
 
         switch (type) {

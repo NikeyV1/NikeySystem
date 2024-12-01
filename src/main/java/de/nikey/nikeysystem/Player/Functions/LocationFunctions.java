@@ -3,8 +3,10 @@ package de.nikey.nikeysystem.Player.Functions;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.LocationAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
+import io.papermc.paper.event.entity.EntityMoveEvent;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -18,7 +20,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntityMountEvent;
+import org.bukkit.event.inventory.HopperInventorySearchEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -32,6 +38,13 @@ public class LocationFunctions implements Listener {
     public void onPlayerMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
         if (LocationAPI.guardLocations.isEmpty()) return;
+
+        Location from = event.getFrom();
+        Location to = event.getTo();
+
+        if (from.getX() == to.getX() && from.getZ() == to.getZ() && from.getY() == to.getY()) {
+            return; // Nur Kopfbewegung, keine Blockierung erforderlich
+        }
 
         boolean isInGuardArea = false;
         for (Map.Entry<String, Location> entry : LocationAPI.guardLocations.entrySet()) {
@@ -69,6 +82,7 @@ public class LocationFunctions implements Listener {
             LocationAPI.playerInGuardArea.remove(player);
         }
     }
+
 
     @EventHandler
     public void onPluginDisable(PluginDisableEvent event) {
@@ -143,6 +157,26 @@ public class LocationFunctions implements Listener {
         }
     }
 
+    @EventHandler
+    public void onInventoryMove(InventoryMoveItemEvent event) {
+        Location hopperLocation = event.getDestination().getLocation();
+        if (isRedstoneUsageDisabledInGuardArea(hopperLocation)) {
+            event.setCancelled(true);
+        }else if (isRedstoneUsageDisabledInGuardArea(event.getSource().getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onBlockDispense(BlockDispenseEvent event) {
+        if (isRedstoneUsageDisabledInGuardArea(event.getBlock().getLocation()))event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onCrafterCraft(CrafterCraftEvent event) {
+        if (isRedstoneUsageDisabledInGuardArea(event.getBlock().getLocation()))event.setCancelled(true);
+    }
+
 
     @EventHandler
     public void onEntityExplode(EntityExplodeEvent event) {
@@ -167,6 +201,27 @@ public class LocationFunctions implements Listener {
                 }
             }
         }
+    }
+
+    private boolean isRedstoneUsageDisabledInGuardArea(Location location) {
+        for (Map.Entry<String, Location> entry : LocationAPI.guardLocations.entrySet()) {
+            String guardName = entry.getKey();
+            Location guardLocation = entry.getValue();
+
+            if (!location.getWorld().equals(guardLocation.getWorld())) continue;
+
+            double range = LocationAPI.guardRanges.getOrDefault(guardName, 12.0);
+
+            if (location.distance(guardLocation) <= range) {
+                FileConfiguration config = NikeySystem.getPlugin().getConfig();
+
+                boolean preventRedstoneUsage = config.getBoolean("location.settings." + guardName + ".preventRedstoneUsage", false);
+                if (preventRedstoneUsage) {
+                    return true; // Verhindert die Aktivierung
+                }
+            }
+        }
+        return false;
     }
 
     @EventHandler
