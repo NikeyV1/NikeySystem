@@ -3,9 +3,7 @@ package de.nikey.nikeysystem.Player.API;
 import de.nikey.nikeysystem.NikeySystem;
 import org.bukkit.configuration.file.FileConfiguration;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class MuteAPI {
     private static HashMap<String, Long> mutedPlayers = new HashMap<>();
@@ -16,6 +14,10 @@ public class MuteAPI {
 
     public static void remove(String player) {
         mutedPlayers.remove(player);
+    }
+
+    public static Set<String> getMutedPlayers() {
+        return mutedPlayers.keySet();
     }
 
     public static long getMutedDuration(String player) {

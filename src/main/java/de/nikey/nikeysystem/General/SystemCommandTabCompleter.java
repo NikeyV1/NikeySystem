@@ -2,6 +2,7 @@ package de.nikey.nikeysystem.General;
 
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.LocationAPI;
+import de.nikey.nikeysystem.Player.API.MuteAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -234,9 +235,14 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
             // Third argument (player name for mute commands)
             if (args.length == 4 && (args[2].equalsIgnoreCase("mute") || args[2].equalsIgnoreCase("unmute") ||
-                    args[2].equalsIgnoreCase("togglemute") || args[2].equalsIgnoreCase("getMuted"))) {
+                    args[2].equalsIgnoreCase("togglemute"))) {
                 // Suggest all online player names
                 return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+            }
+
+            if (args.length == 4 && args[2].equalsIgnoreCase("getMuted")) {
+                sender.sendMessage(MuteAPI.getMutedPlayers().toArray(new String[0]));
+                return new ArrayList<>(MuteAPI.getMutedPlayers());
             }
 
             // Fourth argument (mute duration in seconds for the mute command)

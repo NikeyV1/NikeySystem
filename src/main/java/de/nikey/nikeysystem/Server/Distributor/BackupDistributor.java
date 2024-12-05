@@ -185,7 +185,6 @@ public class BackupDistributor {
                 return FileVisitResult.CONTINUE;
             }
         });
-
         return size[0];
     }
 
