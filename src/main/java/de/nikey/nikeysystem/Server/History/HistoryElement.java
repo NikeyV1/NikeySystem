@@ -51,4 +51,22 @@ public class HistoryElement {
         return "[%s] Player %s changed %s at %s".formatted(
                 timestamp, playerUUID, blockType, location);
     }
+
+    public enum Type {
+        PLACE("PLACED"),
+        BREAK("BROKEN"),
+        EMPTY_BUCKET("PLACED USING BUCKET"),
+        FILL_BUCKET("PICKED UP USING BUCKET"),
+        EXPLODE_END_CRYSTAL("EXPLODED USING END CRYSTAL"),
+        EXPLODE_TNT("EXPLODED USING TNT"),
+        EXPLODE_CREEPER("EXPLODED USING CREEPER"),
+        EXPLODE_BLOCK("EXPLODED USING BLOCK"),
+        SIGN("CHANGED");
+
+        public final String name;
+
+        Type (String name) {
+            this.name = name;
+        }
+    }
 }

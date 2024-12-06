@@ -3,6 +3,8 @@ package de.nikey.nikeysystem.Server.Settings;
 import de.nikey.nikeysystem.Server.API.SettingsAPI;
 import de.nikey.nikeysystem.Server.API.WorldAPI;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import io.papermc.paper.world.flag.FeatureFlagSetHolder;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -20,6 +22,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static org.bukkit.Bukkit.createWorld;
@@ -45,6 +48,7 @@ public class WorldSettings implements Listener {
         addItemToInventoryWithInt(inventory, 12, Material.SPYGLASS, "Simulation distance", player.getWorld().getSimulationDistance());
         addItemToInventoryWithBoolean(inventory, 13, Material.FIREWORK_ROCKET, "Auto Start", WorldAPI.isAutoStaring(player.getWorld()));
         addItemToInventoryWithBoolean(inventory, 14, Material.PLAYER_HEAD, "Creator Only", WorldAPI.isCreatorOnly(player.getWorld().getName()));
+
 
 
         player.openInventory(inventory);
@@ -415,6 +419,9 @@ public class WorldSettings implements Listener {
         player.getWorld().setDifficulty(nextDifficulty);
         player.sendMessage(ChatColor.GREEN + "Difficulty set to " + nextDifficulty.name());
     }
+
+
+
 
     @EventHandler
     public void onPlayerChat(AsyncChatEvent event) {
