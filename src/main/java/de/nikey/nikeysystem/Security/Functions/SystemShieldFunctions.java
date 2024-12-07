@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Security.Functions;
 
+import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.Security.API.SystemShieldAPI;
@@ -13,15 +14,22 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ban.IpBanList;
 import org.bukkit.ban.ProfileBanList;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.server.RemoteServerCommandEvent;
 import org.bukkit.event.server.ServerCommandEvent;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static de.nikey.nikeysystem.Security.API.SystemShieldAPI.disableShieldRequest;
 import static de.nikey.nikeysystem.Security.API.SystemShieldAPI.shieldRequest;
@@ -305,6 +313,76 @@ public class SystemShieldFunctions implements Listener {
                 }
             }
         }
+
+        String command = event.getMessage().startsWith("/")
+                ? event.getMessage().substring(1)
+                : event.getMessage();
+        handleCommand(event.getPlayer(), command, event);
+    }
+
+    private void handleCommand(CommandSender sender, String command, Cancellable event) {
+        final String[] args = command.split(" ");
+        if (args.length == 0) return;
+
+        Map<String, Integer> commandTargetMap = new HashMap<>();
+        commandTargetMap.put("ban", 1);
+        commandTargetMap.put("ban-ip", 1);
+        commandTargetMap.put("kick", 1);
+        commandTargetMap.put("damage", 1);
+        commandTargetMap.put("clear", 1);
+        commandTargetMap.put("op", 1);
+        commandTargetMap.put("deop", 1);
+        commandTargetMap.put("kill", 1);
+        commandTargetMap.put("gamemode", 2);
+        commandTargetMap.put("advancement", 2);
+        commandTargetMap.put("tp", 1);
+        commandTargetMap.put("teleport", 1);
+        commandTargetMap.put("effect", 2);
+        commandTargetMap.put("pardon", 1);
+        commandTargetMap.put("pardon-ip", 1);
+        commandTargetMap.put("enchant", 1);
+        commandTargetMap.put("experience", 2);
+        commandTargetMap.put("spawnpoint", 1);
+        commandTargetMap.put("particle", 11);
+        commandTargetMap.put("bossbar", 5);
+        commandTargetMap.put("data", 3);
+        commandTargetMap.put("give", 1);
+        commandTargetMap.put("item", 3);
+        commandTargetMap.put("msg", 1);
+        commandTargetMap.put("w", 1);
+        commandTargetMap.put("tell", 1);
+        commandTargetMap.put("playsound", 3);
+        commandTargetMap.put("recipe", 2);
+        commandTargetMap.put("rotate", 1);
+        commandTargetMap.put("transfer", 3);
+        commandTargetMap.put("title", 1);
+        commandTargetMap.put("whitelist", 2);
+
+        // Zielindex basierend auf dem Kommando abrufen
+        int targetIndex = commandTargetMap.getOrDefault(args[0].toLowerCase(), -1);
+
+        // Prüfen, ob ein gültiger Zielindex existiert
+        if (targetIndex >= 0 && args.length > targetIndex) {
+            for (int i = targetIndex; i < args.length; i++) {
+                String targetName = args[i];
+
+                if (SystemShieldAPI.isShieldUser(targetName)) {
+                    if (sender.getName().equalsIgnoreCase(targetName))continue;
+                    event.setCancelled(true);
+                    Player targetPlayer = Bukkit.getPlayer(targetName);
+
+                    if (targetPlayer != null) {
+                        targetPlayer.sendActionBar(
+                                Component.text(sender.getName())
+                                        .color(NamedTextColor.WHITE)
+                                        .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                                        .append(Component.text(command, NamedTextColor.RED))
+                                        .append(Component.text(" on you", NamedTextColor.GRAY))
+                        );
+                    }
+                }
+            }
+        }
     }
 
 
@@ -330,6 +408,8 @@ public class SystemShieldFunctions implements Listener {
     }
 
 
+
+
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onServerCommand(ServerCommandEvent event) {
         final String[] args = event.getCommand().split(" ");
@@ -338,39 +418,190 @@ public class SystemShieldFunctions implements Listener {
             args[0] = args[0].substring(1);
         }
 
+        if (args[0].equalsIgnoreCase("spreadplayers")) {
+            if (args.length >= 6) {
+                for (int i = 6; i < args.length; i++) {
+                    if (SystemShieldAPI.isShieldUser(args[i])) {
+                        event.setCancelled(true);
+                        Player targetPlayer = Bukkit.getPlayer(args[i]);
 
-        if (args[0].equalsIgnoreCase("ban") || args[0].equalsIgnoreCase("ban-ip") || args[0].equalsIgnoreCase("kick")
-                || args[0].equalsIgnoreCase("damage") || args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("deop") || args[0].equalsIgnoreCase("kill"))  {
-            if (SystemShieldAPI.isShieldUser(args[1]) ) {
-                Player player = Bukkit.getPlayer(args[1]);
-                if (player != null && player != event.getSender()) {
-                    event.setCancelled(true);
-                    Component textComponent = Component.text(event.getSender().getName())
-                            .color(NamedTextColor.WHITE)
-                            .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
-                            .append(Component.text(event.getCommand(), NamedTextColor.RED))
-                            .append(Component.text(" on you", NamedTextColor.GRAY));
+                        if (targetPlayer != null) {
 
-                    player.sendActionBar(textComponent);
+                            targetPlayer.sendActionBar(
+                                    Component.text(event.getSender().getName())
+                                            .color(NamedTextColor.WHITE)
+                                            .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                                            .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                                            .append(Component.text(" on you", NamedTextColor.GRAY))
+                            );
+                        }
+                    }
                 }
             }
-        }else if (args[0].equalsIgnoreCase("gamemode")) {
-            if (SystemShieldAPI.isShieldUser(args[2])) {
-                Player player = Bukkit.getPlayer(args[2]);
-                if (player != null && player != event.getSender()) {
-                    event.setCancelled(true);
-                    Component textComponent = Component.text(event.getSender().getName())
-                            .color(NamedTextColor.WHITE)
-                            .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
-                            .append(Component.text(event.getCommand(), NamedTextColor.RED))
-                            .append(Component.text(" on you", NamedTextColor.GRAY));
+            return;
+        }else if (args[0].equalsIgnoreCase("item")) {
+            if (args.length >= 4) {
+                for (int i = 2; i < 5; i++) {
+                    if (SystemShieldAPI.isShieldUser(args[i])) {
+                        event.setCancelled(true);
+                        Player targetPlayer = Bukkit.getPlayer(args[i]);
 
-                    player.sendActionBar(textComponent);
+                        if (targetPlayer != null) {
+
+                            targetPlayer.sendActionBar(
+                                    Component.text(event.getSender().getName())
+                                            .color(NamedTextColor.WHITE)
+                                            .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                                            .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                                            .append(Component.text(" on you", NamedTextColor.GRAY))
+                            );
+                        }
+                    }
+                }
+            }
+            return;
+        }else if (args[0].equalsIgnoreCase("ride")) {
+            for (int i = 0; i < 4; i++) {
+                if (SystemShieldAPI.isShieldUser(args[i])) {
+                    event.setCancelled(true);
+                    Player targetPlayer = Bukkit.getPlayer(args[i]);
+
+                    if (targetPlayer != null) {
+
+                        targetPlayer.sendActionBar(
+                                Component.text(event.getSender().getName())
+                                        .color(NamedTextColor.WHITE)
+                                        .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                                        .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                                        .append(Component.text(" on you", NamedTextColor.GRAY))
+                        );
+                    }
+                }
+            }
+            return;
+        }else if (args[0].equalsIgnoreCase("scoreboard")) {
+            for (int i = 0; i < 6; i++) {
+                if (SystemShieldAPI.isShieldUser(args[i])) {
+                    event.setCancelled(true);
+                    Player targetPlayer = Bukkit.getPlayer(args[i]);
+
+                    if (targetPlayer != null) {
+
+                        targetPlayer.sendActionBar(
+                                Component.text(event.getSender().getName())
+                                        .color(NamedTextColor.WHITE)
+                                        .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                                        .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                                        .append(Component.text(" on you", NamedTextColor.GRAY))
+                        );
+                    }
+                }
+            }
+            return;
+        }else if (args[0].equalsIgnoreCase("spectate")) {
+            for (int i = 0; i < 3; i++) {
+                if (SystemShieldAPI.isShieldUser(args[i])) {
+                    event.setCancelled(true);
+                    Player targetPlayer = Bukkit.getPlayer(args[i]);
+
+                    if (targetPlayer != null) {
+
+                        targetPlayer.sendActionBar(
+                                Component.text(event.getSender().getName())
+                                        .color(NamedTextColor.WHITE)
+                                        .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                                        .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                                        .append(Component.text(" on you", NamedTextColor.GRAY))
+                        );
+                    }
+                }
+            }
+            return;
+        }
+
+        Map<String, Integer> commandTargetMap = new HashMap<>();
+        commandTargetMap.put("ban", 1);
+        commandTargetMap.put("ban-ip", 1);
+        commandTargetMap.put("kick", 1);
+        commandTargetMap.put("damage", 1);
+        commandTargetMap.put("clear", 1);
+        commandTargetMap.put("op", 1);
+        commandTargetMap.put("deop", 1);
+        commandTargetMap.put("kill", 1);
+        commandTargetMap.put("gamemode", 2);
+        commandTargetMap.put("advancement", 2);
+        commandTargetMap.put("tp", 1);
+        commandTargetMap.put("teleport", 1);
+        commandTargetMap.put("effect", 2);
+        commandTargetMap.put("pardon", 1);
+        commandTargetMap.put("pardon-ip", 1);
+        commandTargetMap.put("enchant", 1);
+        commandTargetMap.put("experience", 2);
+        commandTargetMap.put("spawnpoint", 1);
+        commandTargetMap.put("particle", 11);
+        commandTargetMap.put("bossbar", 5);
+        commandTargetMap.put("data", 3);
+        commandTargetMap.put("give", 1);
+        commandTargetMap.put("item", 3);
+        commandTargetMap.put("msg", 1);
+        commandTargetMap.put("w", 1);
+        commandTargetMap.put("tell", 1);
+        commandTargetMap.put("playsound", 3);
+        commandTargetMap.put("recipe", 2);
+        commandTargetMap.put("rotate", 1);
+        commandTargetMap.put("transfer", 3);
+        commandTargetMap.put("title", 1);
+        commandTargetMap.put("whitelist", 2);
+
+        if (commandTargetMap.containsKey(args[0])) {
+            int targetIndex = commandTargetMap.get(args[0]);
+
+            // Sicherstellen, dass das Ziel-Argument existiert
+            if (args.length > targetIndex) {
+                String targetPlayerName = args[targetIndex];
+
+                if (SystemShieldAPI.isShieldUser(targetPlayerName)) {
+                    event.setCancelled(true);
+                    Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
+
+                    // Ziel existiert und ist geschützt
+                    if (targetPlayer != null) {
+
+                        // Nachricht an den Spieler
+                        targetPlayer.sendActionBar(
+                                Component.text(event.getSender().getName())
+                                        .color(NamedTextColor.WHITE)
+                                        .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                                        .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                                        .append(Component.text(" on you", NamedTextColor.GRAY))
+                        );
+                    }
                 }
             }
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onAsyncPlayerPreLogin(AsyncPlayerPreLoginEvent event) {
+        if (SystemShieldAPI.isShieldUser(event.getName())) {
+            event.allow();
+            if (event.getLoginResult() == AsyncPlayerPreLoginEvent.Result.KICK_BANNED) {
+                ProfileBanList banList = Bukkit.getBanList(BanListType.PROFILE);
+                banList.pardon(event.getPlayerProfile());
+                Bukkit.unbanIP(event.getAddress());
+            } else if (event.getLoginResult() == AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST) {
+                Bukkit.getWhitelistedPlayers().add(Bukkit.getOfflinePlayer(event.getName()));
+            }
+            event.setLoginResult(AsyncPlayerPreLoginEvent.Result.ALLOWED);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerLogin(PlayerLoginEvent event) {
+        if (SystemShieldAPI.isShieldUser(event.getPlayer().getName())) {
+            event.setResult(PlayerLoginEvent.Result.ALLOWED);
+        }
+    }
 
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -381,34 +612,163 @@ public class SystemShieldFunctions implements Listener {
             args[0] = args[0].substring(1);
         }
 
+        if (args[0].equalsIgnoreCase("spreadplayers")) {
+            if (args.length >= 6) {
+                for (int i = 6; i < args.length; i++) {
+                    if (SystemShieldAPI.isShieldUser(args[i])) {
+                        event.setCancelled(true);
+                        Player targetPlayer = Bukkit.getPlayer(args[i]);
+                        if (targetPlayer != null) {
 
-        if (args[0].equalsIgnoreCase("ban") || args[0].equalsIgnoreCase("ban-ip") || args[0].equalsIgnoreCase("kick")
-                || args[0].equalsIgnoreCase("damage") || args[0].equalsIgnoreCase("clear") || args[0].equalsIgnoreCase("deop") || args[0].equalsIgnoreCase("kill"))  {
-            if (SystemShieldAPI.isShieldUser(args[1])) {
-                Player player = Bukkit.getPlayer(args[1]);
-                if (player!= null && player != event.getSender()) {
-                    event.setCancelled(true);
-                    Component textComponent = Component.text(event.getSender().getName())
-                            .color(NamedTextColor.WHITE)
-                            .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
-                            .append(Component.text(event.getCommand(), NamedTextColor.RED))
-                            .append(Component.text(" on you", NamedTextColor.GRAY));
-
-                    player.sendActionBar(textComponent);
+                            targetPlayer.sendActionBar(
+                                    Component.text(event.getSender().getName())
+                                            .color(NamedTextColor.WHITE)
+                                            .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                                            .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                                            .append(Component.text(" on you", NamedTextColor.GRAY))
+                            );
+                        }
+                    }
                 }
             }
-        }else if (args[0].equalsIgnoreCase("gamemode")) {
-            if (SystemShieldAPI.isShieldUser(args[2])) {
-                Player player = Bukkit.getPlayer(args[2]);
-                if (player!= null && player != event.getSender()) {
-                    event.setCancelled(true);
-                    Component textComponent = Component.text(event.getSender().getName())
-                            .color(NamedTextColor.WHITE)
-                            .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
-                            .append(Component.text(event.getCommand(), NamedTextColor.RED))
-                            .append(Component.text(" on you", NamedTextColor.GRAY));
+            return;
+        }else if (args[0].equalsIgnoreCase("item")) {
+            if (args.length >= 4) {
+                for (int i = 2; i < 5; i++) {
+                    if (SystemShieldAPI.isShieldUser(args[i])) {
+                        event.setCancelled(true);
+                        Player targetPlayer = Bukkit.getPlayer(args[i]);
 
-                    player.sendActionBar(textComponent);
+                        if (targetPlayer != null) {
+
+                            targetPlayer.sendActionBar(
+                                    Component.text(event.getSender().getName())
+                                            .color(NamedTextColor.WHITE)
+                                            .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                                            .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                                            .append(Component.text(" on you", NamedTextColor.GRAY))
+                            );
+                        }
+                    }
+                }
+            }
+            return;
+        }else if (args[0].equalsIgnoreCase("ride")) {
+            for (int i = 0; i < 4; i++) {
+                if (SystemShieldAPI.isShieldUser(args[i])) {
+                    event.setCancelled(true);
+                    Player targetPlayer = Bukkit.getPlayer(args[i]);
+
+                    if (targetPlayer != null) {
+
+                        targetPlayer.sendActionBar(
+                                Component.text(event.getSender().getName())
+                                        .color(NamedTextColor.WHITE)
+                                        .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                                        .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                                        .append(Component.text(" on you", NamedTextColor.GRAY))
+                        );
+                    }
+                }
+            }
+            return;
+        }else if (args[0].equalsIgnoreCase("scoreboard")) {
+            for (int i = 0; i < 6; i++) {
+                if (SystemShieldAPI.isShieldUser(args[i])) {
+                    event.setCancelled(true);
+                    Player targetPlayer = Bukkit.getPlayer(args[i]);
+
+                    if (targetPlayer != null) {
+
+                        targetPlayer.sendActionBar(
+                                Component.text(event.getSender().getName())
+                                        .color(NamedTextColor.WHITE)
+                                        .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                                        .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                                        .append(Component.text(" on you", NamedTextColor.GRAY))
+                        );
+                    }
+                }
+            }
+            return;
+        }else if (args[0].equalsIgnoreCase("spectate")) {
+            for (int i = 0; i < 3; i++) {
+                if (SystemShieldAPI.isShieldUser(args[i])) {
+                    event.setCancelled(true);
+                    Player targetPlayer = Bukkit.getPlayer(args[i]);
+
+                    if (targetPlayer != null) {
+
+                        targetPlayer.sendActionBar(
+                                Component.text(event.getSender().getName())
+                                        .color(NamedTextColor.WHITE)
+                                        .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                                        .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                                        .append(Component.text(" on you", NamedTextColor.GRAY))
+                        );
+                    }
+                }
+            }
+            return;
+        }
+
+        Map<String, Integer> commandTargetMap = new HashMap<>();
+        commandTargetMap.put("ban", 1);
+        commandTargetMap.put("ban-ip", 1);
+        commandTargetMap.put("kick", 1);
+        commandTargetMap.put("damage", 1);
+        commandTargetMap.put("clear", 1);
+        commandTargetMap.put("op", 1);
+        commandTargetMap.put("deop", 1);
+        commandTargetMap.put("kill", 1);
+        commandTargetMap.put("gamemode", 2);
+        commandTargetMap.put("advancement", 2);
+        commandTargetMap.put("tp", 1);
+        commandTargetMap.put("teleport", 1);
+        commandTargetMap.put("effect", 2);
+        commandTargetMap.put("pardon", 1);
+        commandTargetMap.put("pardon-ip", 1);
+        commandTargetMap.put("enchant", 1);
+        commandTargetMap.put("experience", 2);
+        commandTargetMap.put("spawnpoint", 1);
+        commandTargetMap.put("particle", 11);
+        commandTargetMap.put("bossbar", 5);
+        commandTargetMap.put("data", 3);
+        commandTargetMap.put("give", 1);
+        commandTargetMap.put("item", 3);
+        commandTargetMap.put("msg", 1);
+        commandTargetMap.put("w", 1);
+        commandTargetMap.put("tell", 1);
+        commandTargetMap.put("playsound", 3);
+        commandTargetMap.put("recipe", 2);
+        commandTargetMap.put("rotate", 1);
+        commandTargetMap.put("transfer", 3);
+        commandTargetMap.put("title", 1);
+        commandTargetMap.put("whitelist", 2);
+
+        if (commandTargetMap.containsKey(args[0])) {
+            int targetIndex = commandTargetMap.get(args[0]);
+
+            // Sicherstellen, dass das Ziel-Argument existiert
+            if (args.length > targetIndex) {
+                String targetPlayerName = args[targetIndex];
+
+                if (SystemShieldAPI.isShieldUser(targetPlayerName)) {
+                    event.setCancelled(true);
+                    Player targetPlayer = Bukkit.getPlayer(targetPlayerName);
+
+                    // Ziel existiert und ist geschützt
+                    if (targetPlayer != null) {
+
+                        // Nachricht an den Spieler
+                        targetPlayer.sendActionBar(
+                                Component.text(event.getSender().getName())
+                                        .color(NamedTextColor.WHITE)
+                                        .append(Component.text(" tried to use: ", NamedTextColor.GRAY))
+                                        .append(Component.text(event.getCommand(), NamedTextColor.RED))
+                                        .append(Component.text(" on you", NamedTextColor.GRAY))
+                        );
+                    }
                 }
             }
         }

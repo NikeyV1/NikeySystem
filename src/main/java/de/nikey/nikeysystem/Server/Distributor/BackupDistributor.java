@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
@@ -256,49 +257,48 @@ public class BackupDistributor {
         sender.sendMessage(Component.text("Loading backup: ").color(TextColor.color(138, 138, 135))
                 .append(Component.text(name).color(NamedTextColor.WHITE))
                 .append(Component.text(" (This will overwrite current server data)").color(TextColor.color(138, 138, 135))));
+
         try {
             Files.walkFileTree(backupToLoad.toPath(), new SimpleFileVisitor<>() {
                 @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    // Zielverzeichnis prüfen: Nur wenn das Zielverzeichnis existiert, fortfahren
+                    Path targetPath = getServerFolder().toPath().resolve(backupToLoad.toPath().relativize(dir));
+                    Path targetDir = targetPath.resolve(backupToLoad.toPath().relativize(dir));
+                    if (Files.exists(targetDir) && Files.isDirectory(targetDir)) {
+                        // Wenn das Verzeichnis existiert, einfach fortfahren
+                        return FileVisitResult.CONTINUE;
+                    }
+                    // Andernfalls überspringen wir das Verzeichnis
+                    return FileVisitResult.SKIP_SUBTREE;
+                }
+
+                @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    Path target = getServerFolder().toPath().resolve(backupToLoad.toPath().relativize(file));
-                    Files.createDirectories(target.getParent());
-                    try {
-                        Files.copy(file, target, StandardCopyOption.REPLACE_EXISTING);
-                    } catch (IOException e) {
-                        // Wenn die Datei in Benutzung ist, überspringen
-                        if (e.getMessage().contains("Das System kann die angegebene Datei nicht finden") ||
-                                e.getMessage().contains("Die Datei wird von einem anderen Prozess verwendet")) {
-                            System.err.println("Skipping file (in use): " + file);
-                            // Optionale Nachricht an den Benutzer senden
-                            sender.sendMessage("§eSkipping file (in use): " + file);
-                            return FileVisitResult.CONTINUE;
-                        }
-                        // Anderen Fehler ausgeben
-                        System.err.println("Failed to copy file: " + file.toString());
-                        e.printStackTrace();
-                        sender.sendMessage("§cFailed to copy file: " + file.toString());
+                    // Zielpfad für die Datei berechnen
+                    Path targetPath = getServerFolder().toPath().resolve(backupToLoad.toPath().relativize(file));
+
+                    if (Files.isRegularFile(file)) {
+                        Path targetFile = targetPath.resolve(backupToLoad.toPath().relativize(file));
+                        Files.copy(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
+                        ChatAPI.sendManagementMessage(Component.text("Copied file:" + file.toString()), ChatAPI.ManagementType.INFO);
                     }
                     return FileVisitResult.CONTINUE;
                 }
-
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    // Optional: Verzeichnisse nach dem Kopieren löschen oder überspringen
-                    return FileVisitResult.CONTINUE;
-                }
             });
-            sender.sendMessage("§aBackup loaded successfully!");
+            ChatAPI.sendManagementMessage(Component.text("Backup loaded!"), ChatAPI.ManagementType.INFO);
         } catch (IOException e) {
-            sender.sendMessage("§cFailed to load backup: " + e.getMessage());
+            e.printStackTrace();
+            return; // Fehlerbehandlung
         }
+
     }
 
 
     private static void listBackups(CommandSender sender) {
         File[] backups = backupFolder.listFiles();
         if (backups == null || backups.length == 0) {
-            sender.sendMessage("§eNo backups available.");
+            sender.sendMessage("§eNo backups available");
             return;
         }
         sender.sendMessage("§eAvailable backups:");
@@ -382,7 +382,7 @@ public class BackupDistributor {
             createBackup(name);
         }, interval / 50, interval / 50); // Bukkit verwendet Ticks (1 Tick = 50 ms)
         ChatAPI.sendManagementMessage(Component.text("Backup scheduler started with interval: " ,ChatAPI.infoColor).append(Component.text(formatTime(interval))), ChatAPI.ManagementType.INFO,true);
-        NikeySystem.getPlugin().getLogger().info("Backup scheduler started with interval: " + interval + " ms");
+        NikeySystem.getPlugin().getLogger().info("Backup scheduler started with interval: " + formatTime(interval));
     }
 
 

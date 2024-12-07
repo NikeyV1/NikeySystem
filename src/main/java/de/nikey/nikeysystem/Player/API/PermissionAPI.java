@@ -87,6 +87,7 @@ public class PermissionAPI {
                         .append(Component.text(player).color(NamedTextColor.WHITE));
 
                 p.sendActionBar(textComponent);
+                return false;
             }
             if (!isSystemUser(target)) return true;
 

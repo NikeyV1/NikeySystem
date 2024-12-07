@@ -1,5 +1,7 @@
 package de.nikey.nikeysystem.Server.Distributor;
 
+import de.nikey.nikeysystem.NikeySystem;
+import de.nikey.nikeysystem.Player.API.ChatAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.Server.API.WorldAPI;
 import de.nikey.nikeysystem.Server.Settings.WorldSettings;
@@ -20,6 +22,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 public class WorldDistributor {
     public static void worldManager(Player sender, String[] args) {
@@ -252,6 +255,27 @@ public class WorldDistributor {
             );
 
         }
+    }
+
+    private CompletableFuture<World> createWorldAsync(WorldCreator creator) {
+        return CompletableFuture.supplyAsync(() -> {
+            return creator;
+        }).thenComposeAsync(preparedCreator -> {
+            // Welt im Hauptthread erstellen
+            CompletableFuture<World> worldFuture = new CompletableFuture<>();
+            Bukkit.getScheduler().runTask(NikeySystem.getPlugin(), () -> {
+                try {
+                    World world = Bukkit.createWorld(preparedCreator);
+                    worldFuture.complete(world); // Erfolgreich
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    ChatAPI.sendManagementMessage(Component.text("An error occurred while creating world: ").color(NamedTextColor.RED)
+                            .append(Component.text(e.getMessage()).color(NamedTextColor.WHITE)), ChatAPI.ManagementType.ERROR,true);
+                    worldFuture.complete(null); // Fehler
+                }
+            });
+            return worldFuture;
+        });
     }
 
     private static File findWorldFile(File container, String worldName) {

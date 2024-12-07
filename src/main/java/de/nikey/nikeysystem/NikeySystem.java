@@ -13,6 +13,7 @@ import de.nikey.nikeysystem.Player.Settings.InventorySettings;
 import de.nikey.nikeysystem.Player.Settings.LocationSettings;
 import de.nikey.nikeysystem.Security.Distributor.SystemShieldDistributor;
 import de.nikey.nikeysystem.Security.Functions.SystemShieldFunctions;
+import de.nikey.nikeysystem.Server.API.LoggingAPI;
 import de.nikey.nikeysystem.Server.API.WorldAPI;
 import de.nikey.nikeysystem.Server.Distributor.BackupDistributor;
 import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
@@ -54,6 +55,7 @@ public final class NikeySystem extends JavaPlugin {
         WorldFunctions.deleteTemporaryWorlds();
         WorldAPI.loadWorlds();
         BackupDistributor.startup();
+        LoggingAPI.initializeFiles();
 
         PluginManager manager = Bukkit.getPluginManager();
         manager.registerEvents(new HideFunctions(),this);
@@ -110,6 +112,7 @@ public final class NikeySystem extends JavaPlugin {
         WorldFunctions.deleteTemporaryWorlds();
         InventoryAPI.saveInventories();
         saveAllPlayerInventories();
+        LoggingAPI.saveLogs();
     }
 
     public static NikeySystem getPlugin() {
