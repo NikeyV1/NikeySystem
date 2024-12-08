@@ -62,7 +62,7 @@ public class LoggingFunctions implements Listener {
     public void onEntityExplode(EntityExplodeEvent event){
         if (event.getEntity() instanceof TNTPrimed primed){
             for (Block block : event.blockList()) {
-                logBlockChange(LoggingAPI.LoggingType.EXPLODE_TNT,primed.getSource() instanceof Player player ? player.getName() : "Unknown player",block.getLocation(), block.getType());
+                logBlockChange(LoggingAPI.LoggingType.EXPLODE_TNT,primed.getSource() instanceof Player player ? player.getName() : "Unknown",block.getLocation(), block.getType());
             }
         } else if (event.getEntity() instanceof Creeper creeper){
             UUID ignited = igniters.remove(creeper.getUniqueId());
@@ -85,7 +85,7 @@ public class LoggingFunctions implements Listener {
         UUID accountable = clickedBlocks.remove(explodedBlock);
         if (accountable == null) {
             for (Block block : event.blockList()) {
-                logBlockChange(LoggingAPI.LoggingType.EXPLODE_BLOCK,"Nobody",block.getLocation(), block.getType());
+                logBlockChange(LoggingAPI.LoggingType.EXPLODE_BLOCK,"Unknown",block.getLocation(), block.getType());
             }
             return;
         }
