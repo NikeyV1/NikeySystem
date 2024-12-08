@@ -17,10 +17,7 @@ import de.nikey.nikeysystem.Server.API.LoggingAPI;
 import de.nikey.nikeysystem.Server.API.WorldAPI;
 import de.nikey.nikeysystem.Server.Distributor.BackupDistributor;
 import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
-import de.nikey.nikeysystem.Server.Functions.CommandFunctions;
-import de.nikey.nikeysystem.Server.Functions.PerformanceFunctions;
-import de.nikey.nikeysystem.Server.Functions.SettingsFunctions;
-import de.nikey.nikeysystem.Server.Functions.WorldFunctions;
+import de.nikey.nikeysystem.Server.Functions.*;
 import de.nikey.nikeysystem.Server.Settings.ServerSettings;
 import de.nikey.nikeysystem.Server.Settings.WorldSettings;
 import net.kyori.adventure.text.Component;
@@ -74,6 +71,7 @@ public final class NikeySystem extends JavaPlugin {
         manager.registerEvents(new WorldSettings(),this);
         manager.registerEvents(new LocationSettings(),this);
         manager.registerEvents(new WorldFunctions(),this);
+        manager.registerEvents(new LoggingFunctions(),this);
         
 
         getCommand("system").setTabCompleter(new SystemCommandTabCompleter());

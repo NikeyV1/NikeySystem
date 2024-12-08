@@ -40,14 +40,24 @@ public class LoggingAPI {
     }
 
     public enum LoggingType {
-        PLACE,
-        BREAK,
-        EMPTY_BUCKET,
-        FILL_BUCKET,
-        EXPLODE_END_CRYSTAL,
-        EXPLODE_TNT,
-        EXPLODE_CREEPER,
-        EXPLODE_BLOCK,
-        SIGN;
+        PLACE("placed"),
+        BREAK("broken"),
+        EMPTY_BUCKET("placed_using_bucket"),
+        FILL_BUCKET("picked_up_using_bucket"),
+        EXPLODE_END_CRYSTAL("exploded_using_end_crystal"),
+        EXPLODE_TNT("exploded_using_TNT"),
+        EXPLODE_CREEPER("exploded_using_creeper"),
+        EXPLODE_BLOCK("exploded"),
+        SIGN("changed");
+
+        private final String name;
+
+        LoggingType(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 }

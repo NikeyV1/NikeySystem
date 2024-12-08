@@ -8,6 +8,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -16,10 +17,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.potion.PotionEffectType;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SystemCommandTabCompleter implements TabCompleter {
@@ -46,7 +44,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
             if (args[0].equalsIgnoreCase("player")) {
                 return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "mute", "location","profile","sound","resourcepack");
             } else if (args[0].equalsIgnoreCase("server")) {
-                return Arrays.asList("command", "settings","performance","world", "backup");
+                return Arrays.asList("command", "settings","performance","world", "backup", "logging");
             } else if (args[0].equalsIgnoreCase("security")) {
                 return Arrays.asList("System-Shield");
             }
@@ -65,7 +63,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the fourth argument (player name) for permissions commands that require a target player
         if (args.length == 4 && args[1].equalsIgnoreCase("permissions")) {
             // Provide list of online player names as suggestions
-            return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+            return GeneralAPI.handlePlayerListing((Player) sender,args,3);
         }
         // Handle the third argument for system player hide
         if (args.length == 3 && args[1].equalsIgnoreCase("hide")) {
@@ -80,7 +78,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the fourth argument (player name) for hide commands that require it
         if (args.length == 4 && args[1].equalsIgnoreCase("hide")) {
             // Provide list of online player names as suggestions
-            return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+            return GeneralAPI.handlePlayerListing((Player) sender,args,3);
         }
 
         // Handle the fifth argument (optional "message" parameter) for ToggleHide and ToggleTrueHide
@@ -95,7 +93,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the fourth argument (player name) for stats commands that require a target player
         if (args.length == 4 && args[1].equalsIgnoreCase("stats")) {
             // Provide list of online player names as suggestions
-            return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+            return GeneralAPI.handlePlayerListing((Player) sender,args,3);
         }
 
         // Handle the third argument for system player inventory
@@ -103,15 +101,11 @@ public class SystemCommandTabCompleter implements TabCompleter {
             return Arrays.asList("add", "remove", "openinv", "openec", "openeq","settings");
         }
 
-        // Handle the fourth argument (player name) for inventory commands that require a player
         if (args.length == 4 && args[1].equalsIgnoreCase("inventory")) {
-            // Provide list of online player names as suggestions
             if (args[2].equalsIgnoreCase("add") || args[2].equalsIgnoreCase("remove")) {
-                // Provide list of material names (items) for add/remove commands
                 return Arrays.stream(Material.values()).map(Material::name).collect(Collectors.toList());
             } else if (args[2].equalsIgnoreCase("openec") || args[2].equalsIgnoreCase("openeq")) {
-                // Provide list of online player names for openinv, openec, and openeq
-                return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+                return GeneralAPI.handlePlayerListing((Player) sender,args,3);
             } else if (args[2].equalsIgnoreCase("openinv")) {
                 List<String> playerNames = Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList());
                 for (InventoryType type : InventoryType.values()) {
@@ -123,16 +117,13 @@ public class SystemCommandTabCompleter implements TabCompleter {
             }
         }
 
-        // Handle the fifth argument (item or target player) for add, remove, and open commands
         if (args.length == 5 && args[1].equalsIgnoreCase("inventory")) {
             if (args[2].equalsIgnoreCase("add") || args[2].equalsIgnoreCase("remove")) {
-                // Provide list of material names (items) for add/remove commands
                 return Arrays.stream(Material.values()).map(Material::name).collect(Collectors.toList());
             } else if (args[2].equalsIgnoreCase("openec") || args[2].equalsIgnoreCase("openeq")) {
-                // Provide list of online player names for openinv, openec, and openeq
-                return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+                return GeneralAPI.handlePlayerListing((Player) sender,args,4);
             } else if (args[2].equalsIgnoreCase("openinv")) {
-                List<String> playerNames = GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+                List<String> playerNames = GeneralAPI.handlePlayerListing((Player) sender,args,4);
                 for (InventoryType type : InventoryType.values()) {
                     if (!type.name().equalsIgnoreCase("Player") && NikeySystem.getPlugin().getConfig().getBoolean("inventory.settings." + player.getName() + ".showinvtype")) {
                         playerNames.add(type.name());
@@ -160,7 +151,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         if (args.length == 4 && args[1].equalsIgnoreCase("System-Shield")) {
             if (args[2].equalsIgnoreCase("enable") || args[2].equalsIgnoreCase("disable") || args[2].equalsIgnoreCase("list")) {
                 // Provide list of online player names as suggestions
-                return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+                return GeneralAPI.handlePlayerListing((Player) sender,args,3);
             }
         }
 
@@ -177,8 +168,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the fourth argument (command or player name) for execute, executeas, ToggleBlock
         if (args.length == 4 && args[1].equalsIgnoreCase("command")) {
             if (args[2].equalsIgnoreCase("executeas")) {
-                // Provide list of online player names for executeas command
-                return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+                return GeneralAPI.handlePlayerListing((Player) sender,args,3);
             } else if (args[2].equalsIgnoreCase("ToggleBlock")) {
                 // Provide a list of blocked or allowed commands (just as a simple example, you can modify it as needed)
                 return Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList());
@@ -186,7 +176,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 return Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList());
             }else if (args[2].equalsIgnoreCase("BlockPlayer")) {
                 // Provide a list of blocked or allowed commands (just as a simple example, you can modify it as needed)
-                return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+                return GeneralAPI.handlePlayerListing((Player) sender,args,3);
             }
         }
 
@@ -207,7 +197,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         // Handle the fourth argument: player name or TargetEntity
         if (args.length == 4 && args[1].equalsIgnoreCase("effect")) {
-            List<String> playerNames = GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+            List<String> playerNames = GeneralAPI.handlePlayerListing((Player) sender,args,3);
             playerNames.add("TargetEntity"); // Add the special case for targeting an entity in sight
             return playerNames;
         }
@@ -237,7 +227,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
             if (args.length == 4 && (args[2].equalsIgnoreCase("mute") || args[2].equalsIgnoreCase("unmute") ||
                     args[2].equalsIgnoreCase("togglemute"))) {
                 // Suggest all online player names
-                return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+                return GeneralAPI.handlePlayerListing((Player) sender,args,3);
             }
 
             if (args.length == 4 && args[2].equalsIgnoreCase("getMuted")) {
@@ -263,7 +253,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
             if (args.length == 4) {
                 if (subCommand.equalsIgnoreCase("getlocation") || subCommand.equalsIgnoreCase("tp")) {
                     // Liste der online Spieler für getLocation, tp, lastseen
-                    return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+                    return GeneralAPI.handlePlayerListing((Player) sender,args,3);
                 } else if (subCommand.equals("removeguard") || subCommand.equalsIgnoreCase("settings")) {
                     // Liste der Guards für removeGuard
                     return new ArrayList<>(LocationAPI.guardLocations.keySet());
@@ -302,7 +292,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the fourth argument (player name) for permissions commands that require a target player
         if (args.length == 4 && args[1].equalsIgnoreCase("performance")) {
             // Provide list of online player names as suggestions
-            return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+            return GeneralAPI.handlePlayerListing((Player) sender,args,3);
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("profile")) {
@@ -316,11 +306,11 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 5 && args[1].equalsIgnoreCase("profile")) {
-            return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+            return GeneralAPI.handlePlayerListing((Player) sender,args,4);
         }
 
         if (args.length == 6 && args[1].equalsIgnoreCase("profile") && args[2].equalsIgnoreCase("set")) {
-            return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+            return GeneralAPI.handlePlayerListing((Player) sender,args,5);
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("sound")) {
@@ -328,7 +318,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 4 && args[1].equalsIgnoreCase("sound")) {
-            List<String> list = new ArrayList<>(GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList()));
+            List<String> list = new ArrayList<>(Objects.requireNonNull(GeneralAPI.handlePlayerListing((Player) sender, args, 3)));
             if (args[2].equalsIgnoreCase("play"))list.add("all");
             return list;
         }
@@ -367,7 +357,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
 
         if (args[1].equalsIgnoreCase("ResourcePack") && args.length == 4) {
-            return GeneralAPI.getOnlinePlayers((Player) sender).stream().map(Player::getName).collect(Collectors.toList());
+            return GeneralAPI.handlePlayerListing((Player) sender,args,3);
         }
 
         if (args[1].equalsIgnoreCase("ResourcePack") && args[2].equalsIgnoreCase("download")) {
@@ -425,16 +415,33 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 // Durchlaufen aller Verzeichnisse im world-Ordner
                 List<String> worlds = new ArrayList<>();
                 if (worldContainer.listFiles() == null)return null;
-                for (File file : worldContainer.listFiles()) {
-                    if (file.isDirectory()) {
-                        String worldName = file.getName();
-                        List<String > folder = Arrays.asList("plugins","versions","logs","libraries","debug","config","cache","crash-reports");
 
-                        if (Bukkit.getWorld(worldName) == null && !folder.contains(worldName)) {
-                            worlds.add(worldName);
+                if (!args[3].isEmpty()) {
+                    for (File file : worldContainer.listFiles()) {
+                        if (file.isDirectory()) {
+                            String worldName = file.getName();
+                            List<String > folder = Arrays.asList("plugins","versions","logs","libraries","debug","config","cache","crash-reports","Backups");
+
+                            if (Bukkit.getWorld(worldName) == null && !folder.contains(worldName)) {
+                                if (worldName.toLowerCase().startsWith(args[3].toLowerCase())) {
+                                    worlds.add(worldName);
+                                }
+                            }
+                        }
+                    }
+                }else {
+                    for (File file : worldContainer.listFiles()) {
+                        if (file.isDirectory()) {
+                            String worldName = file.getName();
+                            List<String > folder = Arrays.asList("plugins","versions","logs","libraries","debug","config","cache","crash-reports","Backups");
+
+                            if (Bukkit.getWorld(worldName) == null && !folder.contains(worldName)) {
+                                worlds.add(worldName);
+                            }
                         }
                     }
                 }
+                Collections.sort(worlds);
                 return worlds;
             }
         }
@@ -453,14 +460,41 @@ public class SystemCommandTabCompleter implements TabCompleter {
             if (args[2].equalsIgnoreCase("delete") || args[2].equalsIgnoreCase("load")) {
                 File[] backups = new File(NikeySystem.getPlugin().getDataFolder().getParentFile().getParent(), "Backups").listFiles();
                 ArrayList<String> backupNames = new ArrayList<>();
-                for (File backup : backups) {
-                    backupNames.add(backup.getName());
+                if (!args[3].isEmpty()) {
+                    for (File backup : backups) {
+                        if (backup.getName().toLowerCase().startsWith(args[3].toLowerCase())) {
+                            backupNames.add(backup.getName());
+                        }
+                    }
+                }else {
+                    for (File backup : backups) {
+                        backupNames.add(backup.getName());
+                    }
                 }
+                Collections.sort(backupNames);
                 return backupNames;
             }
 
             if (args[2].equalsIgnoreCase("setautointerval") || args[2].equalsIgnoreCase("setdeletetime")) {
                 return Arrays.asList("1d","1w","30m","10h");
+            }
+        }
+
+        if (args.length == 3 && args[1].equalsIgnoreCase("logging")) {
+            return new ArrayList<>(Arrays.asList("blocklog","clearblocklog"));
+        }
+
+        if (args.length >= 4 && args[1].equalsIgnoreCase("logging")) {
+            if (args[2].equalsIgnoreCase("blocklog") || args[2].equalsIgnoreCase("clearblocklog")) {
+                Block targetBlockExact = ((Player) sender).getTargetBlockExact(12);
+                if (targetBlockExact == null)return Collections.emptyList();
+                if (args.length == 4) {
+                    return List.of(String.valueOf(targetBlockExact.getX()));
+                }else if (args.length == 5) {
+                    return List.of(String.valueOf(targetBlockExact.getY()));
+                }else if (args.length == 6) {
+                    return List.of(String.valueOf(targetBlockExact.getZ()));
+                }
             }
         }
 
