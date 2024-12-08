@@ -22,10 +22,15 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -34,6 +39,7 @@ public class LoggingFunctions implements Listener {
 
     private final Map<UUID, UUID> igniters = new HashMap<>();
     private final Map<Block, UUID> clickedBlocks = new HashMap<>();
+    private final Map<UUID, Inventory> openinvs = new HashMap<>();
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockBreak(BlockBreakEvent event){
@@ -77,7 +83,6 @@ public class LoggingFunctions implements Listener {
         }
     }
 
-
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockExplode(BlockExplodeEvent event){
         Block explodedBlock = event.getBlock();
@@ -93,6 +98,20 @@ public class LoggingFunctions implements Listener {
             logBlockChange(LoggingAPI.LoggingType.EXPLODE_BLOCK,Bukkit.getOfflinePlayer(accountable).getName(),block.getLocation(), block.getType());
         }
     }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onInventoryOpen(InventoryOpenEvent event) {
+        openinvs.put(event.getPlayer().getUniqueId(),event.getInventory());
+    }
+
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
+    public void onInventoryClose(InventoryCloseEvent event) {
+        Inventory inv = openinvs.remove(event.getPlayer().getUniqueId());
+        Inventory inventory = event.getInventory();
+        Bukkit.broadcastMessage(inv.getContents().toString() + " : " + inventory.getContents().toString());
+        compareInventories(inv,inventory,event.getPlayer().getName(),inventory.getType().name(),event.getInventory().getLocation());
+    }
+
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onEntityDamagedByEntity(EntityDamageByEntityEvent event) {
@@ -137,6 +156,32 @@ public class LoggingFunctions implements Listener {
         }
     }
 
+    public static void compareInventories(@NotNull Inventory inv1, Inventory inv2, String playerName, String inventoryType, Location location) {
+        for (int i = 0; i < inv1.getSize(); i++) {
+            ItemStack item1 = inv1.getItem(i);
+            ItemStack item2 = inv2.getItem(i);
+            Bukkit.broadcastMessage(item1.getItemMeta().getDisplayName() + " : " + item2.getItemMeta().getDisplayName());
+
+            // Fall: Item in inv2, aber nicht in inv1
+            if (item1 == null && item2 != null) {
+                logInventoryChange(playerName, "put", item2, inventoryType, location);
+            }
+            // Fall: Item in inv1, aber nicht in inv2
+            else if (item1 != null && item2 == null) {
+                logInventoryChange(playerName, "took", item1, inventoryType, location);
+            }
+            // Fall: Beide Items vorhanden, aber unterschiedlich
+            else if (item1 != null) {
+                if (!item1.isSimilar(item2)) {
+                    // Item aus inv1 entfernt
+                    logInventoryChange(playerName, "took", item1, inventoryType, location);
+                    // Item in inv2 hinzugefügt
+                    logInventoryChange(playerName, "put", item2, inventoryType, location);
+                }
+            }
+        }
+    }
+
 
     private void logBlockChange(LoggingAPI.LoggingType type, String playerName, Location location, Material blockType) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM-HH:mm");
@@ -161,6 +206,38 @@ public class LoggingFunctions implements Listener {
                 formattedDate         // Zeit
         );
 
+        List<String> stringList = LoggingAPI.logConfig.getStringList(logKey);
+        stringList.add(logValue);
+        LoggingAPI.logConfig.set(logKey, stringList);
+    }
+
+    private static void logInventoryChange(String playerName, String action, ItemStack item, String inventoryType, Location location) {
+        if (location == null) return; // Sicherheit: Falls das Inventar keine Location hat (z. B. Crafting-Tisch)
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM HH:mm");
+        String formattedDate = dateFormat.format(new Date());
+
+        String itemName = item.getType().name(); // Name des Items
+        int itemAmount = item.getAmount(); // Menge des Items
+
+        String logKey = location.getWorld().getName() + "," +
+                location.getBlockX() + "," +
+                location.getBlockY() + "," +
+                location.getBlockZ();
+
+        String logValue = String.format(
+                "%s %s %d %s %s %s %s at %s",
+                playerName,       // Spielername
+                action,           // Aktion (put/took)
+                itemAmount,       // Anzahl der Items
+                itemName,         // Name des Items
+                action.equals("put") ? "in" : "from", // "in" oder "from"
+                inventoryType,    // Typ des Inventars
+                "inventory",      // Zusatz für bessere Lesbarkeit
+                formattedDate     // Zeitstempel
+        );
+
+        // Logging in die Konfiguration
         List<String> stringList = LoggingAPI.logConfig.getStringList(logKey);
         stringList.add(logValue);
         LoggingAPI.logConfig.set(logKey, stringList);

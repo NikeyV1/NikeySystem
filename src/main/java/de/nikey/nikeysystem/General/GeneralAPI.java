@@ -4,11 +4,7 @@ import de.nikey.nikeysystem.Player.API.HideAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class GeneralAPI {
     public static Collection<? extends Player> getOnlinePlayers(Player forplayer) {
@@ -40,5 +36,22 @@ public class GeneralAPI {
         }
         Collections.sort(players);
         return players;
+    }
+
+    public static List<String> handleStringListing(List<String> args, String given) {
+        List<String> stringList = new ArrayList<>();
+
+        if (given.isEmpty()) {
+            stringList.addAll(args);
+        }else {
+            for (String name : args) {
+                if (name.toLowerCase().startsWith(given.toLowerCase())) {
+                    stringList.add(name);
+                }
+            }
+        }
+
+        Collections.sort(stringList);
+        return stringList;
     }
 }

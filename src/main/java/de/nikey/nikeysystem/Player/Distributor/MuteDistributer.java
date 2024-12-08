@@ -4,6 +4,7 @@ import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.MuteAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
+import de.nikey.nikeysystem.Server.API.BackupAPI;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -38,12 +39,7 @@ public class MuteDistributer {
                     return;
                 }
                 int duration;
-                try {
-                    duration = Integer.parseInt(args[5]);
-                } catch (NumberFormatException e) {
-                    sender.sendMessage("§cError: not a valid number");
-                    return;
-                }
+                duration = MuteAPI.parseTime(args[5]);
                 // Mute with duration in seconds
                 mutePlayer(player, sender, duration);
             }
@@ -90,7 +86,8 @@ public class MuteDistributer {
                     if (MuteAPI.getMutedDuration(player.getName()) == 0) {
                         sender.sendMessage("§7"+player.getName() + " is currently §cmuted §finfinitely");
                     }else {
-                        sender.sendMessage("§7"+player.getName() + " is currently §cmuted §7for: §f"+MuteAPI.getMutedDuration(player.getName()) + "sek");
+                        String time = MuteAPI.formatSekTime((int) MuteAPI.getMutedDuration(player.getName()));
+                        sender.sendMessage("§7"+player.getName() + " is currently §cmuted §7for: §f"+time);
                     }
                 } else {
                     sender.sendMessage("§7"+player.getName() + " is §anot muted");
@@ -115,7 +112,7 @@ public class MuteDistributer {
             if (PermissionAPI.isSystemUser(target)) target.sendMessage(ChatColor.of("#1dc0f0")+"You have been §fpermanently §cmuted");
             MuteAPI.add(target.getName(), 0);
         } else {
-            if (PermissionAPI.isSystemUser(target))target.sendMessage(ChatColor.of("#1dc0f0")+"You have been §cmuted"+ChatColor.of("#1dc0f0")+" for §f" + duration +ChatColor.of("#1dc0f0")+ " seconds");
+            if (PermissionAPI.isSystemUser(target))target.sendMessage(ChatColor.of("#1dc0f0")+"You have been §cmuted"+ChatColor.of("#1dc0f0")+" for §f" + MuteAPI.decodeTime(duration));
             MuteAPI.add(target.getName(), System.currentTimeMillis() + (duration * 1000L));
         }
         sender.sendMessage(ChatColor.of("#1dc0f0")+target.getName() + " has been §cmuted");

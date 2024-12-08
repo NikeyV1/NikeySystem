@@ -150,7 +150,6 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the fourth argument (player name) for enable, disable, list commands
         if (args.length == 4 && args[1].equalsIgnoreCase("System-Shield")) {
             if (args[2].equalsIgnoreCase("enable") || args[2].equalsIgnoreCase("disable") || args[2].equalsIgnoreCase("list")) {
-                // Provide list of online player names as suggestions
                 return GeneralAPI.handlePlayerListing((Player) sender,args,3);
             }
         }
@@ -170,25 +169,21 @@ public class SystemCommandTabCompleter implements TabCompleter {
             if (args[2].equalsIgnoreCase("executeas")) {
                 return GeneralAPI.handlePlayerListing((Player) sender,args,3);
             } else if (args[2].equalsIgnoreCase("ToggleBlock")) {
-                // Provide a list of blocked or allowed commands (just as a simple example, you can modify it as needed)
-                return Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList());
+                return GeneralAPI.handleStringListing(Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList()),args[3]);
             }else if (args[2].equalsIgnoreCase("execute")) {
-                return Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList());
+                return GeneralAPI.handleStringListing(Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList()),args[3]);
             }else if (args[2].equalsIgnoreCase("BlockPlayer")) {
-                // Provide a list of blocked or allowed commands (just as a simple example, you can modify it as needed)
                 return GeneralAPI.handlePlayerListing((Player) sender,args,3);
             }
         }
 
         // Handle the fifth argument (command for executeas) for executeas command
         if (args.length == 5 && args[2].equalsIgnoreCase("executeas")) {
-            // Provide a list of commands for the executeas command
-            return Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList());
+            return GeneralAPI.handleStringListing(Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList()),args[4]);
         }
 
         if (args.length == 5 && args[2].equalsIgnoreCase("BlockPlayer")) {
-            // Provide a list of commands for the executeas command
-            return Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList());
+            return GeneralAPI.handleStringListing(Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList()),args[4]);
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("effect")) {
@@ -204,7 +199,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         // Handle the fifth argument: effect type for give/remove commands
         if (args.length == 5 && (args[2].equalsIgnoreCase("give") || args[2].equalsIgnoreCase("remove"))) {
-            return Arrays.stream(PotionEffectType.values()).map(PotionEffectType::getName).collect(Collectors.toList());
+            return GeneralAPI.handleStringListing(Arrays.stream(PotionEffectType.values()).map(PotionEffectType::getName).collect(Collectors.toList()),args[4]);
         }
 
         // Handle the sixth argument: duration for give command
@@ -231,8 +226,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
             }
 
             if (args.length == 4 && args[2].equalsIgnoreCase("getMuted")) {
-                sender.sendMessage(MuteAPI.getMutedPlayers().toArray(new String[0]));
-                return new ArrayList<>(MuteAPI.getMutedPlayers());
+                return GeneralAPI.handleStringListing(MuteAPI.getMutedPlayers().stream().toList(),args[3]);
             }
 
             // Fourth argument (mute duration in seconds for the mute command)
@@ -275,7 +269,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 if (args.length == 5 || args.length == 6 || args.length == 7) {
                     return Collections.singletonList("10");
                 } else if (args.length == 8) {
-                    return Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());
+                    return GeneralAPI.handleStringListing(Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList()),args[7]);
                 }
             }
 
@@ -388,9 +382,9 @@ public class SystemCommandTabCompleter implements TabCompleter {
             }else if (args.length == 5) {
                 return new ArrayList<>(Arrays.asList("seed"));
             }else if (args.length == 6) {
-                return Arrays.stream(World.Environment.values()).map(World.Environment::name).collect(Collectors.toList());
+                return GeneralAPI.handleStringListing(Arrays.stream(World.Environment.values()).map(World.Environment::name).collect(Collectors.toList()),args[3]);
             }else if (args.length == 7) {
-                return Arrays.stream(WorldType.values()).map(WorldType::name).collect(Collectors.toList());
+                return GeneralAPI.handleStringListing(Arrays.stream(WorldType.values()).map(WorldType::name).collect(Collectors.toList()),args[3]);
             }else if (args.length == 8) {
                 return new ArrayList<>(Arrays.asList("true","false"));
             }
@@ -398,13 +392,13 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         if (args[1].equalsIgnoreCase("world") && args[2].equalsIgnoreCase("delete")) {
             if (args.length == 4) {
-                return Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());
+                return GeneralAPI.handleStringListing(Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList()),args[3]);
             }
         }
 
         if (args[1].equalsIgnoreCase("world") && args[2].equalsIgnoreCase("tp")) {
             if (args.length == 4) {
-                return Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList());
+                return GeneralAPI.handleStringListing(Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList()),args[3]);
             }
         }
 

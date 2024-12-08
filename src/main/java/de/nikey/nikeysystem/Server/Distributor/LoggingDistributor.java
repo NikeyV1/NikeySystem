@@ -1,6 +1,7 @@
 package de.nikey.nikeysystem.Server.Distributor;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Location;
@@ -80,6 +81,27 @@ public class LoggingDistributor {
         for (String logValue : logValues) {
             String[] parts = logValue.split(" ");
 
+            if (parts[1].equalsIgnoreCase("put") || parts[1].equalsIgnoreCase("took")) {
+                TextComponent msg = Component.text(parts[0]) // Spielername
+                        .color(TextColor.color(100, 100, 255)) // Blau
+                        .append(Component.text(" " + parts[1] + " ") // Aktion (put/took)
+                                .color(TextColor.color(235, 42, 165))) // Pink
+                        .append(Component.text(parts[2] + " ") // Anzahl
+                                .color(TextColor.color(255, 255, 100))) // Gelb
+                        .append(Component.text(parts[3].replace("_", " ")) // Item
+                                .color(TextColor.color(255, 100, 100))) // Rot
+                        .append(Component.text(" " + parts[4] + " ") // in/from
+                                .color(TextColor.color(157, 230, 41))) // Grün
+                        .append(Component.text(parts[5]) // Inventartyp
+                                .color(TextColor.color(100, 200, 255))) // Hellblau
+                        .append(Component.text(" inventory at ")
+                                .color(TextColor.color(157, 230, 41))) // Grün
+                        .append(Component.text(parts[7] + " " + parts[8]) // Datum/Zeit
+                                .color(TextColor.color(255, 255, 100)));
+
+                sender.sendMessage(msg);
+                return;
+            }
             Component message = Component.text("Block ")
                     .color(TextColor.color(157, 230, 41))
                     .append(Component.text(parts[1])  // Blockname
