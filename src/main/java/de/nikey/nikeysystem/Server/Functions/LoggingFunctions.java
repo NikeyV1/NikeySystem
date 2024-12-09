@@ -39,7 +39,7 @@ public class LoggingFunctions implements Listener {
 
     private final Map<UUID, UUID> igniters = new HashMap<>();
     private final Map<Block, UUID> clickedBlocks = new HashMap<>();
-    private final Map<UUID, Inventory> openinvs = new HashMap<>();
+    private final Map<UUID, ItemStack[]> inventorySnapshots = new HashMap<>();
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockBreak(BlockBreakEvent event){
@@ -101,15 +101,24 @@ public class LoggingFunctions implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onInventoryOpen(InventoryOpenEvent event) {
-        openinvs.put(event.getPlayer().getUniqueId(),event.getInventory());
+        if (!(event.getPlayer() instanceof Player player)) return;
+
+        inventorySnapshots.put(player.getUniqueId(), cloneInventory(event.getInventory()));
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onInventoryClose(InventoryCloseEvent event) {
-        Inventory inv = openinvs.remove(event.getPlayer().getUniqueId());
+        if (!(event.getPlayer() instanceof Player player)) return;
+
+        UUID playerId = player.getUniqueId();
         Inventory inventory = event.getInventory();
-        Bukkit.broadcastMessage(inv.getContents().toString() + " : " + inventory.getContents().toString());
-        compareInventories(inv,inventory,event.getPlayer().getName(),inventory.getType().name(),event.getInventory().getLocation());
+        ItemStack[] previousItems = inventorySnapshots.getOrDefault(playerId, new ItemStack[0]);
+
+        // Compare inventory changes
+        compareAndLogChanges(player.getName(), previousItems, inventory.getContents(), inventory.getType().name(), player.getLocation());
+
+        // Clean up snapshot
+        inventorySnapshots.remove(playerId);
     }
 
 
@@ -156,30 +165,41 @@ public class LoggingFunctions implements Listener {
         }
     }
 
-    public static void compareInventories(@NotNull Inventory inv1, Inventory inv2, String playerName, String inventoryType, Location location) {
-        for (int i = 0; i < inv1.getSize(); i++) {
-            ItemStack item1 = inv1.getItem(i);
-            ItemStack item2 = inv2.getItem(i);
-            Bukkit.broadcastMessage(item1.getItemMeta().getDisplayName() + " : " + item2.getItemMeta().getDisplayName());
+    private ItemStack[] cloneInventory(Inventory inventory) {
+        ItemStack[] items = inventory.getContents();
+        ItemStack[] clone = new ItemStack[items.length];
+        for (int i = 0; i < items.length; i++) {
+            clone[i] = (items[i] != null) ? items[i].clone() : null;
+        }
+        return clone;
+    }
 
-            // Fall: Item in inv2, aber nicht in inv1
-            if (item1 == null && item2 != null) {
-                logInventoryChange(playerName, "put", item2, inventoryType, location);
-            }
-            // Fall: Item in inv1, aber nicht in inv2
-            else if (item1 != null && item2 == null) {
-                logInventoryChange(playerName, "took", item1, inventoryType, location);
-            }
-            // Fall: Beide Items vorhanden, aber unterschiedlich
-            else if (item1 != null) {
-                if (!item1.isSimilar(item2)) {
-                    // Item aus inv1 entfernt
-                    logInventoryChange(playerName, "took", item1, inventoryType, location);
-                    // Item in inv2 hinzugefügt
-                    logInventoryChange(playerName, "put", item2, inventoryType, location);
-                }
+    private void compareAndLogChanges(String playerName, ItemStack[] oldItems, ItemStack[] newItems, String inventoryType, Location location) {
+        Map<Material, Integer> oldItemMap = countItems(oldItems);
+        Map<Material, Integer> newItemMap = countItems(newItems);
+
+        for (Material material : newItemMap.keySet()) {
+            int oldCount = oldItemMap.getOrDefault(material, 0);
+            int newCount = newItemMap.get(material);
+
+            if (newCount > oldCount) {
+                int amountAdded = newCount - oldCount;
+                logInventoryChange(playerName, "put", new ItemStack(material, amountAdded), inventoryType, location);
+            } else if (newCount < oldCount) {
+                int amountRemoved = oldCount - newCount;
+                logInventoryChange(playerName, "took", new ItemStack(material, amountRemoved), inventoryType, location);
             }
         }
+    }
+
+    private Map<Material, Integer> countItems(ItemStack[] items) {
+        Map<Material, Integer> itemMap = new HashMap<>();
+        for (ItemStack item : items) {
+            if (item != null && item.getType() != Material.AIR) {
+                itemMap.put(item.getType(), itemMap.getOrDefault(item.getType(), 0) + item.getAmount());
+            }
+        }
+        return itemMap;
     }
 
 
