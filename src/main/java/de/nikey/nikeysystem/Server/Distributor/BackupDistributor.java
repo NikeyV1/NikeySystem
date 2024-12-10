@@ -262,14 +262,11 @@ public class BackupDistributor {
             Files.walkFileTree(backupToLoad.toPath(), new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    // Zielverzeichnis prüfen: Nur wenn das Zielverzeichnis existiert, fortfahren
                     Path targetPath = getServerFolder().toPath().resolve(backupToLoad.toPath().relativize(dir));
                     Path targetDir = targetPath.resolve(backupToLoad.toPath().relativize(dir));
                     if (Files.exists(targetDir) && Files.isDirectory(targetDir)) {
-                        // Wenn das Verzeichnis existiert, einfach fortfahren
                         return FileVisitResult.CONTINUE;
                     }
-                    // Andernfalls überspringen wir das Verzeichnis
                     return FileVisitResult.SKIP_SUBTREE;
                 }
 
