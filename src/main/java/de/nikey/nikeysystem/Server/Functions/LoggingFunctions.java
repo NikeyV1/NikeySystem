@@ -30,7 +30,6 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -111,14 +110,14 @@ public class LoggingFunctions implements Listener {
         if (!(event.getPlayer() instanceof Player player)) return;
 
         UUID playerId = player.getUniqueId();
-        Inventory inventory = event.getInventory();
-        ItemStack[] previousItems = inventorySnapshots.getOrDefault(playerId, new ItemStack[0]);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(NikeySystem.getPlugin(), () -> {
+            Inventory inventory = event.getInventory();
+            ItemStack[] previousItems = inventorySnapshots.getOrDefault(playerId, new ItemStack[0]);
 
-        // Compare inventory changes
-        compareAndLogChanges(player.getName(), previousItems, inventory.getContents(), inventory.getType().name(), player.getLocation());
+            compareAndLogChanges(player.getName(), previousItems, inventory.getContents(), inventory.getType().name(), inventory.getLocation());
 
-        // Clean up snapshot
-        inventorySnapshots.remove(playerId);
+            inventorySnapshots.remove(playerId);
+        });
     }
 
 
@@ -178,16 +177,23 @@ public class LoggingFunctions implements Listener {
         Map<Material, Integer> oldItemMap = countItems(oldItems);
         Map<Material, Integer> newItemMap = countItems(newItems);
 
-        for (Material material : newItemMap.keySet()) {
+        Set<Material> allMaterials = new HashSet<>(oldItemMap.keySet());
+        allMaterials.addAll(newItemMap.keySet());
+
+        for (Material material : allMaterials) {
             int oldCount = oldItemMap.getOrDefault(material, 0);
-            int newCount = newItemMap.get(material);
+            int newCount = newItemMap.getOrDefault(material, 0);
 
             if (newCount > oldCount) {
                 int amountAdded = newCount - oldCount;
                 logInventoryChange(playerName, "put", new ItemStack(material, amountAdded), inventoryType, location);
             } else if (newCount < oldCount) {
                 int amountRemoved = oldCount - newCount;
-                logInventoryChange(playerName, "took", new ItemStack(material, amountRemoved), inventoryType, location);
+                if (amountRemoved <= 0) {
+                    logInventoryChange(playerName, "took", new ItemStack(material, oldCount), inventoryType, location);
+                }else {
+                    logInventoryChange(playerName, "took", new ItemStack(material, amountRemoved), inventoryType, location);
+                }
             }
         }
     }
@@ -234,7 +240,7 @@ public class LoggingFunctions implements Listener {
     private static void logInventoryChange(String playerName, String action, ItemStack item, String inventoryType, Location location) {
         if (location == null) return; // Sicherheit: Falls das Inventar keine Location hat (z. B. Crafting-Tisch)
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM HH:mm");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM-HH:mm");
         String formattedDate = dateFormat.format(new Date());
 
         String itemName = item.getType().name(); // Name des Items

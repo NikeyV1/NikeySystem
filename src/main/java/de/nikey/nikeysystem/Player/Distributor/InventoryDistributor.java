@@ -1,13 +1,10 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
 import de.nikey.nikeysystem.General.ShieldCause;
-import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.InventoryAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
-import de.nikey.nikeysystem.Player.Settings.HideSettings;
 import de.nikey.nikeysystem.Player.Settings.InventorySettings;
-import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -15,12 +12,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -212,7 +205,7 @@ public class InventoryDistributor implements Listener {
             sender.sendMessage("§cError: player has full inventory");
         }else {
             player.getInventory().addItem(new ItemStack(material, amount));
-            sender.sendMessage("§aItem added: " + material.name());
+            sender.sendMessage("§aItem added: " + material.name().toLowerCase());
         }
     }
 
@@ -255,9 +248,9 @@ public class InventoryDistributor implements Listener {
 
         // Überprüfe, ob noch Menge übrig ist
         if (remainingAmount > 0) {
-            sender.sendMessage("There were only " + (amount - remainingAmount) + "x " + material.name() + " in the inventory");
+            sender.sendMessage("There were only " + (amount - remainingAmount) + "x " + material.name().toLowerCase() + " in the inventory");
         } else {
-            player.sendMessage(amount + "x " + material.name() + " removed");
+            player.sendMessage(amount + "x " + material.name().toLowerCase() + " removed");
         }
 
         if (!itemFound) {

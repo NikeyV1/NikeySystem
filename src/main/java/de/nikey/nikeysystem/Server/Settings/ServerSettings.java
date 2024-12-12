@@ -141,9 +141,6 @@ public class ServerSettings implements Listener {
                         meta.displayName(Component.text("System command logging: "+onStatus).color(NamedTextColor.GOLD));
                         i.setItemMeta(meta);
                     }
-                    player.sendMessage(Component.text("The system command is now ").color(NamedTextColor.GRAY)
-                            .append(Component.text("enabled").color(NamedTextColor.GREEN))
-                            .append(Component.text(" in the console").color(NamedTextColor.GRAY)));
                 }else {
                     NikeySystem.getPlugin().getConfig().set("system.setting.system_command_logging",true);
                     ItemStack i = event.getInventory().getItem(Slot.END);
@@ -153,9 +150,6 @@ public class ServerSettings implements Listener {
                         meta.displayName(Component.text("System command logging: "+ onStatus).color(NamedTextColor.GOLD));
                         i.setItemMeta(meta);
                     }
-                    player.sendMessage(Component.text("The system command is now ").color(NamedTextColor.GRAY)
-                            .append(Component.text("removed").color(NamedTextColor.RED))
-                            .append(Component.text(" from server console").color(NamedTextColor.GRAY)));
                 }
                 break;
         }

@@ -85,7 +85,7 @@ public class LoggingDistributor {
                 TextComponent msg = Component.text(parts[0]) // Spielername
                         .color(TextColor.color(100, 100, 255)) // Blau
                         .append(Component.text(" " + parts[1] + " ") // Aktion (put/took)
-                                .color(TextColor.color(235, 42, 165))) // Pink
+                                .color(NamedTextColor.LIGHT_PURPLE)) // Pink
                         .append(Component.text(parts[2] + " ") // Anzahl
                                 .color(TextColor.color(255, 255, 100))) // Gelb
                         .append(Component.text(parts[3].replace("_", " ")) // Item
@@ -94,13 +94,13 @@ public class LoggingDistributor {
                                 .color(TextColor.color(157, 230, 41))) // Grün
                         .append(Component.text(parts[5]) // Inventartyp
                                 .color(TextColor.color(100, 200, 255))) // Hellblau
-                        .append(Component.text(" inventory at ")
+                        .append(Component.text(" inventory ")
                                 .color(TextColor.color(157, 230, 41))) // Grün
                         .append(Component.text(parts[7] + " " + parts[8]) // Datum/Zeit
                                 .color(TextColor.color(255, 255, 100)));
 
                 sender.sendMessage(msg);
-                return;
+                continue;
             }
             Component message = Component.text("Block ")
                     .color(TextColor.color(157, 230, 41))
@@ -109,7 +109,7 @@ public class LoggingDistributor {
                     .append(Component.text(" was ")
                             .color(TextColor.color(157, 230, 41)))
                     .append(Component.text(parts[3].replace("_"," "))  // Action
-                            .color(TextColor.color(235, 42, 165)))
+                            .color(NamedTextColor.DARK_PURPLE))
                     .append(Component.text(" by ")
                             .color(TextColor.color(157, 230, 41)))
                     .append(Component.text(parts[5])  // Player
