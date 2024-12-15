@@ -4,6 +4,7 @@ import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.LocationAPI;
 import de.nikey.nikeysystem.Player.API.MuteAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
+import de.nikey.nikeysystem.Server.API.LoggingAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -476,7 +477,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("logging")) {
-            return new ArrayList<>(Arrays.asList("blocklog","clearblocklog"));
+            return new ArrayList<>(Arrays.asList("blocklog","clearblocklog", "cleanup", "player"));
         }
 
         if (args.length >= 4 && args[1].equalsIgnoreCase("logging")) {
@@ -489,6 +490,25 @@ public class SystemCommandTabCompleter implements TabCompleter {
                     return List.of(String.valueOf(targetBlockExact.getY()));
                 }else if (args.length == 6) {
                     return List.of(String.valueOf(targetBlockExact.getZ()));
+                }
+            }else if (args[2].equalsIgnoreCase("cleanup") && args.length == 4) {
+                return Arrays.asList("1d","1w","30m","10h");
+            }else if (args[2].equalsIgnoreCase("player") ) {
+                if (args.length == 4) {
+                    return GeneralAPI.handleStringListing(Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList()),args[3]);
+                }else if (args.length == 5){
+                    return Arrays.asList("time","action","last");
+                }else if (args.length == 6) {
+                    if (args[4].equalsIgnoreCase("time")) {
+                        return Arrays.asList("1d","1w","30m","10h");
+                    }else if (args[4].equalsIgnoreCase("action")) {
+                        List<String> list = new ArrayList<>(Arrays.stream(LoggingAPI.LoggingType.values()).map(LoggingAPI.LoggingType::getName).toList());
+                        list.add("put");
+                        list.add("took");
+                        return GeneralAPI.handleStringListing(list,args[5]);
+                    }else if (args[4].equalsIgnoreCase("last")) {
+                        return Arrays.asList("10","20","15");
+                    }
                 }
             }
         }

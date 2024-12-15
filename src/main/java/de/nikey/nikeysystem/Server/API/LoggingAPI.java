@@ -9,6 +9,11 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class LoggingAPI {
     private static File logFile;
@@ -47,8 +52,7 @@ public class LoggingAPI {
         EXPLODE_END_CRYSTAL("exploded_using_end_crystal"),
         EXPLODE_TNT("exploded_using_TNT"),
         EXPLODE_CREEPER("exploded_using_creeper"),
-        EXPLODE_BLOCK("exploded"),
-        SIGN("changed");
+        EXPLODE_BLOCK("exploded");
 
         private final String name;
 

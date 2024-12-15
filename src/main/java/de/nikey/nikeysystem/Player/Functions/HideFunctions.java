@@ -587,7 +587,7 @@ public class HideFunctions implements Listener {
         final String[] args = event.getMessage().split(" ");
         if (event.getMessage().contains("@a") || event.getMessage().contains("@e")) {
             if (PermissionAPI.isOwner(player.getName()))return;
-            player.sendMessage(ChatColor.RED + "Error: @ disabled");
+            if (PermissionAPI.isSystemUser(player))player.sendMessage(ChatColor.RED + "Error: @ disabled");
             event.setCancelled(true);
             return;
         }

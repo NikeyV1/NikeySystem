@@ -23,6 +23,7 @@ public class ChatAPI {
             case INFO -> color = TextColor.color(30, 144, 255); // Dodger Blue
             case ERROR -> color = NamedTextColor.RED; // Bright Red
             case CRITICAL_ERROR -> color = TextColor.color(178, 34, 34);
+            case MINOR_ERROR -> color = TextColor.color(237, 121, 33);
             default -> color = NamedTextColor.WHITE; // Fallback color
         }
 
@@ -49,6 +50,7 @@ public class ChatAPI {
             case INFO -> color = TextColor.color(30, 144, 255); // Dodger Blue
             case ERROR -> color = NamedTextColor.RED; // Bright Red
             case CRITICAL_ERROR -> color = TextColor.color(178, 34, 34);
+            case MINOR_ERROR -> color = TextColor.color(237, 121, 33);
             default -> color = NamedTextColor.WHITE; // Fallback color
         }
 
@@ -67,6 +69,7 @@ public class ChatAPI {
                 case INFO -> color = TextColor.color(30, 144, 255); // Dodger Blue
                 case ERROR -> color = NamedTextColor.RED; // Bright Red
                 case CRITICAL_ERROR -> color = TextColor.color(178, 34, 34);
+                case MINOR_ERROR -> color = TextColor.color(237, 121, 33);
                 default -> color = NamedTextColor.WHITE; // Fallback color
             }
             for (Player player : Bukkit.getOnlinePlayers()) {
@@ -85,6 +88,7 @@ public class ChatAPI {
 
     public enum ManagementType {
         INFO,
+        MINOR_ERROR,
         ERROR,
         CRITICAL_ERROR,
         CUSTOM

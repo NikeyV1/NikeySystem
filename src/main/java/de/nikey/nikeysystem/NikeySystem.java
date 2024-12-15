@@ -102,7 +102,6 @@ public final class NikeySystem extends JavaPlugin {
         }
     }
 
-
     @Override
     public void onDisable() {
         MuteAPI.saveMutedPlayers();
