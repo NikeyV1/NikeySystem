@@ -95,195 +95,98 @@ public class LoggingDistributor {
                         .append(Component.text(e.getMessage()).color(NamedTextColor.WHITE)));
                 e.printStackTrace();
             }
-        }else if (cmd.equalsIgnoreCase("player")) {
-            if (args.length >= 6) {
+        }else if (cmd.equalsIgnoreCase("filter")) {
+            if (args.length >= 7) {
                 String player = args[4];
                 sender.sendMessage(Component.text(player + "'s ").color(NamedTextColor.WHITE)
                         .append(Component.text("block changes: ").color(TextColor.color(157, 230, 41))).decoration(TextDecoration.BOLD,true));
 
-                if (args[5].equalsIgnoreCase("Time")) {
-                    String timeRange = args.length > 6 ? args[6] : null;
-                    displayPlayerChanges(sender, player, timeRange);
-                }else if (args[5].equalsIgnoreCase("Action")) {
-                    displayPlayerActions(sender,args[7]);
-                }else if (args[5].equalsIgnoreCase("Last")){
+                String amount = args[5]; // Anzahl oder infinity
+                String timestamp = args[6]; // Startzeitpunkt
+                String format = args[7]; // Datumsformat
 
+                DateTimeFormatter formatter;
+                try {
+                    formatter = DateTimeFormatter.ofPattern(format);
+                } catch (IllegalArgumentException e) {
+                    sender.sendMessage("Invalid date format: " + format);
+                    return;
+                }
+
+                List<String> filteredLogs = filterLogs(player, amount, timestamp, formatter);
+
+                if (filteredLogs.isEmpty()) {
+                    sender.sendMessage("No logs found with the given filters.");
+                } else {
+                    sender.sendMessage("Filtered Logs:");
+                    for (String log : filteredLogs) {
+                        sender.sendMessage(log);
+                    }
                 }
             }
         }
     }
 
-    public static void displayPlayerActions(CommandSender sender, String action) {
+    private static List<String> filterLogs(String target, String amount, String timestamp, DateTimeFormatter formatter) {
+        List<String> filteredLogs = new ArrayList<>();
+        LocalDateTime filterDate = null;
+
+        // Timestamp verarbeiten, wenn angegeben
+        if (!timestamp.equalsIgnoreCase("null")) {
+            try {
+                filterDate = LocalDateTime.parse(timestamp, formatter);
+            } catch (Exception e) {
+                return filteredLogs; // Ungültiges Datum
+            }
+        }
+
+        // Amount verarbeiten: "infinity" oder eine Zahl
+        int limit = Integer.MAX_VALUE;
+        if (!amount.equalsIgnoreCase("infinity")) {
+            try {
+                limit = Integer.parseInt(amount);
+            } catch (NumberFormatException e) {
+                return filteredLogs; // Ungültige Zahl
+            }
+        }
+
+        // Logs durchgehen und filtern
         for (String key : LoggingAPI.logConfig.getKeys(false)) {
             List<String> logEntries = LoggingAPI.logConfig.getStringList(key);
 
-            for (String entry : logEntries) {
-                String[] parts = entry.split(" ");
+            for (String log : logEntries) {
+                if (filteredLogs.size() >= limit) break;
 
-                if ((parts[1].equalsIgnoreCase("put") || parts[1].equalsIgnoreCase("took"))
-                        && parts[1].equalsIgnoreCase(action)) {
-                    TextComponent msg = Component.text(parts[0]) // Spielername
-                            .color(TextColor.color(100, 100, 255)) // Blau
-                            .append(Component.text(" " + parts[1] + " ") // Aktion (put/took)
-                                    .color(NamedTextColor.LIGHT_PURPLE)) // Pink
-                            .append(Component.text(parts[2] + " ") // Anzahl
-                                    .color(TextColor.color(255, 255, 100))) // Gelb
-                            .append(Component.text(parts[3].replace("_", " ")) // Item
-                                    .color(TextColor.color(255, 100, 100))) // Rot
-                            .append(Component.text(" " + parts[4] + " ") // in/from
-                                    .color(TextColor.color(157, 230, 41))) // Grün
-                            .append(Component.text(parts[5]) // Inventartyp
-                                    .color(TextColor.color(100, 200, 255))) // Hellblau
-                            .append(Component.text(" inventory ")
-                                    .color(TextColor.color(157, 230, 41))) // Grün
-                            .append(Component.text(parts[7] + " " + parts[8]) // Datum/Zeit
-                                    .color(TextColor.color(255, 255, 100)));
-
-                    sender.sendMessage(msg);
+                // Ziel filtern (Spielername)
+                if (!target.equalsIgnoreCase("null") && !log.contains("by " + target)) {
                     continue;
                 }
 
-                if (parts[0].equalsIgnoreCase("Block") && parts[3].equalsIgnoreCase(action)) {
-                    Component message = Component.text("Block ")
-                            .color(TextColor.color(157, 230, 41))
-                            .append(Component.text(parts[1]) // Blockname
-                                    .color(TextColor.color(255, 100, 100)))
-                            .append(Component.text(" was ")
-                                    .color(TextColor.color(157, 230, 41)))
-                            .append(Component.text(parts[3].replace("_", " ")) // Action
-                                    .color(NamedTextColor.DARK_PURPLE))
-                            .append(Component.text(" by ")
-                                    .color(TextColor.color(157, 230, 41)))
-                            .append(Component.text(parts[5]) // Player
-                                    .color(TextColor.color(100, 100, 255)))
-                            .append(Component.text(" at ")
-                                    .color(TextColor.color(157, 230, 41)))
-                            .append(Component.text(parts[7]) // Date/Time
-                                    .color(TextColor.color(255, 255, 100)));
-
-                    sender.sendMessage(message);
+                // Zeitstempel filtern
+                if (filterDate != null && !logMatchesTimestamp(log, filterDate, formatter)) {
+                    continue;
                 }
+
+                filteredLogs.add(key + ": " + log); // Füge Koordinaten zur Log-Nachricht hinzu
             }
+
+            if (filteredLogs.size() >= limit) break;
         }
+
+        return filteredLogs;
     }
 
-    public static void displayPlayerChanges(CommandSender sender, String playerName, String timeRange) {
-        if (timeRange == null) {
-            for (String key : LoggingAPI.logConfig.getKeys(false)) {
-                List<String> logEntries = LoggingAPI.logConfig.getStringList(key);
+    // Überprüft, ob das Log mit dem angegebenen Zeitstempel übereinstimmt
+    private static boolean logMatchesTimestamp(String log, LocalDateTime filterDate, DateTimeFormatter formatter) {
+        // Beispiel: "Block VINE was broken by NikeyV1 at 17.12-22:13"
+        String[] parts = log.split(" at ");
+        if (parts.length < 2) return false;
 
-                for (String entry : logEntries) {
-                    String[] parts = entry.split(" ");
-
-                    if ((parts[1].equalsIgnoreCase("put") || parts[1].equalsIgnoreCase("took"))
-                            && parts[0].equalsIgnoreCase(playerName)) {
-                        TextComponent msg = Component.text(parts[0]) // Spielername
-                                .color(TextColor.color(100, 100, 255)) // Blau
-                                .append(Component.text(" " + parts[1] + " ") // Aktion (put/took)
-                                        .color(NamedTextColor.LIGHT_PURPLE)) // Pink
-                                .append(Component.text(parts[2] + " ") // Anzahl
-                                        .color(TextColor.color(255, 255, 100))) // Gelb
-                                .append(Component.text(parts[3].replace("_", " ")) // Item
-                                        .color(TextColor.color(255, 100, 100))) // Rot
-                                .append(Component.text(" " + parts[4] + " ") // in/from
-                                        .color(TextColor.color(157, 230, 41))) // Grün
-                                .append(Component.text(parts[5]) // Inventartyp
-                                        .color(TextColor.color(100, 200, 255))) // Hellblau
-                                .append(Component.text(" inventory ")
-                                        .color(TextColor.color(157, 230, 41))) // Grün
-                                .append(Component.text(parts[7] + " " + parts[8]) // Datum/Zeit
-                                        .color(TextColor.color(255, 255, 100)));
-
-                        sender.sendMessage(msg);
-                        continue;
-                    }
-
-                    if (parts[0].equalsIgnoreCase("Block") && parts[5].equalsIgnoreCase(playerName)) {
-                        Component message = Component.text("Block ")
-                                .color(TextColor.color(157, 230, 41))
-                                .append(Component.text(parts[1]) // Blockname
-                                        .color(TextColor.color(255, 100, 100)))
-                                .append(Component.text(" was ")
-                                        .color(TextColor.color(157, 230, 41)))
-                                .append(Component.text(parts[3].replace("_", " ")) // Action
-                                        .color(NamedTextColor.DARK_PURPLE))
-                                .append(Component.text(" by ")
-                                        .color(TextColor.color(157, 230, 41)))
-                                .append(Component.text(parts[5]) // Player
-                                        .color(TextColor.color(100, 100, 255)))
-                                .append(Component.text(" at ")
-                                        .color(TextColor.color(157, 230, 41)))
-                                .append(Component.text(parts[7]) // Date/Time
-                                        .color(TextColor.color(255, 255, 100)));
-
-                        sender.sendMessage(message);
-                    }
-                }
-            }
-            return;
-        }
-        long l = parseTime(timeRange);
-
-        if (l == 0){
-            sender.sendMessage(Component.text("Wrong usage").color(NamedTextColor.RED));
-            return;
-        }
-
-        for (String key : LoggingAPI.logConfig.getKeys(false)) {
-            List<String> logEntries = LoggingAPI.logConfig.getStringList(key);
-
-            for (String entry : logEntries) {
-                String[] parts = entry.split(" ");
-
-                String[] at = entry.split(" at ");
-                String datePart = at[1];
-
-                if (isDateOlderThan(datePart, l)) continue;
-
-                if ((parts[1].equalsIgnoreCase("put") || parts[1].equalsIgnoreCase("took"))
-                        && parts[0].equalsIgnoreCase(playerName)) {
-                    TextComponent msg = Component.text(parts[0]) // Spielername
-                            .color(TextColor.color(100, 100, 255)) // Blau
-                            .append(Component.text(" " + parts[1] + " ") // Aktion (put/took)
-                                    .color(NamedTextColor.LIGHT_PURPLE)) // Pink
-                            .append(Component.text(parts[2] + " ") // Anzahl
-                                    .color(TextColor.color(255, 255, 100))) // Gelb
-                            .append(Component.text(parts[3].replace("_", " ")) // Item
-                                    .color(TextColor.color(255, 100, 100))) // Rot
-                            .append(Component.text(" " + parts[4] + " ") // in/from
-                                    .color(TextColor.color(157, 230, 41))) // Grün
-                            .append(Component.text(parts[5]) // Inventartyp
-                                    .color(TextColor.color(100, 200, 255))) // Hellblau
-                            .append(Component.text(" inventory ")
-                                    .color(TextColor.color(157, 230, 41))) // Grün
-                            .append(Component.text(parts[7] + " " + parts[8]) // Datum/Zeit
-                                    .color(TextColor.color(255, 255, 100)));
-
-                    sender.sendMessage(msg);
-                    continue;
-                }
-
-                if (parts[0].equalsIgnoreCase("Block") && parts[5].equalsIgnoreCase(playerName)) {
-                    Component message = Component.text("Block ")
-                            .color(TextColor.color(157, 230, 41))
-                            .append(Component.text(parts[1]) // Blockname
-                                    .color(TextColor.color(255, 100, 100)))
-                            .append(Component.text(" was ")
-                                    .color(TextColor.color(157, 230, 41)))
-                            .append(Component.text(parts[3].replace("_", " ")) // Action
-                                    .color(NamedTextColor.DARK_PURPLE))
-                            .append(Component.text(" by ")
-                                    .color(TextColor.color(157, 230, 41)))
-                            .append(Component.text(parts[5]) // Player
-                                    .color(TextColor.color(100, 100, 255)))
-                            .append(Component.text(" at ")
-                                    .color(TextColor.color(157, 230, 41)))
-                            .append(Component.text(parts[7]) // Date/Time
-                                    .color(TextColor.color(255, 255, 100)));
-
-                    sender.sendMessage(message);
-                }
-            }
+        try {
+            LocalDateTime logDate = LocalDateTime.parse(parts[1], formatter);
+            return logDate.isAfter(filterDate) || logDate.isEqual(filterDate);
+        } catch (Exception e) {
+            return false;
         }
     }
 

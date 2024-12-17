@@ -18,6 +18,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.potion.PotionEffectType;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -477,7 +478,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("logging")) {
-            return new ArrayList<>(Arrays.asList("blocklog","clearblocklog", "cleanup", "player"));
+            return new ArrayList<>(Arrays.asList("blocklog","clearblocklog", "cleanup", "filter"));
         }
 
         if (args.length >= 4 && args[1].equalsIgnoreCase("logging")) {
@@ -493,22 +494,16 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 }
             }else if (args[2].equalsIgnoreCase("cleanup") && args.length == 4) {
                 return Arrays.asList("1d","1w","30m","10h");
-            }else if (args[2].equalsIgnoreCase("player") ) {
+            }else if (args[2].equalsIgnoreCase("filter") ) {
                 if (args.length == 4) {
                     return GeneralAPI.handleStringListing(Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList()),args[3]);
                 }else if (args.length == 5){
-                    return Arrays.asList("time","action","last");
+                    return Arrays.asList("10","15","20","infinity");
                 }else if (args.length == 6) {
-                    if (args[4].equalsIgnoreCase("time")) {
-                        return Arrays.asList("1d","1w","30m","10h");
-                    }else if (args[4].equalsIgnoreCase("action")) {
-                        List<String> list = new ArrayList<>(Arrays.stream(LoggingAPI.LoggingType.values()).map(LoggingAPI.LoggingType::getName).toList());
-                        list.add("put");
-                        list.add("took");
-                        return GeneralAPI.handleStringListing(list,args[5]);
-                    }else if (args[4].equalsIgnoreCase("last")) {
-                        return Arrays.asList("10","20","15");
-                    }
+                    return Arrays.asList("1d","1w","30m","10h");
+                }else if (args.length == 7) {
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd.MM");
+                    return Collections.singletonList(sdf.format(Calendar.getInstance().getTime()));
                 }
             }
         }

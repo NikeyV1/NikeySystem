@@ -4,6 +4,7 @@ package de.nikey.nikeysystem.Player.API;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.Functions.InventoryFunctions;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -36,6 +37,21 @@ public class InventoryAPI implements Listener {
             inventoryData.save(inventoryFile);
         } catch (IOException e) {
             NikeySystem.getPlugin().getLogger().severe("Failed to save inventory data: " + e.getMessage());
+        }
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            UUID playerUUID = player.getUniqueId();
+
+            // Speichern des Inventars in offlineInventories
+            InventoryAPI.offlineInventories.put(playerUUID, player.getInventory().getContents());
+
+            InventoryAPI.inventoryData.set(playerUUID.toString(), player.getInventory().getContents());
+            try {
+                InventoryAPI.inventoryData.save(InventoryAPI.inventoryFile);
+            } catch (IOException e) {
+                ChatAPI.sendManagementMessage(Component.text("Error saving inventory for player ").color(NamedTextColor.RED)
+                        .append(Component.text(player.getName()).color(NamedTextColor.WHITE))
+                        .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)), ChatAPI.ManagementType.ERROR);
+            }
         }
     }
 

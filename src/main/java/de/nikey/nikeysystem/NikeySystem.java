@@ -20,22 +20,31 @@ import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
 import de.nikey.nikeysystem.Server.Functions.*;
 import de.nikey.nikeysystem.Server.Settings.ServerSettings;
 import de.nikey.nikeysystem.Server.Settings.WorldSettings;
+import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.spi.ExtendedLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.module.Configuration;
+import java.nio.file.Path;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 public final class NikeySystem extends JavaPlugin {
 
 
     private static NikeySystem plugin;
+    private PrintStream originalOut;
 
 
     @Override
@@ -81,26 +90,6 @@ public final class NikeySystem extends JavaPlugin {
             world.setGameRule(GameRule.SEND_COMMAND_FEEDBACK,true);
         }
     }
-    public void saveAllPlayerInventories() {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            UUID playerUUID = player.getUniqueId();
-
-            // Speichern des Inventars in offlineInventories
-            InventoryAPI.offlineInventories.put(playerUUID, player.getInventory().getContents());
-
-            // Speichern in der Datei
-            InventoryAPI.inventoryData.set(playerUUID.toString(), player.getInventory().getContents());
-            getLogger().info("Saving " + player.getName() + "'s inv");
-            try {
-                InventoryAPI.inventoryData.save(InventoryAPI.inventoryFile);
-            } catch (IOException e) {
-                ChatAPI.sendManagementMessage(Component.text("Error saving inventory for player ").color(NamedTextColor.RED)
-                        .append(Component.text(player.getName()).color(NamedTextColor.WHITE))
-                        .append(Component.text(": " + e.getMessage()).color(NamedTextColor.RED)), ChatAPI.ManagementType.ERROR);
-                getLogger().severe("Error saving inventory for player " + player.getName() + ": " + e.getMessage());
-            }
-        }
-    }
 
     @Override
     public void onDisable() {
@@ -108,9 +97,10 @@ public final class NikeySystem extends JavaPlugin {
         WorldFunctions.deleteAndUnloadTemporaryWorlds();
         WorldFunctions.deleteTemporaryWorlds();
         InventoryAPI.saveInventories();
-        saveAllPlayerInventories();
         LoggingAPI.saveLogs();
     }
+
+
 
     public static NikeySystem getPlugin() {
         return plugin;

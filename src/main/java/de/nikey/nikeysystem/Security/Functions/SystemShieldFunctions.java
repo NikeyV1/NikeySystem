@@ -20,11 +20,10 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.command.UnknownCommandEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.server.RemoteServerCommandEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 
@@ -50,6 +49,9 @@ public class SystemShieldFunctions implements Listener {
             event.setCancelled(true);  // Verhindere, dass der Befehl weiter verarbeitet wird
         }
     }
+
+
+
 
     private void handleAccept(Player player) {
         String requesterName = shieldRequest.get(player.getName());
@@ -135,8 +137,7 @@ public class SystemShieldFunctions implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerDamage(EntityDamageEvent event) {
-        if (event.getEntity() instanceof Player) {
-            Player player = (Player) event.getEntity();
+        if (event.getEntity() instanceof Player player) {
             if (SystemShieldAPI.isShieldUser(player.getName())) {
                 EntityDamageEvent.DamageCause cause = event.getCause();
                 if (cause == EntityDamageEvent.DamageCause.KILL || cause == EntityDamageEvent.DamageCause.SUICIDE) {
@@ -146,7 +147,6 @@ public class SystemShieldFunctions implements Listener {
             }
         }
     }
-
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
