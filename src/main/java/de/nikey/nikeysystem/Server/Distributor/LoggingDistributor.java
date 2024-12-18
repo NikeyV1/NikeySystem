@@ -190,6 +190,18 @@ public class LoggingDistributor {
         }
     }
 
+    public static Date parseDate(String dateString) {
+        String format = "dd.MM";
+        SimpleDateFormat dateFormatter = new SimpleDateFormat(format);
+        dateFormatter.setLenient(false); // Ensures strict parsing
+        try {
+            return dateFormatter.parse(dateString);
+        } catch (ParseException e) {
+            System.err.println("Failed to parse date: " + e.getMessage());
+            return null;
+        }
+    }
+
 
 
 
