@@ -126,6 +126,7 @@ public class LoggingDistributor {
 
                             String[] keyParts = logKey.split(",");
                             Component locationMessage = Component.text(keyParts[0] + " ")
+                                    .decoration(TextDecoration.BOLD,true)
                                     .color(TextColor.color(50, 162, 168))
                                     .append(Component.text(keyParts[1] + " ")
                                             .color(TextColor.color(30, 143, 109)))
@@ -223,7 +224,6 @@ public class LoggingDistributor {
 
         return filteredLogs;
     }
-
 
     private static int cleanupLogs(String ageLimit) {
         long timeInSeconds = parseTime(ageLimit);
