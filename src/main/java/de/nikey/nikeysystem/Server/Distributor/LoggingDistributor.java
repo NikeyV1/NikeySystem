@@ -1,6 +1,7 @@
 package de.nikey.nikeysystem.Server.Distributor;
 
 import de.nikey.nikeysystem.Player.API.ChatAPI;
+import de.nikey.nikeysystem.Player.API.MuteAPI;
 import de.nikey.nikeysystem.Server.API.LoggingAPI;
 import net.kyori.adventure.chat.SignedMessage;
 import net.kyori.adventure.text.Component;
@@ -12,6 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -98,49 +100,96 @@ public class LoggingDistributor {
         }else if (cmd.equalsIgnoreCase("filter")) {
             if (args.length >= 7) {
                 String player = args[4];
-                sender.sendMessage(Component.text(player + "'s ").color(NamedTextColor.WHITE)
-                        .append(Component.text("block changes: ").color(TextColor.color(157, 230, 41))).decoration(TextDecoration.BOLD,true));
+                sender.sendMessage(Component.text("Block changes for filter:").color(TextColor.color(157, 230, 41)).decoration(TextDecoration.BOLD,true));
 
-                String amount = args[5]; // Anzahl oder infinity
-                String timestamp = args[6]; // Startzeitpunkt
-                String format = args[7]; // Datumsformat
+                String amount = args[5];
+                String timestamp = args[6];
 
-                DateTimeFormatter formatter;
+                int sec;
                 try {
-                    formatter = DateTimeFormatter.ofPattern(format);
+                    sec = MuteAPI.parseTime(args[7]);
                 } catch (IllegalArgumentException e) {
-                    sender.sendMessage("Invalid date format: " + format);
-                    return;
+                    sec = 0;
                 }
 
-                List<String> filteredLogs = filterLogs(player, amount, timestamp, formatter);
+                List<String> filteredLogs = filterLogs(player, amount, timestamp, sec);
 
                 if (filteredLogs.isEmpty()) {
                     sender.sendMessage("No logs found with the given filters.");
                 } else {
-                    sender.sendMessage("Filtered Logs:");
                     for (String log : filteredLogs) {
-                        sender.sendMessage(log);
+                        String[] parts = log.split(": ", 2);
+
+                        if (parts.length == 2) {
+                            String logKey = parts[0];
+                            String logValue = parts[1];
+
+                            String[] keyParts = logKey.split(",");
+                            Component locationMessage = Component.text(keyParts[0] + " ")
+                                    .color(TextColor.color(50, 162, 168))
+                                    .append(Component.text(keyParts[1] + " ")
+                                            .color(TextColor.color(30, 143, 109)))
+                                    .append(Component.text(keyParts[2] + " ")
+                                            .color(TextColor.color(30, 143, 109)))
+                                    .append(Component.text(keyParts[3] + ": ")
+                                            .color(TextColor.color(30, 143, 109)));
+
+                            String[] logValueParts = logValue.split(" ");
+                            Component valueMessage;
+
+                            if (logValueParts[1].equalsIgnoreCase("put") || logValueParts[1].equalsIgnoreCase("took")) {
+                                valueMessage = Component.text(logValueParts[0])
+                                        .color(TextColor.color(100, 100, 255))
+                                        .append(Component.text(" " + logValueParts[1] + " ")
+                                                .color(NamedTextColor.LIGHT_PURPLE))
+                                        .append(Component.text(logValueParts[2] + " ")
+                                                .color(TextColor.color(255, 255, 100)))
+                                        .append(Component.text(logValueParts[3].replace("_", " "))
+                                                .color(TextColor.color(255, 100, 100)))
+                                        .append(Component.text(" " + logValueParts[4] + " ")
+                                                .color(TextColor.color(157, 230, 41)))
+                                        .append(Component.text(logValueParts[5])
+                                                .color(TextColor.color(100, 200, 255)))
+                                        .append(Component.text(" inventory ")
+                                                .color(TextColor.color(157, 230, 41)))
+                                        .append(Component.text(logValueParts[7] + " " + logValueParts[8])
+                                                .color(TextColor.color(255, 255, 100)));
+                            } else {
+                                valueMessage = Component.text("Block ")
+                                        .color(TextColor.color(157, 230, 41))
+                                        .append(Component.text(logValueParts[1])
+                                                .color(TextColor.color(255, 100, 100)))
+                                        .append(Component.text(" was ")
+                                                .color(TextColor.color(157, 230, 41)))
+                                        .append(Component.text(logValueParts[3].replace("_", " "))
+                                                .color(NamedTextColor.DARK_PURPLE))
+                                        .append(Component.text(" by ")
+                                                .color(TextColor.color(157, 230, 41)))
+                                        .append(Component.text(logValueParts[5])
+                                                .color(TextColor.color(100, 100, 255)))
+                                        .append(Component.text(" at ")
+                                                .color(TextColor.color(157, 230, 41)))
+                                        .append(Component.text(logValueParts[7])
+                                                .color(TextColor.color(255, 255, 100)));
+                            }
+
+                            Component fullMessage = locationMessage.append(valueMessage);
+
+                            sender.sendMessage(fullMessage);
+                        } else {
+                            sender.sendMessage(Component.text("Invalid log format: " + log)
+                                    .color(NamedTextColor.GRAY)); // Fallback für unformatierte Logs
+                        }
                     }
+
                 }
             }
         }
     }
 
-    private static List<String> filterLogs(String target, String amount, String timestamp, DateTimeFormatter formatter) {
+    private static List<String> filterLogs(String target, String amount, String timestamp, int seconds) {
         List<String> filteredLogs = new ArrayList<>();
-        LocalDateTime filterDate = null;
 
-        // Timestamp verarbeiten, wenn angegeben
-        if (!timestamp.equalsIgnoreCase("null")) {
-            try {
-                filterDate = LocalDateTime.parse(timestamp, formatter);
-            } catch (Exception e) {
-                return filteredLogs; // Ungültiges Datum
-            }
-        }
-
-        // Amount verarbeiten: "infinity" oder eine Zahl
         int limit = Integer.MAX_VALUE;
         if (!amount.equalsIgnoreCase("infinity")) {
             try {
@@ -150,24 +199,23 @@ public class LoggingDistributor {
             }
         }
 
-        // Logs durchgehen und filtern
-        for (String key : LoggingAPI.logConfig.getKeys(false)) {
-            List<String> logEntries = LoggingAPI.logConfig.getStringList(key);
-
-            for (String log : logEntries) {
+        for (String key : logConfig.getKeys(false)) {
+            for (String log : logConfig.getStringList(key)) {
                 if (filteredLogs.size() >= limit) break;
 
-                // Ziel filtern (Spielername)
-                if (!target.equalsIgnoreCase("null") && !log.contains("by " + target)) {
-                    continue;
+                if (!target.equalsIgnoreCase("null")) {
+                    if (!LoggingAPI.getPlayer(log).equalsIgnoreCase(target))continue;
                 }
 
-                // Zeitstempel filtern
-                if (filterDate != null && !logMatchesTimestamp(log, filterDate, formatter)) {
-                    continue;
+                if (!timestamp.equalsIgnoreCase("null")) {
+                    if (!LoggingAPI.getDate(log).startsWith(timestamp))continue;
                 }
 
-                filteredLogs.add(key + ": " + log); // Füge Koordinaten zur Log-Nachricht hinzu
+                if (seconds != 0) {
+                    if (isDateOlderThan(LoggingAPI.getDate(log), seconds))continue;
+                }
+
+                filteredLogs.add(key + ": " + log);
             }
 
             if (filteredLogs.size() >= limit) break;
@@ -176,30 +224,13 @@ public class LoggingDistributor {
         return filteredLogs;
     }
 
-    // Überprüft, ob das Log mit dem angegebenen Zeitstempel übereinstimmt
-    private static boolean logMatchesTimestamp(String log, LocalDateTime filterDate, DateTimeFormatter formatter) {
-        // Beispiel: "Block VINE was broken by NikeyV1 at 17.12-22:13"
-        String[] parts = log.split(" at ");
-        if (parts.length < 2) return false;
-
-        try {
-            LocalDateTime logDate = LocalDateTime.parse(parts[1], formatter);
-            return logDate.isAfter(filterDate) || logDate.isEqual(filterDate);
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-
-
-
 
     private static int cleanupLogs(String ageLimit) {
         long timeInSeconds = parseTime(ageLimit);
 
         int deleted = 0;
-        for (String key : LoggingAPI.logConfig.getKeys(false)) {
-            List<String> logEntries = LoggingAPI.logConfig.getStringList(key);
+        for (String key : logConfig.getKeys(false)) {
+            List<String> logEntries = logConfig.getStringList(key);
             List<String> updatedEntries = new ArrayList<>();
 
             for (String entry : logEntries) {
@@ -214,9 +245,9 @@ public class LoggingDistributor {
             }
 
             if (updatedEntries.isEmpty()) {
-                LoggingAPI.logConfig.set(key, null);
+                logConfig.set(key, null);
             } else {
-                LoggingAPI.logConfig.set(key, updatedEntries);
+                logConfig.set(key, updatedEntries);
             }
         }
         return deleted;

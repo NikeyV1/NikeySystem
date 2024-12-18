@@ -496,14 +496,19 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 return Arrays.asList("1d","1w","30m","10h");
             }else if (args[2].equalsIgnoreCase("filter") ) {
                 if (args.length == 4) {
-                    return GeneralAPI.handleStringListing(Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList()),args[3]);
+                    List<String> collect = new ArrayList<>(Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).toList());
+                    collect.add("null");
+                    return GeneralAPI.handleStringListing(collect, args[3]) ;
                 }else if (args.length == 5){
                     return Arrays.asList("10","15","20","infinity");
                 }else if (args.length == 6) {
-                    return Arrays.asList("1d","1w","30m","10h");
-                }else if (args.length == 7) {
                     SimpleDateFormat sdf = new SimpleDateFormat("dd.MM");
-                    return Collections.singletonList(sdf.format(Calendar.getInstance().getTime()));
+                    List<String> list = new ArrayList<>();
+                    list.add(sdf.format(Calendar.getInstance().getTime()));
+                    list.add("null");
+                    return list;
+                }else if (args.length == 7) {
+                    return Arrays.asList("1d","1w","30m","10h","infinity");
                 }
             }
         }

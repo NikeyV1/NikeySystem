@@ -64,4 +64,31 @@ public class LoggingAPI {
             return name;
         }
     }
+
+    public static String getPlayer(String log) {
+        String[] split = log.split(" ");
+        if (log.startsWith("Block")){
+            return split[5];
+        }else {
+            return split[0];
+        }
+    }
+
+    public static String getDate(String log) {
+        String[] split = log.split(" ");
+        if (log.startsWith("Block")){
+            return split[7];
+        }else {
+            return split[8];
+        }
+    }
+
+    public static String getAction(String log) {
+        String[] split = log.split(" ");
+        if (log.startsWith("Block")){
+            return split[3];
+        }else {
+            return split[1];
+        }
+    }
 }
