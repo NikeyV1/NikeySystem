@@ -126,14 +126,14 @@ public class LoggingDistributor {
 
                             String[] keyParts = logKey.split(",");
                             Component locationMessage = Component.text(keyParts[0] + " ")
-                                    .decoration(TextDecoration.BOLD,true)
                                     .color(TextColor.color(50, 162, 168))
                                     .append(Component.text(keyParts[1] + " ")
                                             .color(TextColor.color(30, 143, 109)))
                                     .append(Component.text(keyParts[2] + " ")
                                             .color(TextColor.color(30, 143, 109)))
                                     .append(Component.text(keyParts[3] + ": ")
-                                            .color(TextColor.color(30, 143, 109)));
+                                            .color(TextColor.color(30, 143, 109)))
+                                    .decoration(TextDecoration.ITALIC,true);
 
                             String[] logValueParts = logValue.split(" ");
                             Component valueMessage;
@@ -174,7 +174,7 @@ public class LoggingDistributor {
                                                 .color(TextColor.color(255, 255, 100)));
                             }
 
-                            Component fullMessage = locationMessage.append(valueMessage);
+                            Component fullMessage = locationMessage.append(valueMessage.decoration(TextDecoration.ITALIC,false));
 
                             sender.sendMessage(fullMessage);
                         } else {
