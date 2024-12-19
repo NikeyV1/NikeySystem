@@ -385,9 +385,9 @@ public class SystemCommandTabCompleter implements TabCompleter {
             }else if (args.length == 5) {
                 return new ArrayList<>(Arrays.asList("seed"));
             }else if (args.length == 6) {
-                return GeneralAPI.handleStringListing(Arrays.stream(World.Environment.values()).map(World.Environment::name).collect(Collectors.toList()),args[3]);
+                return GeneralAPI.handleStringListing(Arrays.stream(World.Environment.values()).map(World.Environment::name).collect(Collectors.toList()),args[5]);
             }else if (args.length == 7) {
-                return GeneralAPI.handleStringListing(Arrays.stream(WorldType.values()).map(WorldType::name).collect(Collectors.toList()),args[3]);
+                return GeneralAPI.handleStringListing(Arrays.stream(WorldType.values()).map(WorldType::name).collect(Collectors.toList()),args[6]);
             }else if (args.length == 8) {
                 return new ArrayList<>(Arrays.asList("true","false"));
             }
