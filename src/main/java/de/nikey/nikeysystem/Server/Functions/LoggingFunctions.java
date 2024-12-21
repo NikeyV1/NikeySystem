@@ -65,6 +65,7 @@ public class LoggingFunctions implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onEntityExplode(EntityExplodeEvent event){
+        if (!NikeySystem.getPlugin().getConfig().getBoolean("logging.settings.explosion"))return;
         if (event.getEntity() instanceof TNTPrimed primed){
             for (Block block : event.blockList()) {
                 logBlockChange(LoggingAPI.LoggingType.EXPLODE_TNT,primed.getSource() instanceof Player player ? player.getName() : "Unknown",block.getLocation(), block.getType());
@@ -85,6 +86,7 @@ public class LoggingFunctions implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBlockExplode(BlockExplodeEvent event){
         Block explodedBlock = event.getBlock();
+        if (!NikeySystem.getPlugin().getConfig().getBoolean("logging.settings.explosion"))return;
 
         UUID accountable = clickedBlocks.remove(explodedBlock);
         if (accountable == null) {
@@ -100,6 +102,7 @@ public class LoggingFunctions implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onInventoryOpen(InventoryOpenEvent event) {
+        if (!NikeySystem.getPlugin().getConfig().getBoolean("logging.settings.inventory"))return;
         if (!(event.getPlayer() instanceof Player player)) return;
 
         inventorySnapshots.put(player.getUniqueId(), cloneInventory(event.getInventory()));
@@ -107,6 +110,7 @@ public class LoggingFunctions implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onInventoryClose(InventoryCloseEvent event) {
+        if (!NikeySystem.getPlugin().getConfig().getBoolean("logging.settings.inventory"))return;
         if (!(event.getPlayer() instanceof Player player)) return;
 
         UUID playerId = player.getUniqueId();

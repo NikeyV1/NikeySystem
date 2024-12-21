@@ -3,6 +3,8 @@ package de.nikey.nikeysystem.Server.Distributor;
 import de.nikey.nikeysystem.Player.API.ChatAPI;
 import de.nikey.nikeysystem.Player.API.MuteAPI;
 import de.nikey.nikeysystem.Server.API.LoggingAPI;
+import de.nikey.nikeysystem.Server.Functions.LoggingFunctions;
+import de.nikey.nikeysystem.Server.Settings.LoggingSettings;
 import net.kyori.adventure.chat.SignedMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -182,12 +184,12 @@ public class LoggingDistributor {
                                     .color(NamedTextColor.GRAY)); // Fallback für unformatierte Logs
                         }
                     }
-
                 }
             }
+        }else if (cmd.equalsIgnoreCase("settings")) {
+            LoggingSettings.openSettingsMenu(sender);
         }
     }
-
     private static List<String> filterLogs(String target, String amount, String timestamp, int seconds) {
         List<String> filteredLogs = new ArrayList<>();
 

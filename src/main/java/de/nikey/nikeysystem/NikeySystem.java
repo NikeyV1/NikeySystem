@@ -18,6 +18,7 @@ import de.nikey.nikeysystem.Server.API.WorldAPI;
 import de.nikey.nikeysystem.Server.Distributor.BackupDistributor;
 import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
 import de.nikey.nikeysystem.Server.Functions.*;
+import de.nikey.nikeysystem.Server.Settings.LoggingSettings;
 import de.nikey.nikeysystem.Server.Settings.ServerSettings;
 import de.nikey.nikeysystem.Server.Settings.WorldSettings;
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
@@ -81,7 +82,7 @@ public final class NikeySystem extends JavaPlugin {
         manager.registerEvents(new LocationSettings(),this);
         manager.registerEvents(new WorldFunctions(),this);
         manager.registerEvents(new LoggingFunctions(),this);
-        
+        manager.registerEvents(new LoggingSettings(),this);
 
         getCommand("system").setTabCompleter(new SystemCommandTabCompleter());
 

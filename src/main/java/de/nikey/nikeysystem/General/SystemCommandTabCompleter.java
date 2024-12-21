@@ -478,7 +478,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("logging")) {
-            return new ArrayList<>(Arrays.asList("blocklog","clearblocklog", "cleanup", "filter"));
+            return new ArrayList<>(Arrays.asList("blocklog","clearblocklog", "cleanup", "filter","settings"));
         }
 
         if (args.length >= 4 && args[1].equalsIgnoreCase("logging")) {
