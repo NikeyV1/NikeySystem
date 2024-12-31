@@ -5,6 +5,7 @@ import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.ChatAPI;
 import de.nikey.nikeysystem.Player.API.InventoryAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
+import de.nikey.nikeysystem.Player.Distributor.InventoryDistributor;
 import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -28,89 +29,68 @@ import java.io.IOException;
 import java.util.UUID;
 
 import static de.nikey.nikeysystem.Player.API.InventoryAPI.*;
+import static de.nikey.nikeysystem.Player.Distributor.InventoryDistributor.openEditors;
 import static de.nikey.nikeysystem.Player.Distributor.InventoryDistributor.updatePlayerInventory;
 
 public class InventoryFunctions implements Listener {
-    @EventHandler
-    public void onArmorChange(PlayerArmorChangeEvent event) {
-        updatePlayerInventory(event.getPlayer());
-    }
-
-    @EventHandler
-    public void onInventory(InventoryEvent event) {
-        updatePlayerInventory((Player) event.getView().getPlayer());
-
-        if (event.getView().getTitle().equalsIgnoreCase("Equipment") && event.getInventory().getSize() == 9) {
-            Player player = Bukkit.getPlayer(InventoryAPI.playerInventories.get(event.getView().getPlayer().getName()));
-            if (player == null) {
-                event.getView().getPlayer().sendMessage(Component.text("Error: player not found").color(NamedTextColor.RED));
-                return;
-            }
-
-            Inventory inventory = event.getView().getTopInventory();
-            EntityEquipment equipment = player.getEquipment();
-            equipment.setItem(EquipmentSlot.FEET,inventory.getItem(0));
-            equipment.setItem(EquipmentSlot.LEGS,inventory.getItem(1));
-            equipment.setItem(EquipmentSlot.CHEST,inventory.getItem(2));
-            equipment.setItem(EquipmentSlot.HEAD,inventory.getItem(3));
-
-            player.getInventory().setItemInOffHand(inventory.getItem(8));
-        }
-    }
-
-
-    @EventHandler
-    public void onInventoryDrag(InventoryDragEvent event) {
-        updatePlayerInventory((Player) event.getWhoClicked());
-
-        if (InventoryAPI.playerInventories.containsKey(event.getWhoClicked().getName()) && event.getInventory().getSize() == 9) {
-            Player player = Bukkit.getPlayer(InventoryAPI.playerInventories.get(event.getWhoClicked().getName()));
-            if (player == null) {
-                event.getWhoClicked().sendMessage(Component.text("Error: player not found").color(NamedTextColor.RED));
-                return;
-            }
-
-            Inventory inventory = event.getView().getTopInventory();
-            EntityEquipment equipment = player.getEquipment();
-            equipment.setItem(EquipmentSlot.FEET,inventory.getItem(0));
-            equipment.setItem(EquipmentSlot.LEGS,inventory.getItem(1));
-            equipment.setItem(EquipmentSlot.CHEST,inventory.getItem(2));
-            equipment.setItem(EquipmentSlot.HEAD,inventory.getItem(3));
-
-            player.getInventory().setItemInOffHand(inventory.getItem(8));
-
-        }
-    }
 
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        updatePlayerInventory((Player) event.getWhoClicked());
+        if (!(event.getWhoClicked() instanceof Player viewer)) return;
 
-        if (InventoryAPI.playerInventories.containsKey(event.getWhoClicked().getName()) && event.getInventory().getSize() == 9) {
-            Player player = Bukkit.getPlayer(InventoryAPI.playerInventories.get(event.getWhoClicked().getName()));
-            if (player == null) {
-                event.getWhoClicked().sendMessage(Component.text("Error: player not found").color(NamedTextColor.RED));
-                return;
+        // Ensure the inventory is an equipment editor
+        if (!event.getView().getTitle().startsWith("Edit Equipment: ")) return;
+
+        if (event.getClickedInventory() == null) return;
+
+        UUID targetUUID = openEditors.get(viewer.getUniqueId());
+        if (targetUUID == null) return;
+
+        Player target = Bukkit.getPlayer(targetUUID);
+        if (target == null) {
+            viewer.sendMessage("Target player is no longer online!");
+            viewer.closeInventory();
+            return;
+        }
+
+        ItemStack item = event.getInventory().getItem(event.getSlot());
+        switch (event.getSlot()) {
+            case 0 -> {
+                target.getInventory().setHelmet(item);
+                target.sendEquipmentChange(target, EquipmentSlot.HEAD, item);
             }
-
-            Inventory inventory = event.getView().getTopInventory();
-            EntityEquipment equipment = player.getEquipment();
-            equipment.setItem(EquipmentSlot.FEET,inventory.getItem(0));
-            equipment.setItem(EquipmentSlot.LEGS,inventory.getItem(1));
-            equipment.setItem(EquipmentSlot.CHEST,inventory.getItem(2));
-            equipment.setItem(EquipmentSlot.HEAD,inventory.getItem(3));
-
-            player.getInventory().setItemInOffHand(inventory.getItem(8));
+            case 1 -> {
+                target.getInventory().setChestplate(item);
+                target.sendEquipmentChange(target, EquipmentSlot.CHEST, item);
+            }
+            case 2 -> {
+                target.getInventory().setLeggings(item);
+                target.sendEquipmentChange(target,EquipmentSlot.LEGS, item);
+            }
+            case 3 -> {
+                target.getInventory().setBoots(item);
+                target.sendEquipmentChange(target,EquipmentSlot.FEET, item);
+            }
+            case 8 -> {
+                target.getInventory().setItemInOffHand(item);
+                target.sendEquipmentChange(target, EquipmentSlot.OFF_HAND, item);
+            }
         }
     }
 
     @EventHandler
-    public void onInventory(InventoryCloseEvent event) {
-        if (event.getView().getTitle().equalsIgnoreCase("Equipment") && event.getInventory().getSize() == 9) {
-            InventoryAPI.playerInventories.remove(event.getPlayer().getName());
-        }
+    public void onQuit(PlayerQuitEvent event) {
+        openEditors.values().remove(event.getPlayer().getUniqueId());
+        openEditors.remove(event.getPlayer().getUniqueId());
     }
+
+    @EventHandler
+    public void onInvClose(InventoryCloseEvent event) {
+        Player player = (Player) event.getPlayer();
+        openEditors.remove(player.getUniqueId());
+    }
+
 
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent event) {

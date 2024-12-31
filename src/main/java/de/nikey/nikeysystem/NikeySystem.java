@@ -63,6 +63,7 @@ public final class NikeySystem extends JavaPlugin {
         WorldAPI.loadWorlds();
         BackupDistributor.startup();
         LoggingAPI.initializeFiles();
+        ChatAPI.loadChannels();
 
         PluginManager manager = Bukkit.getPluginManager();
         manager.registerEvents(new HideFunctions(),this);
@@ -83,6 +84,7 @@ public final class NikeySystem extends JavaPlugin {
         manager.registerEvents(new WorldFunctions(),this);
         manager.registerEvents(new LoggingFunctions(),this);
         manager.registerEvents(new LoggingSettings(),this);
+        manager.registerEvents(new ChatFunctions(), this);
 
         getCommand("system").setTabCompleter(new SystemCommandTabCompleter());
 
@@ -99,6 +101,7 @@ public final class NikeySystem extends JavaPlugin {
         WorldFunctions.deleteTemporaryWorlds();
         InventoryAPI.saveInventories();
         LoggingAPI.saveLogs();
+        ChatAPI.saveChannels();
     }
 
 

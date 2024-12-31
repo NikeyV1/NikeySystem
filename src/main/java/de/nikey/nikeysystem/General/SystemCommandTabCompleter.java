@@ -22,6 +22,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static de.nikey.nikeysystem.Player.Distributor.ChatDistributor.channels;
+
 public class SystemCommandTabCompleter implements TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
@@ -44,7 +46,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the second argument: system player or system server
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("player")) {
-                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "mute", "location","profile","sound","resourcepack");
+                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "mute", "location","profile","sound","resourcepack","chat");
             } else if (args[0].equalsIgnoreCase("server")) {
                 return Arrays.asList("command", "settings","performance","world", "backup", "logging");
             } else if (args[0].equalsIgnoreCase("security")) {
@@ -510,6 +512,18 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 }else if (args.length == 7) {
                     return Arrays.asList("1d","1w","30m","10h","infinity");
                 }
+            }
+        }
+
+        if (args.length == 3 && args[1].equalsIgnoreCase("chat")) {
+            return new ArrayList<>(Arrays.asList("channel"));
+        }
+
+        if (args[2].equalsIgnoreCase("channel")) {
+            if (args.length == 4) {
+                return Arrays.asList("create", "join", "leave", "list", "messages");
+            } else if (args.length == 5 && args[3].equalsIgnoreCase("join")) {
+                return GeneralAPI.handleStringListing(new ArrayList<>(channels.keySet().stream().map(UUID::toString).toList()),args[4]);
             }
         }
 

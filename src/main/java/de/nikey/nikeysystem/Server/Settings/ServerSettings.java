@@ -6,7 +6,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Difficulty;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -14,11 +13,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,22 +28,9 @@ import java.util.function.Consumer;
 
 public class ServerSettings implements Listener {
 
-    private final String inventoryTitle = ChatColor.BLUE + "Server Settings";
+    private static final String inventoryTitle = ChatColor.BLUE + "Server Settings";
 
-
-    @EventHandler
-    public void onCommandPreprocess(PlayerCommandPreprocessEvent event) {
-        String message = event.getMessage().toLowerCase();
-        Player player = event.getPlayer();
-
-        if (message.equals("/continue") && SettingsAPI.settingsContinue.contains(player)) {
-            SettingsAPI.settingsContinue.remove(player);
-            openSettingsInventory(player);
-            event.setCancelled(true);
-        }
-    }
-
-    private void openSettingsInventory(Player player) {
+    public static void openSettingsInventory(Player player) {
         Inventory inventory = Bukkit.createInventory(null, 54, inventoryTitle);
 
         addItemToInventory(inventory, 0, Material.PAPER, "MOTD changing");
@@ -62,7 +46,7 @@ public class ServerSettings implements Listener {
         player.openInventory(inventory);
     }
 
-    private void addItemToInventory(Inventory inventory, int slot, Material material, String displayName) {
+    private static void addItemToInventory(Inventory inventory, int slot, Material material, String displayName) {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
@@ -182,7 +166,7 @@ public class ServerSettings implements Listener {
         }
     }
 
-    private boolean isEndAllowed() {
+    private static boolean isEndAllowed() {
         File bukkitYmlFile = new File(Bukkit.getWorldContainer()+"/bukkit.yml");
         if (!bukkitYmlFile.exists()) {
             return false;
@@ -201,7 +185,6 @@ public class ServerSettings implements Listener {
 
         Properties properties = new Properties();
 
-        // Properties-Datei laden
         try (FileInputStream input = new FileInputStream(propertiesFile)) {
             properties.load(input);
         } catch (IOException e) {
@@ -209,10 +192,8 @@ public class ServerSettings implements Listener {
             return;
         }
 
-        // MOTD aktualisieren
         properties.setProperty("motd", motd);
 
-        // Properties-Datei speichern
         try (FileOutputStream output = new FileOutputStream(propertiesFile)) {
             properties.store(output, "Updated MOTD by Plugin");
             player.sendMessage(ChatColor.GREEN + "MOTD updated successfully!");

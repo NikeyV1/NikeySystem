@@ -19,11 +19,14 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import static de.nikey.nikeysystem.Player.API.InventoryAPI.offlineInventories;
 
 public class InventoryDistributor implements Listener {
+    public static final Map<UUID, UUID> openEditors = new HashMap<>();
 
     public static void inventoryDistributor(Player sender, String[] args) {
         String cmd = args[3];
@@ -171,7 +174,7 @@ public class InventoryDistributor implements Listener {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
-                openEq(player,target);
+                openEquipmentEditor(player,target);
             }else if (args.length == 5) {
                 Player player = Bukkit.getPlayer(args[4]);
                 if (player == null ){
@@ -182,7 +185,7 @@ public class InventoryDistributor implements Listener {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
-                openEq(sender,player);
+                openEquipmentEditor(sender,player);
             }
         }else if (args[3].equalsIgnoreCase("help")) {
             sender.sendMessage("§7The path 'System/Player/Inventory' has following sub-paths: §fadd <PlayerName> <Item> [Amount], remove <PlayerName> <Item> [Amount], openinv [playername]<PlayerName>, openec [playername]<PlayerName>, openeq [playername]<PlayerName>.");
@@ -274,35 +277,33 @@ public class InventoryDistributor implements Listener {
         player.openInventory(target.getEnderChest());
     }
 
-    private static void openEq(Player player, Player target) {
-        if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName(), ShieldCause.INVENTORY_OPEN_EQUIPMENT)) {
-            player.sendMessage("§cError: missing permission");
+    private static void openEquipmentEditor(Player viewer, Player target) {
+
+        if (!PermissionAPI.isAllowedToChange(viewer.getName(),target.getName(), ShieldCause.INVENTORY_OPEN_EQUIPMENT)) {
+            viewer.sendMessage("§cError: missing permission");
             return;
         }
 
-        EntityEquipment equipment = target.getEquipment();
-        ItemStack[] armorContents = equipment.getArmorContents();
-        Inventory inventory = Bukkit.createInventory(null, 9, "Equipment");
-        for (int i = 0; i < 4; i++) {
-            inventory.setItem(i,armorContents[i]);
-        }
-        ItemStack glass = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
-        inventory.setItem(4,glass);
-        inventory.setItem(5,glass);
-        inventory.setItem(6,glass);
-        inventory.setItem(7,glass);
-        inventory.setItem(8,target.getInventory().getItemInOffHand());
+        Inventory equipmentInventory = Bukkit.createInventory(null, 9, Component.text("Edit Equipment: " + target.getName()));
 
-        InventoryAPI.playerInventories.put(player.getName(),target.getName());
-        player.openInventory(inventory);
+        updateInventory(equipmentInventory, target);
+        viewer.openInventory(equipmentInventory);
+
+        // Map viewer to target for live updates
+        openEditors.put(viewer.getUniqueId(), target.getUniqueId());
     }
 
-    public static void updatePlayerInventory(Player target) {
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player != target && InventoryAPI.playerInventories.containsKey(player.getName()) && InventoryAPI.playerInventories.containsValue(target.getName())) {
-                openEq(player, target);
-            }
-        }
+    public static void updateInventory(Inventory inventory, Player target) {
+        // Helmet
+        inventory.setItem(0, target.getInventory().getHelmet() != null ? target.getInventory().getHelmet() : new ItemStack(Material.AIR));
+        // Chestplate
+        inventory.setItem(1, target.getInventory().getChestplate() != null ? target.getInventory().getChestplate() : new ItemStack(Material.AIR));
+        // Leggings
+        inventory.setItem(2, target.getInventory().getLeggings() != null ? target.getInventory().getLeggings() : new ItemStack(Material.AIR));
+        // Boots
+        inventory.setItem(3, target.getInventory().getBoots() != null ? target.getInventory().getBoots() : new ItemStack(Material.AIR));
+        // Offhand
+        inventory.setItem(8, target.getInventory().getItemInOffHand());
     }
 
     public static void openOfflineInventory(Player player, OfflinePlayer target) {

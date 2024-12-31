@@ -2,6 +2,7 @@ package de.nikey.nikeysystem.Player.API;
 
 
 import de.nikey.nikeysystem.NikeySystem;
+import de.nikey.nikeysystem.Player.Distributor.InventoryDistributor;
 import de.nikey.nikeysystem.Player.Functions.InventoryFunctions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -15,12 +16,15 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import static de.nikey.nikeysystem.Player.Distributor.InventoryDistributor.openEditors;
 
 public class InventoryAPI implements Listener {
     public static final Map<String , String> playerInventories = new HashMap<>();
@@ -77,9 +81,26 @@ public class InventoryAPI implements Listener {
 
         // Offline-Inventare laden
         loadInventories();
+        startLiveUpdateTask();
     }
 
     public static boolean hasOfflineEditing(String player) {
         return NikeySystem.getPlugin().getConfig().getBoolean("inventory.settings." + player + ".editofflineplayers");
+    }
+
+    private static void startLiveUpdateTask() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                openEditors.forEach((viewerUUID, targetUUID) -> {
+                    Player viewer = Bukkit.getPlayer(viewerUUID);
+                    Player target = Bukkit.getPlayer(targetUUID);
+                    if (viewer == null || target == null) return;
+
+                    Inventory inventory = viewer.getOpenInventory().getTopInventory();
+                    InventoryDistributor.updateInventory(inventory, target);
+                });
+            }
+        }.runTaskTimer(NikeySystem.getPlugin(), 0L, 10L);
     }
 }

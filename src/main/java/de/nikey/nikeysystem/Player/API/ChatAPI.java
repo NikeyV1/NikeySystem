@@ -1,11 +1,20 @@
 package de.nikey.nikeysystem.Player.API;
 
+import de.nikey.nikeysystem.Player.Distributor.ChatDistributor;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import java.io.*;
+import java.nio.channels.Channel;
+import java.util.Map;
+import java.util.UUID;
+
+import static de.nikey.nikeysystem.Player.Distributor.ChatDistributor.channels;
+import static de.nikey.nikeysystem.Player.Distributor.ChatDistributor.dataFile;
 
 public class ChatAPI {
 
@@ -83,6 +92,24 @@ public class ChatAPI {
                     player.sendActionBar(managementChannel.append(message));
                 }
             }
+        }
+    }
+
+    public static void saveChannels() {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(dataFile))) {
+            out.writeObject(channels);
+        } catch (IOException e) {
+            sendManagementMessage(Component.text("Failed to save channels: " + e.getMessage()), ManagementType.ERROR,true);
+        }
+    }
+
+    public static void loadChannels() {
+        if (!dataFile.exists()) return;
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(dataFile))) {
+            Map<UUID, ChatDistributor.Channel> loadedChannels = (Map<UUID, ChatDistributor.Channel>) in.readObject();
+            channels.putAll(loadedChannels);
+        } catch (IOException | ClassNotFoundException e) {
+            sendManagementMessage(Component.text("Failed to load channels: " + e.getMessage()), ManagementType.ERROR,true);
         }
     }
 
