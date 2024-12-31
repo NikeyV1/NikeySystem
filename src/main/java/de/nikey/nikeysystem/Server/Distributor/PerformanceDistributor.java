@@ -87,7 +87,6 @@ public class PerformanceDistributor {
 
                     bossBar.name(Component.text(String.format("TPS: %.2f  MSPT: %.2f  Ping: %dms", tps1, Bukkit.getAverageTickTime(), finalTarget.getPing())));
 
-                    // Farbe und Fortschritt der Bossbar basierend auf TPS/MSPT einstellen
                     if (tps1 >= 18) {
                         bossBar.color(BossBar.Color.GREEN);
                     } else if (tps1 >= 15) {
@@ -218,7 +217,6 @@ public class PerformanceDistributor {
 
             player.sendMessage(message);
 
-            // Speichern der Anfrage für diesen Spieler
             PerformanceAPI.killAllRequests.put(player.getUniqueId(), type);
             PerformanceAPI.killOneRequests.put(player.getUniqueId(), type);
         });
@@ -235,7 +233,6 @@ public class PerformanceDistributor {
         }
     }
 
-    // Farbgebung abhängig von der CPU-Auslastung
     private static NamedTextColor getCpuColor(double cpuLoad) {
         if (cpuLoad <= 0.5) {
             return NamedTextColor.GREEN;

@@ -108,6 +108,7 @@ public class ProfileDistributor {
 
                     } catch (IllegalStateException | IOException | NullPointerException exception) {
                         sender.sendMessage("§cFailed to reset skin Cause: "+ exception.getCause());
+                        return;
                     }
                     sender.sendMessage(Component.text("Reset ").color(TextColor.color(211, 102, 217)).append(Component.text(player.getName()+"'s").color(NamedTextColor.WHITE)).append(Component.text(" skin").color(TextColor.color(211, 102, 217))));
                 }
@@ -160,7 +161,6 @@ public class ProfileDistributor {
 
                     sender.displayName(name);
                     sender.playerListName(name);
-
 
                     sender.sendMessage(Component.text("Your name is now ").color(TextColor.color(211, 102, 217)).append(Component.text(newNickname).color(NamedTextColor.WHITE)));
                 }

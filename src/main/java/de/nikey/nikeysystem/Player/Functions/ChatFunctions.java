@@ -45,7 +45,6 @@ public class ChatFunctions implements Listener {
     @EventHandler(ignoreCancelled = true,priority = EventPriority.HIGH)
     public void onAsyncChat(AsyncChatEvent event) {
         Player player = event.getPlayer();
-
         if (MuteAPI.isMuted(player.getName())) {
             if (PermissionAPI.isSystemUser(player)) player.sendMessage("§cYou are muted and cannot chat");
             event.setCancelled(true);

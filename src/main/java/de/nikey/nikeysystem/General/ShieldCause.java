@@ -62,10 +62,6 @@ public enum ShieldCause {
      */
     UNMUTE,
     /**
-     * Toggle muting target isn't allowed
-     */
-    TOGGLE_MUTE,
-    /**
      * Toggle permission on target isn't allowed
      */
     TOGGLE_PERMISSION,

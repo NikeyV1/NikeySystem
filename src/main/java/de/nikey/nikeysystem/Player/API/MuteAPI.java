@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MuteAPI {
-    private static HashMap<String, Long> mutedPlayers = new HashMap<>();
+    private static final HashMap<String, Long> mutedPlayers = new HashMap<>();
 
     public static void add(String player, long endTime) {
         mutedPlayers.put(player, endTime);

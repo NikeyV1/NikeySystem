@@ -383,7 +383,6 @@ public class SystemCommandTabCompleter implements TabCompleter {
             if (args.length == 4) {
                 File worldContainer = Bukkit.getWorldContainer();
 
-                // Durchlaufen aller Verzeichnisse im world-Ordner
                 List<String> worlds = new ArrayList<>();
                 if (worldContainer.listFiles() == null)return Collections.emptyList();
 
