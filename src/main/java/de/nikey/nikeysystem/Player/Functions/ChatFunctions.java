@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Player.Functions;
 
+import de.nikey.nikeysystem.Player.Distributor.Channel;
 import de.nikey.nikeysystem.Player.Distributor.ChatDistributor;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
@@ -25,12 +26,11 @@ public class ChatFunctions implements Listener {
             return;
         }
 
-        ChatDistributor.Channel channel = channels.get(currentChannelId);
+        Channel channel = channels.get(currentChannelId);
         if (channel != null) {
             String message = event.message().toString();
-            channel.addMessage(message); // Nachricht im Channel speichern
+            channel.addMessage(player.getName() + ": " + message);
 
-            // Nachricht an alle Mitglieder des Channels senden
             for (UUID memberUUID : channel.getMembers()) {
                 Player member = Bukkit.getPlayer(memberUUID);
                 if (member != null) {

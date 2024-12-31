@@ -1,15 +1,13 @@
 package de.nikey.nikeysystem.Player.API;
 
-import de.nikey.nikeysystem.Player.Distributor.ChatDistributor;
+import de.nikey.nikeysystem.Player.Distributor.Channel;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.io.*;
-import java.nio.channels.Channel;
 import java.util.Map;
 import java.util.UUID;
 
@@ -106,8 +104,15 @@ public class ChatAPI {
     public static void loadChannels() {
         if (!dataFile.exists()) return;
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(dataFile))) {
-            Map<UUID, ChatDistributor.Channel> loadedChannels = (Map<UUID, ChatDistributor.Channel>) in.readObject();
-            channels.putAll(loadedChannels);
+            Object readObject = in.readObject();
+
+            if (readObject instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<UUID, Channel> loadedChannels = (Map<UUID, Channel>) readObject;
+                channels.putAll(loadedChannels);
+            } else {
+                sendManagementMessage(Component.text("Invalid data format in file load channels"), ManagementType.ERROR);
+            }
         } catch (IOException | ClassNotFoundException e) {
             sendManagementMessage(Component.text("Failed to load channels: " + e.getMessage()), ManagementType.ERROR,true);
         }

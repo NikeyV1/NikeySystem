@@ -8,14 +8,16 @@ public class Channel implements Serializable {
 
         private final UUID id;
         private final UUID owner;
+        private final String name;
         private final List<String> messages = new ArrayList<>();
         private final Set<UUID> members = new HashSet<>();  // Set of player UUIDs who are members of the channel
         private boolean isClosed = false; // Status des Channels (offen/geschlossen)
         private final Set<UUID> invitedPlayers = new HashSet<>(); // Spieler, die eingeladen wurden
 
-        public Channel(UUID id, UUID owner) {
+        public Channel(UUID id, UUID owner, String name) {
             this.id = id;
             this.owner = owner;
+            this.name = name;
         }
 
         public List<String> getMessages() {
@@ -37,6 +39,14 @@ public class Channel implements Serializable {
 
         public Set<UUID> getMembers() {
             return members;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public UUID getId() {
+            return id;
         }
 
         public boolean isClosed() {
