@@ -4,10 +4,8 @@ import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.LocationAPI;
 import de.nikey.nikeysystem.Player.API.MuteAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
-import de.nikey.nikeysystem.Server.API.LoggingAPI;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
+import de.nikey.nikeysystem.Player.API.Channel;
+import de.nikey.nikeysystem.Player.Distributor.ChatDistributor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -27,11 +25,9 @@ import static de.nikey.nikeysystem.Player.Distributor.ChatDistributor.channels;
 public class SystemCommandTabCompleter implements TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (!(sender instanceof Player)) {
+        if (!(sender instanceof Player player)) {
             return Collections.emptyList();
         }
-
-        Player player = (Player) sender;
 
         // Check if the player has permission to use the system commands
         if (!PermissionAPI.isSystemUser(player)) {
@@ -46,15 +42,14 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the second argument: system player or system server
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("player")) {
-                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "mute", "location","profile","sound","resourcepack","chat");
+                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "location","profile","sound","resourcepack","chat");
             } else if (args[0].equalsIgnoreCase("server")) {
                 return Arrays.asList("command", "settings","performance","world", "backup", "logging");
             } else if (args[0].equalsIgnoreCase("security")) {
-                return Arrays.asList("System-Shield");
+                return List.of("System-Shield");
             }
         }
 
-        // Handle the third argument for system player permissions
         if (args.length == 3 && args[1].equalsIgnoreCase("permissions")) {
             List<String> subCommands = new ArrayList<>(Arrays.asList("ToggleAdmin", "ToggleModerator", "List", "ListAll","TogglePermission"));
             if (!PermissionAPI.isOwner(player.getName())) {
@@ -145,7 +140,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 2 && args[0].equalsIgnoreCase("security")) {
-            return Arrays.asList("System-Shield");
+            return List.of("System-Shield");
         }
 
         // Handle the third argument: system security System-Shield
@@ -163,7 +158,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the fifth argument (Ask) for enable/disable commands
         if (PermissionAPI.isOwner(sender.getName()) &&args.length == 5 && args[1].equalsIgnoreCase("System-Shield") &&
                 (args[2].equalsIgnoreCase("enable") || args[2].equalsIgnoreCase("disable"))) {
-            return Arrays.asList("Ask");
+            return List.of("Ask");
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("command")) {
@@ -175,17 +170,16 @@ public class SystemCommandTabCompleter implements TabCompleter {
             if (args[2].equalsIgnoreCase("executeas")) {
                 return GeneralAPI.handlePlayerListing((Player) sender,args,3);
             } else if (args[2].equalsIgnoreCase("ToggleBlock")) {
-                return GeneralAPI.handleStringListing(Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList()),args[3]);
+                return GeneralAPI.handleStringListing(new ArrayList<>(Bukkit.getCommandMap().getKnownCommands().keySet()),args[3]);
             }else if (args[2].equalsIgnoreCase("execute")) {
-                return GeneralAPI.handleStringListing(Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList()),args[3]);
+                return GeneralAPI.handleStringListing(new ArrayList<>(Bukkit.getCommandMap().getKnownCommands().keySet()),args[3]);
             }else if (args[2].equalsIgnoreCase("BlockPlayer")) {
                 return GeneralAPI.handlePlayerListing((Player) sender,args,3);
             }
         }
 
-        // Handle the fifth argument (command for executeas) for executeas command
         if (args.length == 5 && args[2].equalsIgnoreCase("executeas")) {
-            return GeneralAPI.handleStringListing(Bukkit.getCommandMap().getKnownCommands().keySet().stream().collect(Collectors.toList()),args[4]);
+            return GeneralAPI.handleStringListing(new ArrayList<>(Bukkit.getCommandMap().getKnownCommands().keySet()),args[4]);
         }
 
         if (args.length == 5 && args[2].equalsIgnoreCase("BlockPlayer")) {
@@ -215,29 +209,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         // Handle the seventh argument: amplifier for give command
         if (args.length == 7 && args[2].equalsIgnoreCase("give")) {
-            return Arrays.asList("1", "2", "3", "4", "5"); // Suggest some common amplifier values
-        }
-
-        if (args.length >= 3 && args[1].equalsIgnoreCase("mute")) {
-            // Second argument (subcommands for mute)
-            if (args.length == 3) {
-                return Arrays.asList("mute", "unmute", "togglemute", "getMuted");
-            }
-
-            // Third argument (player name for mute commands)
-            if (args.length == 4 && (args[2].equalsIgnoreCase("mute") || args[2].equalsIgnoreCase("unmute") ||
-                    args[2].equalsIgnoreCase("togglemute"))) {
-                return GeneralAPI.handlePlayerListing((Player) sender,args,3);
-            }
-
-            if (args.length == 4 && args[2].equalsIgnoreCase("getMuted")) {
-                return GeneralAPI.handleStringListing(MuteAPI.getMutedPlayers().stream().toList(),args[3]);
-            }
-
-            // Fourth argument (mute duration in seconds for the mute command)
-            if (args.length == 5 && args[2].equalsIgnoreCase("mute")) {
-                return Collections.singletonList("60");
-            }
+            return Arrays.asList("1", "2", "3", "4", "5");
         }
 
         if (args.length >= 3 && args[1].equalsIgnoreCase("location")) {
@@ -261,7 +233,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 }
             }
             if (subCommand.equalsIgnoreCase("listGuard") && args.length == 4) {
-                return Arrays.asList("show");
+                return List.of("show");
             }
 
             // Tab-Complete für 'placeGuard': Erwarte einen Guard-Namen
@@ -328,9 +300,9 @@ public class SystemCommandTabCompleter implements TabCompleter {
             }else if (args.length == 6) {
                 return new ArrayList<>(Arrays.asList("stayinalive","ambient.cave"));
             }else if (args.length == 7) {
-                return new ArrayList<>(Arrays.asList("1.0"));
+                return new ArrayList<>(List.of("1.0"));
             }else if (args.length == 8) {
-                return new ArrayList<>(Arrays.asList("1.0"));
+                return new ArrayList<>(List.of("1.0"));
             }
         }
 
@@ -346,11 +318,11 @@ public class SystemCommandTabCompleter implements TabCompleter {
             }else if (args.length == 6) {
                 return new ArrayList<>(Arrays.asList("stayinalive","ambient.cave"));
             }else if (args.length == 7) {
-                return new ArrayList<>(Arrays.asList("1.0"));
+                return new ArrayList<>(List.of("1.0"));
             }else if (args.length == 8) {
-                return new ArrayList<>(Arrays.asList("1.0"));
+                return new ArrayList<>(List.of("1.0"));
             }else if (args.length == 9) {
-                return new ArrayList<>(Arrays.asList("273"));
+                return new ArrayList<>(List.of("273"));
             }
         }
 
@@ -361,9 +333,9 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         if (args[1].equalsIgnoreCase("ResourcePack") && args[2].equalsIgnoreCase("download")) {
             if (args.length == 5) {
-                return new ArrayList<>(Arrays.asList("uri"));
+                return new ArrayList<>(List.of("uri"));
             }else if (args.length == 6) {
-                return new ArrayList<>(Arrays.asList("hash"));
+                return new ArrayList<>(List.of("hash"));
             }
         }
 
@@ -383,9 +355,9 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         if (args[1].equalsIgnoreCase("world") && args[2].equalsIgnoreCase("create")) {
             if (args.length == 4) {
-                return new ArrayList<>(Arrays.asList("name"));
+                return new ArrayList<>(List.of("name"));
             }else if (args.length == 5) {
-                return new ArrayList<>(Arrays.asList("seed"));
+                return new ArrayList<>(List.of("seed"));
             }else if (args.length == 6) {
                 return GeneralAPI.handleStringListing(Arrays.stream(World.Environment.values()).map(World.Environment::name).collect(Collectors.toList()),args[5]);
             }else if (args.length == 7) {
@@ -413,7 +385,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
                 // Durchlaufen aller Verzeichnisse im world-Ordner
                 List<String> worlds = new ArrayList<>();
-                if (worldContainer.listFiles() == null)return null;
+                if (worldContainer.listFiles() == null)return Collections.emptyList();
 
                 if (!args[3].isEmpty()) {
                     for (File file : worldContainer.listFiles()) {
@@ -446,7 +418,11 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("backup")) {
-            return new ArrayList<>(Arrays.asList("list","create","delete","load","setautointerval","setdeletetime"));
+            if (PermissionAPI.isManagement(sender.getName())) {
+                return new ArrayList<>(Arrays.asList("list","create","delete","load","setautointerval","setdeletetime"));
+            }else {
+                return new ArrayList<>(Arrays.asList("list","create"));
+            }
         }
 
         if (args.length == 4 && args[1].equalsIgnoreCase("backup")) {
@@ -458,6 +434,11 @@ public class SystemCommandTabCompleter implements TabCompleter {
         if (args.length == 4) {
             if (args[2].equalsIgnoreCase("delete") || args[2].equalsIgnoreCase("load")) {
                 File[] backups = new File(NikeySystem.getPlugin().getDataFolder().getParentFile().getParent(), "Backups").listFiles();
+
+                if (backups == null) {
+                    return Collections.emptyList();
+                }
+
                 ArrayList<String> backupNames = new ArrayList<>();
                 if (!args[3].isEmpty()) {
                     for (File backup : backups) {
@@ -516,17 +497,58 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("chat")) {
-            return new ArrayList<>(Arrays.asList("channel"));
+            return new ArrayList<>(Arrays.asList("channel","mute"));
         }
 
-        if (args[2].equalsIgnoreCase("channel")) {
+        if (args[2].equalsIgnoreCase("channel") && args[1].equalsIgnoreCase("chat")) {
             if (args.length == 4) {
-                return Arrays.asList("create", "join", "leave", "list", "messages");
-            } else if (args.length == 5 && args[3].equalsIgnoreCase("join")) {
-                return GeneralAPI.handleStringListing(new ArrayList<>(channels.keySet().stream().map(UUID::toString).toList()),args[4]);
+                return Arrays.asList("create", "join", "leave", "list", "messages", "open", "close", "invite", "accept", "kick");
+            } else if (args.length == 5 && args[2].equalsIgnoreCase("channel")) {
+                String subCommand = args[3];
+                List<String> completions = new ArrayList<>();
+
+                if (subCommand.equalsIgnoreCase("join") || subCommand.equalsIgnoreCase("invite") || subCommand.equalsIgnoreCase("open") || subCommand.equalsIgnoreCase("close")) {
+                    ChatDistributor.channels.values().forEach(channel -> completions.add(channel.getId().toString()));
+                }
+
+                if (subCommand.equalsIgnoreCase("create")) {
+                    completions.add("<channelName>");
+                }
+
+                if (subCommand.equals("kick")) {
+                    UUID channelId = ChatDistributor.playerChannels.get(player.getUniqueId());
+                    if (channelId == null) {
+                        return Collections.emptyList();
+                    }
+
+                    Channel channel = channels.get(channelId);
+                    if (channel == null || !channel.getOwner().equals(player.getUniqueId())) {
+                        return Collections.emptyList();
+                    }
+
+                    completions.addAll(channel.getMembers().stream()
+                            .map(Bukkit::getOfflinePlayer)
+                            .map(OfflinePlayer::getName)
+                            .filter(Objects::nonNull) // Entferne potenzielle Nullwerte
+                            .sorted()
+                            .toList());
+                }
+
+                return GeneralAPI.handleStringListing(completions,args[4]);
+            } else if (args.length == 6 && args[3].equalsIgnoreCase("invite")) {
+                return GeneralAPI.handlePlayerListing((Player) sender,args,5);
             }
         }
 
+        if (args[1].equalsIgnoreCase("chat") && args[2].equalsIgnoreCase("mute")) {
+            if (args.length == 4) {
+                return Arrays.asList("mute", "unmute", "get");
+            } else if (args.length == 5) {
+                return GeneralAPI.handlePlayerListing((Player) sender,args,4);
+            } else if (args.length == 6 && args[3].equalsIgnoreCase("mute")) {
+                return Arrays.asList("1d","1w","30m","10h");
+            }
+        }
         return Collections.emptyList();
     }
 }

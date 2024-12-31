@@ -1,4 +1,4 @@
-package de.nikey.nikeysystem.Player.Distributor;
+package de.nikey.nikeysystem.Player.API;
 
 import java.io.Serializable;
 import java.util.*;

@@ -1,6 +1,5 @@
 package de.nikey.nikeysystem.Player.API;
 
-import de.nikey.nikeysystem.Player.Distributor.Channel;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;

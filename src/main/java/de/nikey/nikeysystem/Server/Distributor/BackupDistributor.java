@@ -2,6 +2,7 @@ package de.nikey.nikeysystem.Server.Distributor;
 
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.ChatAPI;
+import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
@@ -29,7 +30,6 @@ import static org.bukkit.Bukkit.getServer;
 public class BackupDistributor {
 
     private static final File backupFolder = new File(NikeySystem.getPlugin().getDataFolder().getParentFile().getParent(), "Backups");
-    private static int autoBackupTaskId = -1;
 
     public static void manageBackup(Player sender, String[] args) {
         String cmd = args[3];
@@ -58,13 +58,16 @@ public class BackupDistributor {
             if (args.length < 5) {
                 return;
             }
+            if (!PermissionAPI.isManagement(sender.getName())) return;
             deleteBackup(sender, args[4]);
         }else if (cmd.equalsIgnoreCase("load")) {
             if (args.length < 5) {
                 return;
             }
-            loadBackup(sender, args[4]);
+            if (!PermissionAPI.isManagement(sender.getName())) return;
+            sender.sendMessage(Component.text("Loading backups is currently not available").color(NamedTextColor.RED));
         }else if (cmd.equalsIgnoreCase("setautointerval")) {
+            if (!PermissionAPI.isManagement(sender.getName())) return;
             if (args.length < 5) {
                 String time = formatTime(NikeySystem.getPlugin().getConfig().getLong("settings.backup_interval"));
                 if (time.isEmpty()) {
@@ -88,6 +91,7 @@ public class BackupDistributor {
                 sender.sendMessage("§cError: " + e.getMessage());
             }
         }else if (cmd.equalsIgnoreCase("setdeletetime")) {
+            if (!PermissionAPI.isManagement(sender.getName())) return;
             if (args.length < 5) {
                 String time = formatTime(NikeySystem.getPlugin().getConfig().getLong("backup.auto_delete_interval"));
                 if (time.isEmpty()) {

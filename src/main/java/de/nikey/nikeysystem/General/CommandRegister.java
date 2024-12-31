@@ -38,9 +38,6 @@ public class CommandRegister implements Listener {
                     }else if (args[2].equalsIgnoreCase("effect")) {
                         EffectDistributor.effectDistributor(player,args);
                         event.setCancelled(true);
-                    }else if (args[2].equalsIgnoreCase("mute")) {
-                        MuteDistributer.muteManager(player,args);
-                        event.setCancelled(true);
                     }else if (args[2].equalsIgnoreCase("location")) {
                         LocationDistributer.locationManager(player,args);
                         event.setCancelled(true);
@@ -56,17 +53,16 @@ public class CommandRegister implements Listener {
                     } else if (args[2].equalsIgnoreCase("chat")) {
                         ChatDistributor.manageChat(player,args);
                         event.setCancelled(true);
-                    } else if (args[2].equalsIgnoreCase("help")) {
-                        player.sendMessage("§7The path 'System/Player' has following sub-paths: §fhide, permissions, stats ");
-                        event.setCancelled(true);
                     }
                 }else if (args[1].equalsIgnoreCase("server")) {
                     if (args[2].equalsIgnoreCase("command")) {
                         CommandDistributor.commandDistributor(player,args);
                         event.setCancelled(true);
                     }else if (args[2].equalsIgnoreCase("settings")) {
-                        SettingsDistributor.settingsDistributor(player,args);
-                        event.setCancelled(true);
+                        if (PermissionAPI.isManagement(player.getName())) {
+                            SettingsDistributor.settingsDistributor(player,args);
+                            event.setCancelled(true);
+                        }
                     }else if (args[2].equalsIgnoreCase("Performance")) {
                         PerformanceDistributor.performanceManager(player,args);
                         event.setCancelled(true);

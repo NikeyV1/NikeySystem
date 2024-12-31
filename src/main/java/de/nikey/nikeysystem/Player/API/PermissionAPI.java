@@ -104,4 +104,8 @@ public class PermissionAPI {
             return false;
         }
     }
+
+    public static boolean isManagement(String player) {
+        return isAdmin(player) || isOwner(player);
+    }
 }

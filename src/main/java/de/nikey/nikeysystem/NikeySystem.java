@@ -43,10 +43,7 @@ import java.util.logging.Logger;
 
 public final class NikeySystem extends JavaPlugin {
 
-
     private static NikeySystem plugin;
-    private PrintStream originalOut;
-
 
     @Override
     public void onEnable() {
@@ -74,7 +71,6 @@ public final class NikeySystem extends JavaPlugin {
         manager.registerEvents(new InventoryFunctions(), this);
         manager.registerEvents(new HideSettings(),this);
         manager.registerEvents(new SettingsFunctions(),this);
-        manager.registerEvents(new MuteFunctions(),this);
         manager.registerEvents(new LocationFunctions(),this);
         manager.registerEvents(new PerformanceFunctions(),this);
         manager.registerEvents(new InventorySettings(),this);
