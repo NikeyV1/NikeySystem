@@ -81,6 +81,7 @@ public final class NikeySystem extends JavaPlugin {
         manager.registerEvents(new LoggingFunctions(),this);
         manager.registerEvents(new LoggingSettings(),this);
         manager.registerEvents(new ChatFunctions(), this);
+        manager.registerEvents(new ModerationFunctions(), this);
 
         getCommand("system").setTabCompleter(new SystemCommandTabCompleter());
 
@@ -99,8 +100,6 @@ public final class NikeySystem extends JavaPlugin {
         LoggingAPI.saveLogs();
         ChatAPI.saveChannels();
     }
-
-
 
     public static NikeySystem getPlugin() {
         return plugin;

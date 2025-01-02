@@ -1,10 +1,52 @@
 package de.nikey.nikeysystem.Player.API;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ModerationAPI {
+
+    private static final Set<UUID> frozenPlayers = new HashSet<>();
+
+    public static boolean isFrozen(UUID uuid) {
+        return frozenPlayers.contains(uuid);
+    }
+
+    public static void freezePlayer(UUID uuid) {
+        frozenPlayers.add(uuid);
+    }
+
+    public static void unfreezePlayer(UUID uuid) {
+        frozenPlayers.remove(uuid);
+    }
+
+    public static int parseTime(String input) throws IllegalArgumentException {
+        if (input == null || input.isEmpty()) {
+            throw new IllegalArgumentException("Time input cannot be null or empty");
+        }
+
+        // RegEx: Zahlen gefolgt von einem optionalen Suffix (s, m, h, d, w, M)
+        Pattern pattern = Pattern.compile("^(\\d+)([smhdwM]?)$");
+        Matcher matcher = pattern.matcher(input);
+
+        if (!matcher.matches()) {
+            throw new IllegalArgumentException("Invalid time format. Use a number followed by s, m, h, d, w, or M");
+        }
+
+        int value = Integer.parseInt(matcher.group(1));
+        String unit = matcher.group(2);
+
+        return switch (unit) {
+            case "s" -> value; // Sekunden
+            case "m" -> value * 60; // Minuten
+            case "h" -> value * 60 * 60; // Stunden
+            case "d" -> value * 24 * 60 * 60; // Tage
+            case "w" -> value * 7 * 24 * 60 * 60; // Wochen
+            case "M" -> value * 30 * 24 * 60 * 60; // Monate (Durchschnitt von 30 Tagen pro Monat)
+            default -> value; // Kein Suffix = Sekunden
+        };
+    }
 
     public static Duration parseDuration(String input) {
         Map<Character, Long> timeUnits = new HashMap<>();

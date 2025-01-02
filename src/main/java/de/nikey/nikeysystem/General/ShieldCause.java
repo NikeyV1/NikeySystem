@@ -120,5 +120,22 @@ public enum ShieldCause {
     /**
      * Toggling hide immunity for a disallowed target
      */
-    HIDE_IMMUNITY
+    HIDE_IMMUNITY,
+    /**
+     * Enabling freeze for a disallowed target
+     */
+    MODERATION_FREEZE,
+    /**
+     * Disabling freeze for a disallowed target
+     */
+    MODERATION_UNFREEZE,
+    /**
+     * Temp banning a target
+     */
+    MODERATION_TEMPBAN,
+    /**
+     * Banning a target
+     */
+    MODERATION_BAN,
+
 }

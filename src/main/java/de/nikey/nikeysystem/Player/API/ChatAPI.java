@@ -44,7 +44,7 @@ public class ChatAPI {
 
         if (useCustomColor) {
             for (Player player : Bukkit.getOnlinePlayers()) {
-                if (PermissionAPI.isAdmin(player.getName()) || PermissionAPI.isOwner(player.getName())) {
+                if (PermissionAPI.isManagement(player.getName())) {
                     player.sendMessage(managementChannel.append(message));
                 }
             }
