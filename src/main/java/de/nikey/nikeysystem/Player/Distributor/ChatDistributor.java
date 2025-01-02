@@ -121,7 +121,6 @@ public class ChatDistributor {
                         }
                     }
                 }
-
             } else if (subCommand.equalsIgnoreCase("messages")) {
                 UUID currentChannelId = playerChannels.get(sender.getUniqueId());
                 if (currentChannelId == null) {
@@ -305,6 +304,34 @@ public class ChatDistributor {
                 if (target == null)return;
                 target.sendMessage(Component.text("You have been kicked from the channel: ").color(NamedTextColor.RED)
                         .append(Component.text(channel.getName()).color(NamedTextColor.GRAY)));
+            } else if (subCommand.equalsIgnoreCase("delete")) {
+                if (!playerChannels.containsKey(sender.getUniqueId())) {
+                    sender.sendMessage(Component.text("You are not in a channel").color(NamedTextColor.RED));
+                    return;
+                }
+
+                UUID channelId = playerChannels.get(sender.getUniqueId());
+                Channel channel = channels.get(channelId);
+
+                if (channel == null) {
+                    sender.sendMessage(Component.text("Channel not found or doesn't exist anymore").color(NamedTextColor.RED));
+                    return;
+                }
+
+                if (!channel.getOwner().equals(sender.getUniqueId())) {
+                    sender.sendMessage(Component.text("You are not the owner of this channel").color(NamedTextColor.RED));
+                    return;
+                }
+
+                for (UUID member : channel.getMembers()) {
+                    playerChannels.remove(member);
+                }
+                channels.remove(channelId);
+
+                sender.sendMessage(Component.text("Channel ").color(channelsColor)
+                        .append(Component.text(channel.getName()).color(NamedTextColor.WHITE))
+                        .append(Component.text(" has been ").color(channelsColor))
+                        .append(Component.text("deleted").color(NamedTextColor.RED)));
             }
         } else if (cmd.equalsIgnoreCase("mute")) {
             String subCommand = args[4];
@@ -401,7 +428,6 @@ public class ChatDistributor {
                             playerList = playerList.append(playerEntry).append(Component.newline());
                         }
                     }
-
                     sender.sendMessage(listHeader.append(Component.newline()).append(playerList));
                 }
             }

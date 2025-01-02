@@ -34,7 +34,7 @@ public class ChatFunctions implements Listener {
             for (UUID memberUUID : channel.getMembers()) {
                 Player member = Bukkit.getPlayer(memberUUID);
                 if (member != null) {
-                    member.sendMessage(Component.text(player.getName() + ": " + message).color(NamedTextColor.WHITE));
+                    member.sendMessage(channel.getPrefix().append(Component.text(player.getName() + ": " + message).color(NamedTextColor.WHITE)));
                 }
             }
 

@@ -1,10 +1,13 @@
 package de.nikey.nikeysystem.Player.API;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+
 import java.io.Serializable;
 import java.util.*;
 
 public class Channel implements Serializable {
-        private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
         private final UUID id;
         private final UUID owner;
@@ -18,6 +21,11 @@ public class Channel implements Serializable {
             this.id = id;
             this.owner = owner;
             this.name = name;
+        }
+
+        public Component getPrefix() {
+            String cap = name.substring(0, 1).toUpperCase() + name.substring(1);
+            return Component.text("[" + cap + "] ").color(TextColor.color(241, 183, 84));
         }
 
         public List<String> getMessages() {
