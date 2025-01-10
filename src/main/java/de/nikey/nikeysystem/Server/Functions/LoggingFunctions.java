@@ -53,6 +53,7 @@ public class LoggingFunctions implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBucketEmptied(PlayerBucketEmptyEvent event){
+        if (!NikeySystem.getPlugin().getConfig().getBoolean("logging.settings.water"))return;
         Bukkit.getScheduler().scheduleSyncDelayedTask(NikeySystem.getPlugin(), () -> {
             logBlockChange(LoggingAPI.LoggingType.EMPTY_BUCKET,event.getPlayer().getName(),event.getBlock().getLocation(), event.getBlock().getType());
         });
@@ -60,6 +61,7 @@ public class LoggingFunctions implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onBucketFilled(PlayerBucketFillEvent event){
+        if (!NikeySystem.getPlugin().getConfig().getBoolean("logging.settings.water"))return;
         logBlockChange(LoggingAPI.LoggingType.FILL_BUCKET,event.getPlayer().getName(),event.getBlock().getLocation(), event.getBlock().getType());
     }
 
