@@ -34,6 +34,7 @@ public class LoggingSettings implements Listener {
         ItemStack option1 = new ItemStack(Material.REDSTONE_TORCH);
         ItemStack option2 = new ItemStack(Material.CHEST);
         ItemStack option3 = new ItemStack(Material.TNT);
+        ItemStack option4 = new ItemStack(Material.WATER_BUCKET);
 
         ItemMeta itemMeta = option1.getItemMeta();
         itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
@@ -48,13 +49,19 @@ public class LoggingSettings implements Listener {
         itemMeta2.displayName(Component.text("Toggle Explosion Logging").color(NamedTextColor.DARK_AQUA));
         option3.setItemMeta(itemMeta2);
 
+        ItemMeta itemMeta3 = option4.getItemMeta();
+        itemMeta3.displayName(Component.text("Toggle Water Logging").color(NamedTextColor.DARK_AQUA));
+        option4.setItemMeta(itemMeta3);
+
         updateItemLore(option1, !NikeySystem.getPlugin().getConfig().getBoolean("logging.settings.disabled"));
         updateItemLore(option2,NikeySystem.getPlugin().getConfig().getBoolean("logging.settings.inventory"));
         updateItemLore(option3,NikeySystem.getPlugin().getConfig().getBoolean("logging.settings.explosion"));
+        updateItemLore(option4,NikeySystem.getPlugin().getConfig().getBoolean("logging.settings.water"));
 
         inventory.setItem(0,option1);
         inventory.setItem(2,option2);
         inventory.setItem(4,option3);
+        inventory.setItem(6,option4);
 
         player.openInventory(inventory);
     }
@@ -110,6 +117,15 @@ public class LoggingSettings implements Listener {
                 NikeySystem.getPlugin().saveConfig();
             }
             updateItemLore(clickedItem,config.getBoolean("logging.settings.explosion"));
+        }else if (type = Material.WATER_BUCKET) {
+            if (config.getBoolean("logging.settings.water")) {
+                config.set("logging.settings.water",false);
+                NikeySystem.getPlugin().saveConfig();
+            }else {
+                config.set("logging.settings.water",true);
+                NikeySystem.getPlugin().saveConfig();
+            }
+            updateItemLore(clickedItem,config.getBoolean("logging.settings.water"));
         }
     }
     private boolean isListenerRegistered(Listener listener) {
