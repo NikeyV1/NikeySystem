@@ -1,18 +1,11 @@
 package de.nikey.nikeysystem.Player.Functions;
 
-import com.destroystokyo.paper.event.player.PlayerArmorChangeEvent;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.ChatAPI;
 import de.nikey.nikeysystem.Player.API.InventoryAPI;
-import de.nikey.nikeysystem.Player.API.PermissionAPI;
-import de.nikey.nikeysystem.Player.Distributor.InventoryDistributor;
-import io.papermc.paper.event.player.PlayerInventorySlotChangeEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,17 +13,18 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.inventory.InventoryEvent;
-import org.bukkit.event.player.*;
-import org.bukkit.inventory.*;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import java.io.IOException;
 import java.util.UUID;
 
 import static de.nikey.nikeysystem.Player.API.InventoryAPI.*;
 import static de.nikey.nikeysystem.Player.Distributor.InventoryDistributor.openEditors;
-import static de.nikey.nikeysystem.Player.Distributor.InventoryDistributor.updatePlayerInventory;
 
 public class InventoryFunctions implements Listener {
 

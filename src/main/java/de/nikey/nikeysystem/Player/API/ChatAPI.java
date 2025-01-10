@@ -1,17 +1,21 @@
 package de.nikey.nikeysystem.Player.API;
 
+import de.nikey.nikeysystem.NikeySystem;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.*;
 import java.util.Map;
 import java.util.UUID;
 
-import static de.nikey.nikeysystem.Player.Distributor.ChatDistributor.channels;
-import static de.nikey.nikeysystem.Player.Distributor.ChatDistributor.dataFile;
+import static de.nikey.nikeysystem.Player.Distributor.ChatDistributor.*;
 
 public class ChatAPI {
 
@@ -92,28 +96,55 @@ public class ChatAPI {
         }
     }
 
-    public static void saveChannels() {
-        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(dataFile))) {
-            out.writeObject(channels);
-        } catch (IOException e) {
-            sendManagementMessage(Component.text("Failed to save channels: " + e.getMessage()), ManagementType.ERROR,true);
+    public static void loadChannels() {
+        File channelsFile = new File(NikeySystem.getPlugin().getDataFolder(), "channels.yml");
+
+        if (!channelsFile.exists()) return;
+
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(channelsFile);
+        channels.clear();
+
+        for (String key : config.getKeys(false)) {
+            try {
+                UUID uuid = UUID.fromString(key);
+                Map<String, Object> serializedData = config.getConfigurationSection(key).getValues(false);
+                Channel channel = Channel.deserialize(serializedData);
+                channels.put(uuid, channel);
+                for (UUID id : channel.getMembers()) {
+                    playerChannels.put(id,channel.getId());
+                }
+            } catch (IllegalArgumentException e) {
+                sendManagementMessage(Component.text("Failed to save channels: " + e.getMessage()), ManagementType.ERROR, true);
+            }
         }
     }
 
-    public static void loadChannels() {
-        if (!dataFile.exists()) return;
-        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(dataFile))) {
-            Object readObject = in.readObject();
 
-            if (readObject instanceof Map) {
-                @SuppressWarnings("unchecked")
-                Map<UUID, Channel> loadedChannels = (Map<UUID, Channel>) readObject;
-                channels.putAll(loadedChannels);
-            } else {
-                sendManagementMessage(Component.text("Invalid data format in file load channels"), ManagementType.ERROR);
-            }
-        } catch (IOException | ClassNotFoundException e) {
-            sendManagementMessage(Component.text("Failed to load channels: " + e.getMessage()), ManagementType.ERROR,true);
+
+
+    public static void saveChannels() {
+
+        File channelsFile = new File(NikeySystem.getPlugin().getDataFolder(), "channels.yml");
+
+        if (!channelsFile.exists()) {
+            try {
+                channelsFile.createNewFile();
+            } catch (IOException ignored) {}
+        }
+
+        YamlConfiguration config = new YamlConfiguration();
+
+        // Map serialisieren
+        for (Map.Entry<UUID, Channel> entry : channels.entrySet()) {
+            String key = entry.getKey().toString();
+            Channel channel = entry.getValue();
+            config.set(key, channel.serialize());
+        }
+
+        try {
+            config.save(channelsFile);
+        } catch (IOException e) {
+            sendManagementMessage(Component.text("Failed to load channels: " + e.getMessage()), ManagementType.ERROR, true);
         }
     }
 

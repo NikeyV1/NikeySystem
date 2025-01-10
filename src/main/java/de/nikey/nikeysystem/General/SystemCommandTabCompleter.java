@@ -222,14 +222,12 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
             // Tab-Complete für 'getLocation', 'tp', 'lastseen', 'removeGuard'
             if (args.length == 4) {
-                if (subCommand.equalsIgnoreCase("getlocation") || subCommand.equalsIgnoreCase("tp")) {
+                if (subCommand.equalsIgnoreCase("getlocation") || subCommand.equalsIgnoreCase("tp") || subCommand.equalsIgnoreCase("lastseen")) {
                     // Liste der online Spieler für getLocation, tp, lastseen
                     return GeneralAPI.handlePlayerListing((Player) sender,args,3);
                 } else if (subCommand.equals("removeguard") || subCommand.equalsIgnoreCase("settings")) {
                     // Liste der Guards für removeGuard
                     return new ArrayList<>(LocationAPI.guardLocations.keySet());
-                } else if (subCommand.equalsIgnoreCase("lastseen")) {
-                    return GeneralAPI.handleStringListing(Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList()),args[3]);
                 }
             }
             if (subCommand.equalsIgnoreCase("listGuard") && args.length == 4) {
@@ -418,9 +416,9 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         if (args.length == 3 && args[1].equalsIgnoreCase("backup")) {
             if (PermissionAPI.isManagement(sender.getName())) {
-                return new ArrayList<>(Arrays.asList("list","create","delete","load","setautointerval","setdeletetime"));
+                return new ArrayList<>(Arrays.asList("list","create","delete","load","setautointerval","setdeletetime" , "settings"));
             }else {
-                return new ArrayList<>(Arrays.asList("list","create"));
+                return new ArrayList<>(Arrays.asList("list","create", "settings"));
             }
         }
 
@@ -430,7 +428,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
             }
         }
 
-        if (args.length == 4) {
+        if (args.length == 4 && args[1].equalsIgnoreCase("backup")) {
             if (args[2].equalsIgnoreCase("delete") || args[2].equalsIgnoreCase("load")) {
                 File[] backups = new File(NikeySystem.getPlugin().getDataFolder().getParentFile().getParent(), "Backups").listFiles();
 
@@ -455,6 +453,12 @@ public class SystemCommandTabCompleter implements TabCompleter {
             }
 
             if (args[2].equalsIgnoreCase("setautointerval") || args[2].equalsIgnoreCase("setdeletetime")) {
+                return Arrays.asList("1d","1w","30m","10h");
+            }
+        }
+
+        if (args.length == 5 && args[1].equalsIgnoreCase("backup")) {
+            if (args[2].equalsIgnoreCase("setdeletetime")) {
                 return Arrays.asList("1d","1w","30m","10h");
             }
         }
@@ -501,7 +505,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         if (args[2].equalsIgnoreCase("channel") && args[1].equalsIgnoreCase("chat")) {
             if (args.length == 4) {
-                return Arrays.asList("create", "join", "leave", "list", "messages", "open", "close", "invite", "accept", "kick");
+                return Arrays.asList("create", "join", "leave", "list", "messages", "open", "close", "invite", "delete", "kick");
             } else if (args.length == 5 && args[2].equalsIgnoreCase("channel")) {
                 String subCommand = args[3];
                 List<String> completions = new ArrayList<>();

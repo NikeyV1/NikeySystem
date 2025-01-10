@@ -117,7 +117,7 @@ public class LoggingSettings implements Listener {
                 NikeySystem.getPlugin().saveConfig();
             }
             updateItemLore(clickedItem,config.getBoolean("logging.settings.explosion"));
-        }else if (type = Material.WATER_BUCKET) {
+        }else if (type == Material.WATER_BUCKET) {
             if (config.getBoolean("logging.settings.water")) {
                 config.set("logging.settings.water",false);
                 NikeySystem.getPlugin().saveConfig();

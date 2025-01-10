@@ -294,15 +294,10 @@ public class InventoryDistributor implements Listener {
     }
 
     public static void updateInventory(Inventory inventory, Player target) {
-        // Helmet
         inventory.setItem(0, target.getInventory().getHelmet() != null ? target.getInventory().getHelmet() : new ItemStack(Material.AIR));
-        // Chestplate
         inventory.setItem(1, target.getInventory().getChestplate() != null ? target.getInventory().getChestplate() : new ItemStack(Material.AIR));
-        // Leggings
         inventory.setItem(2, target.getInventory().getLeggings() != null ? target.getInventory().getLeggings() : new ItemStack(Material.AIR));
-        // Boots
         inventory.setItem(3, target.getInventory().getBoots() != null ? target.getInventory().getBoots() : new ItemStack(Material.AIR));
-        // Offhand
         inventory.setItem(8, target.getInventory().getItemInOffHand());
     }
 

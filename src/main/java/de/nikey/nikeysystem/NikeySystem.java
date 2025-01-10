@@ -1,13 +1,13 @@
 package de.nikey.nikeysystem;
 
+import de.nikey.nikeysystem.General.CommandRegister;
 import de.nikey.nikeysystem.General.SystemCommandTabCompleter;
 import de.nikey.nikeysystem.Player.API.ChatAPI;
 import de.nikey.nikeysystem.Player.API.InventoryAPI;
 import de.nikey.nikeysystem.Player.API.MuteAPI;
-import de.nikey.nikeysystem.Player.Distributor.PermissionDistributor;
 import de.nikey.nikeysystem.Player.Distributor.HideDistributor;
+import de.nikey.nikeysystem.Player.Distributor.PermissionDistributor;
 import de.nikey.nikeysystem.Player.Functions.*;
-import de.nikey.nikeysystem.General.CommandRegister;
 import de.nikey.nikeysystem.Player.Settings.HideSettings;
 import de.nikey.nikeysystem.Player.Settings.InventorySettings;
 import de.nikey.nikeysystem.Player.Settings.LocationSettings;
@@ -18,28 +18,15 @@ import de.nikey.nikeysystem.Server.API.WorldAPI;
 import de.nikey.nikeysystem.Server.Distributor.BackupDistributor;
 import de.nikey.nikeysystem.Server.Distributor.CommandDistributor;
 import de.nikey.nikeysystem.Server.Functions.*;
+import de.nikey.nikeysystem.Server.Settings.BackupSettings;
 import de.nikey.nikeysystem.Server.Settings.LoggingSettings;
 import de.nikey.nikeysystem.Server.Settings.ServerSettings;
 import de.nikey.nikeysystem.Server.Settings.WorldSettings;
-import io.papermc.paper.plugin.bootstrap.BootstrapContext;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.spi.ExtendedLogger;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.module.Configuration;
-import java.nio.file.Path;
-import java.util.UUID;
-import java.util.logging.Logger;
 
 public final class NikeySystem extends JavaPlugin {
 
@@ -82,6 +69,7 @@ public final class NikeySystem extends JavaPlugin {
         manager.registerEvents(new LoggingSettings(),this);
         manager.registerEvents(new ChatFunctions(), this);
         manager.registerEvents(new ModerationFunctions(), this);
+        manager.registerEvents(new BackupSettings(), this);
 
         getCommand("system").setTabCompleter(new SystemCommandTabCompleter());
 

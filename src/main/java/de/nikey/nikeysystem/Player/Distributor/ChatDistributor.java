@@ -26,7 +26,7 @@ public class ChatDistributor {
 
     public static final Map<UUID, Channel> channels = new HashMap<>();
     public static final Map<UUID, UUID> playerChannels = new HashMap<>();
-    public static final File dataFile = new File(NikeySystem.getPlugin().getDataFolder(), "channels.dat");
+    public static final File dataFile = new File(NikeySystem.getPlugin().getDataFolder(), "channels.yml");
     private static final TextColor channelsColor = TextColor.color(38, 182, 120);
     private static final TextColor muteColor = TextColor.color(29, 192, 240);
 
@@ -49,13 +49,30 @@ public class ChatDistributor {
                     sender.sendMessage(Component.text("You aren't allowed to name your channel after system channels").color(NamedTextColor.RED));
                     return;
                 }
-                Channel newChannel = new Channel(channelId, sender.getUniqueId(), args[5]);
+
+                UUID playerId = sender.getUniqueId();
+                if (playerChannels.containsKey(playerId)) {
+                    UUID currentChannelId = playerChannels.get(playerId);
+                    Channel currentChannel = channels.get(currentChannelId);
+                    if (currentChannel != null) {
+                        currentChannel.removeMember(playerId);
+                        currentChannel.sendMessage(Component.text(sender.getName() + " left the channel"));
+                    }
+                    playerChannels.remove(playerId);
+                    sender.sendMessage(Component.text("You left your previous channel.").color(NamedTextColor.YELLOW));
+                }
+
+                Channel newChannel = new Channel(channelId, args[5], playerId,false,null,null);
+                newChannel.addMember(playerId);
                 channels.put(channelId, newChannel);
-                playerChannels.put(sender.getUniqueId(), channelId);
+
+
+                playerChannels.put(playerId, channelId);
                 sender.sendMessage(Component.text("Channel ").color(TextColor.color(channelsColor))
                         .append(Component.text("'"+args[5]+"'").color(NamedTextColor.GRAY))
                         .append(Component.text(" created with ID: ").color(channelsColor))
                         .append(Component.text(channelId.toString()).color(NamedTextColor.WHITE)));
+                newChannel.sendMessage(Component.text(sender.getName() + " joined the channel"));
 
             } else if (subCommand.equalsIgnoreCase("join")) {
                 if (args.length < 6) {
@@ -84,6 +101,7 @@ public class ChatDistributor {
 
                     joinChannel.addMember(sender.getUniqueId());
                     playerChannels.put(sender.getUniqueId(), joinChannelId);
+                    joinChannel.sendMessage(Component.text(sender.getName() + " joined the channel"));
                     sender.sendMessage(Component.text("Joined channel: " + joinChannel.getName()).color(channelsColor));
                 } catch (IllegalArgumentException e) {
                     sender.sendMessage(Component.text("Invalid channel ID.").color(TextColor.color(255, 0, 0)));
@@ -99,7 +117,8 @@ public class ChatDistributor {
                 Channel leaveChannel = channels.get(leaveChannelId);
                 if (leaveChannel != null) {
                     leaveChannel.removeMember(sender.getUniqueId());
-                    sender.sendMessage(Component.text("Left ").color(NamedTextColor.YELLOW)
+                    leaveChannel.sendMessage(Component.text(sender.getName() + " left the channel"));
+                    sender.sendMessage(Component.text("Left ").color(NamedTextColor.RED)
                             .append(Component.text("channel: ").color(channelsColor))
                             .append(Component.text(leaveChannel.getName()).color(NamedTextColor.WHITE)));
                 }
@@ -154,7 +173,7 @@ public class ChatDistributor {
                     return;
                 }
 
-                if (channel.getOwner() != sender.getUniqueId()) {
+                if (!channel.getOwner().equals(sender.getUniqueId())) {
                     sender.sendMessage(Component.text("You are not the owner of this channel").color(NamedTextColor.RED));
                     return;
                 }
@@ -191,7 +210,7 @@ public class ChatDistributor {
                     return;
                 }
 
-                if (channel.getOwner() != sender.getUniqueId()) {
+                if (!channel.getOwner().equals(sender.getUniqueId())) {
                     sender.sendMessage(Component.text("You are not the owner of this channel").color(NamedTextColor.RED));
                     return;
                 }
@@ -212,6 +231,7 @@ public class ChatDistributor {
                                     .append(Component.text(channel.getName()).color(NamedTextColor.WHITE))
                                     .append(Component.text(" (" + channel.getId() + ")").color(NamedTextColor.GRAY))
                                     .append(Component.text(". "))
+                                    .append(Component.newline())
                                     .append(Component.text("[Click here to join]")
                                             .color(NamedTextColor.GREEN)
                                             .decorate(TextDecoration.BOLD)
@@ -224,7 +244,7 @@ public class ChatDistributor {
                             .append(Component.text(" to "))
                             .append(Component.text(channel.getName()).color(NamedTextColor.WHITE)));
                 } else {
-                    sender.sendMessage("§cThis channel is open. No need for invitations.");
+                    sender.sendMessage("§cThis channel is open. No need for invitations");
                 }
             } else if (subCommand.equalsIgnoreCase("accept")) {
                 if (args.length != 6) {
@@ -250,6 +270,8 @@ public class ChatDistributor {
                     playerChannels.put(sender.getUniqueId(), channelId);
 
                     channel.getInvitedPlayers().remove(sender.getUniqueId());
+
+                    channel.sendMessage(Component.text(sender.getName() + " joined the channel"));
 
                     sender.sendMessage(Component.text("You joined the channel: ").color(channelsColor)
                             .append(Component.text(channel.getName()).color(NamedTextColor.WHITE)));
@@ -293,12 +315,13 @@ public class ChatDistributor {
                 }
 
                 channel.removeMember(targetPlayerId);
+                channel.sendMessage(Component.text(sender.getName() + " left the channel"));
                 playerChannels.remove(targetPlayerId);
 
-                sender.sendMessage(Component.text("You ").color(channelsColor)
+                sender.sendMessage(Component.text("You").color(channelsColor)
                         .append(Component.text(" kicked ").color(NamedTextColor.RED))
                         .append(Component.text(args[5]).color(NamedTextColor.GRAY))
-                        .append(Component.text(" from the channel").color(NamedTextColor.RED)));
+                        .append(Component.text(" from the channel").color(channelsColor)));
 
                 Player target = Bukkit.getPlayer(targetPlayerId);
                 if (target == null)return;
@@ -392,7 +415,7 @@ public class ChatDistributor {
                             sender.sendMessage(Component.text(player.getName()).color(NamedTextColor.WHITE)
                                     .append(Component.text(" is currently ").color(muteColor))
                                     .append(Component.text("muted ").color(NamedTextColor.RED))
-                                    .append(Component.text("for: ").color(TextColor.color(192, 192, 192)))
+                                    .append(Component.text("for: ").color(muteColor))
                                     .append(Component.text(time).color(NamedTextColor.DARK_GRAY)));
                         }
                     } else {
@@ -425,7 +448,7 @@ public class ChatDistributor {
                                         .append(Component.text(time).color(NamedTextColor.DARK_GRAY));
                             }
 
-                            playerList = playerList.append(playerEntry).append(Component.newline());
+                            playerList = playerList.append(playerEntry.decoration(TextDecoration.BOLD,false)).append(Component.newline());
                         }
                     }
                     sender.sendMessage(listHeader.append(Component.newline()).append(playerList));

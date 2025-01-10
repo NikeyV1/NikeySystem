@@ -6,6 +6,7 @@ import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,7 +19,7 @@ import static de.nikey.nikeysystem.Player.Distributor.ChatDistributor.channels;
 import static de.nikey.nikeysystem.Player.Distributor.ChatDistributor.playerChannels;
 
 public class ChatFunctions implements Listener {
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerChatInChannel(AsyncChatEvent event) {
         Player player = event.getPlayer();
         UUID playerUUID = player.getUniqueId();
@@ -28,13 +29,13 @@ public class ChatFunctions implements Listener {
 
         Channel channel = channels.get(currentChannelId);
         if (channel != null) {
-            String message = event.message().toString();
-            channel.addMessage(player.getName() + ": " + message);
+            Component message = event.message().asComponent();
+            channel.addMessage(player.getName() + ": " + PlainTextComponentSerializer.plainText().serialize(message));
 
             for (UUID memberUUID : channel.getMembers()) {
                 Player member = Bukkit.getPlayer(memberUUID);
                 if (member != null) {
-                    member.sendMessage(channel.getPrefix().append(Component.text(player.getName() + ": " + message).color(NamedTextColor.WHITE)));
+                    member.sendMessage(channel.getPrefix().append(Component.text(player.getName() + ": " ).color(NamedTextColor.WHITE).append(message.color(NamedTextColor.WHITE))));
                 }
             }
 
