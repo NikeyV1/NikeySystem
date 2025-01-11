@@ -1,12 +1,12 @@
 package de.nikey.nikeysystem.General;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
 import de.nikey.nikeysystem.NikeySystem;
-import de.nikey.nikeysystem.Player.API.LocationAPI;
-import de.nikey.nikeysystem.Player.API.MuteAPI;
-import de.nikey.nikeysystem.Player.API.PermissionAPI;
-import de.nikey.nikeysystem.Player.API.Channel;
+import de.nikey.nikeysystem.Player.API.*;
 import de.nikey.nikeysystem.Player.Distributor.ChatDistributor;
+import io.papermc.paper.ban.BanListType;
 import org.bukkit.*;
+import org.bukkit.ban.ProfileBanList;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -42,7 +42,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         // Handle the second argument: system player or system server
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("player")) {
-                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "location","profile","sound","resourcepack","chat");
+                return Arrays.asList("hide", "permissions", "stats", "inventory", "effect", "location","profile","sound","resourcepack","chat", "moderation");
             } else if (args[0].equalsIgnoreCase("server")) {
                 return Arrays.asList("command", "settings","performance","world", "backup", "logging");
             } else if (args[0].equalsIgnoreCase("security")) {
@@ -552,6 +552,51 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 return Arrays.asList("1d","1w","30m","10h");
             }
         }
+
+
+        if (args.length == 3 && args[1].equalsIgnoreCase("moderation")) {
+            return new ArrayList<>(Arrays.asList("manage","tempban","ban","freeze","unfeeze","unban","banlist"));
+        }
+
+        if (args.length == 4 && args[1].equalsIgnoreCase("moderation")) {
+            if (args[2].equalsIgnoreCase("freeze") ||args[2].equalsIgnoreCase("manage")) {
+                return GeneralAPI.handlePlayerListing(player, args, 3);
+            }
+
+            if (args[2].equalsIgnoreCase("ban") || args[2].equalsIgnoreCase("tempban")) {
+                return GeneralAPI.handleStringListing(Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList()),args[3]);
+            }
+
+            if (args[2].equalsIgnoreCase("unfreeze")) {
+                ArrayList<String> comps = new ArrayList<>();
+                for (UUID uuid : ModerationAPI.getFrozenPlayers()) {
+                    comps.add(Bukkit.getOfflinePlayer(uuid).getName());
+                }
+                return GeneralAPI.handleStringListing(comps,args[3]);
+            }
+
+            if (args[2].equalsIgnoreCase("unban")) {
+                ProfileBanList banList = Bukkit.getBanList(BanListType.PROFILE);
+                ArrayList<String> comps = new ArrayList<>();
+                for (BanEntry entry : banList.getEntries()) {
+                    comps.add(banList.getBanEntry((PlayerProfile) entry.getBanTarget()).getBanTarget().getName());
+                }
+                return GeneralAPI.handleStringListing(comps,args[3]);
+            }
+        }
+
+        if (args.length == 5 && args[1].equalsIgnoreCase("moderation") && (args[2].equalsIgnoreCase("tempban") || args[2].equalsIgnoreCase("freeze"))) {
+            return Arrays.asList("1h", "12h", "2d", "5d");
+        }
+
+        if (args.length == 5 && args[1].equalsIgnoreCase("moderation") && args[2].equalsIgnoreCase("ban")) {
+            return List.of("<Reason>");
+        }
+
+        if (args.length == 6 && args[1].equalsIgnoreCase("moderation") && args[2].equalsIgnoreCase("tempban")) {
+            return List.of("<Reason>");
+        }
+
         return Collections.emptyList();
     }
 }

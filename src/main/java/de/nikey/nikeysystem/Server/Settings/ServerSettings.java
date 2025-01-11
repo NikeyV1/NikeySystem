@@ -43,6 +43,9 @@ public class ServerSettings implements Listener {
         Component onStatus = on ? Component.text("Enabled").color(NamedTextColor.GREEN) : Component.text("Disabled").color(NamedTextColor.RED);
         addItemToInventory(inventory,5,Material.WRITTEN_BOOK,"System command logging: "+ onStatus);
 
+        Component statusCommandPrefix = NikeySystem.getPlugin().getConfig().getBoolean("system.setting.deactivate_command_with_prefix") ? Component.text("Enabled").color(NamedTextColor.GREEN) : Component.text("Disabled").color(NamedTextColor.RED);
+        addItemToInventory(inventory,6,Material.PAPER,"Disable commands with provider prefix: "+ statusCommandPrefix);
+
         player.openInventory(inventory);
     }
 
@@ -136,6 +139,21 @@ public class ServerSettings implements Listener {
                     }
                 }
                 break;
+            case Slot.DEAKTIVATE_COMMANDS_WITH_PREFIX:
+                boolean isDeactivated = NikeySystem.getPlugin().getConfig().getBoolean("system.setting.deactivate_command_with_prefix");
+                Component status = Component.text(isDeactivated ? "Enabled" : "Disabled")
+                        .color(isDeactivated ? NamedTextColor.GREEN : NamedTextColor.RED);
+
+                NikeySystem.getPlugin().getConfig().set("system.setting.deactivate_command_with_prefix", !isDeactivated);
+
+                ItemStack slot6 = event.getInventory().getItem(Slot.DEAKTIVATE_COMMANDS_WITH_PREFIX);
+                if (slot6 != null && slot6.getItemMeta() != null) {
+                    ItemMeta meta = slot6.getItemMeta();
+                    meta.displayName(Component.text("Disable commands with provider prefix: ").color(NamedTextColor.GOLD)
+                            .append(status));
+                    slot6.setItemMeta(meta);
+                }
+                break;
         }
     }
 
@@ -155,7 +173,6 @@ public class ServerSettings implements Listener {
         Player player = event.getPlayer();
 
         if (SettingsAPI.inputRequests.containsKey(player)) {
-            event.setCancelled(true); // Verhindert, dass die Nachricht im Chat erscheint
 
             String input = event.getMessage();
             Consumer<String> callback = SettingsAPI.inputRequests.remove(player);
@@ -228,6 +245,7 @@ public class ServerSettings implements Listener {
         static final int REMOVE_FROM_PLUGINCMD = 3;
         static final int END = 4;
         static final int SYSTEM_LOGGING = 5;
+        static final int DEAKTIVATE_COMMANDS_WITH_PREFIX = 6;
 
     }
 

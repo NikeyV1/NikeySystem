@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
+import com.destroystokyo.paper.profile.PlayerProfile;
 import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.*;
@@ -8,16 +9,19 @@ import io.papermc.paper.ban.BanListType;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.TextDecoration;
+import org.bukkit.BanEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.ban.ProfileBanList;
 import org.bukkit.entity.Player;
 
-import java.time.Duration;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.UUID;
 
-import static de.nikey.nikeysystem.Player.API.ModerationAPI.parseDuration;
 import static de.nikey.nikeysystem.Player.API.ModerationAPI.parseTime;
 
 public class ModerationDistributor {
@@ -32,7 +36,7 @@ public class ModerationDistributor {
             ModerationGUI.openModerationGUI(sender, sender);
         } else if (cmd.equalsIgnoreCase("tempban")) {
             if (args.length < 6) {
-                sender.sendMessage("Usage: tempban <player> <duration> <reason>");
+                sender.sendMessage("Usage: tempban <player> <duration> [reason]");
                 return;
             }
 
@@ -63,22 +67,12 @@ public class ModerationDistributor {
             // Add to history and kick player
             PlayerHistoryManager historyManager = new PlayerHistoryManager();
             historyManager.addPunishment(target.getUniqueId(), punishment);
+            Instant banExpiry = Instant.now().plusSeconds(duration);
+            Bukkit.getBanList(BanListType.PROFILE).addBan(target.getPlayerProfile(), reason, banExpiry, sender.getName());
             if (target.isOnline()) {
                 Player t = Bukkit.getPlayer(target.getUniqueId());
-                t.kick(Component.text("You have been temporarily banned for " + args[5] + " due to " + reason));
+                t.kick(ModerationAPI.KickMessanges.createTemporaryBanMessage(reason,new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date.from(banExpiry))));
             }
-            Instant banExpiry = Instant.now().plusSeconds(duration);
-
-            Bukkit.getBanList(BanListType.PROFILE).addBan(target.getPlayerProfile(), reason, banExpiry, sender.getName());
-
-            ChatAPI.sendManagementMessage(Component.text(sender.getName()).color(NamedTextColor.WHITE)
-                            .append(Component.text(" temp-banned ").color(moderationColor))
-                            .append(Component.text(args[4]).color(NamedTextColor.WHITE))
-                            .append(Component.text(" for ").color(moderationColor))
-                            .append(Component.text(reason).color(NamedTextColor.GRAY)),
-                    ChatAPI.ManagementType.INFO,
-                    true
-            );
 
             sender.sendMessage(Component.text("Temp-Banned ").color(moderationColor)
                     .append(Component.text(args[4]).color(NamedTextColor.WHITE))
@@ -87,8 +81,8 @@ public class ModerationDistributor {
                     .append(Component.text(" due to ").color(moderationColor))
                     .append(Component.text(reason).color(NamedTextColor.DARK_GRAY)));
         }else if (cmd.equalsIgnoreCase("ban")) {
-            if (args.length < 6) {
-                sender.sendMessage("Usage: ban <player> <reason>");
+            if (args.length < 5) {
+                sender.sendMessage("Usage: ban <player> [reason]");
                 return;
             }
 
@@ -116,20 +110,11 @@ public class ModerationDistributor {
             historyManager.addPunishment(target.getUniqueId(), punishment);
 
             // Banne den Spieler
+            Bukkit.getBanList(BanListType.PROFILE).addBan(target.getPlayerProfile(), reason, (Date) null, sender.getName());
             if (target.isOnline()) {
                 Player t = Bukkit.getPlayer(target.getUniqueId());
-                t.kick(Component.text("You have been permanently banned for: " + reason));
+                t.kick(ModerationAPI.KickMessanges.createPermanentBanMessage(reason));
             }
-            Bukkit.getBanList(BanListType.PROFILE).addBan(target.getPlayerProfile(), reason, (Date) null, sender.getName());
-
-            ChatAPI.sendManagementMessage(Component.text(sender.getName()).color(NamedTextColor.WHITE)
-                            .append(Component.text(" banned ").color(moderationColor))
-                            .append(Component.text(args[4]).color(NamedTextColor.WHITE))
-                            .append(Component.text(" for ").color(moderationColor))
-                            .append(Component.text(reason).color(NamedTextColor.GRAY)),
-                    ChatAPI.ManagementType.INFO,
-                    true
-            );
 
             sender.sendMessage(Component.text("Banned ").color(moderationColor)
                     .append(Component.text(args[4]).color(NamedTextColor.WHITE))
@@ -289,13 +274,6 @@ public class ModerationDistributor {
 
             Bukkit.getBanList(BanListType.PROFILE).pardon(player.getPlayerProfile());
 
-            ChatAPI.sendManagementMessage(Component.text(sender.getName()).color(NamedTextColor.WHITE)
-                    .append(Component.text(" unbanned ").color(moderationColor))
-                    .append(Component.text(args[4]).color(NamedTextColor.WHITE)),
-                    ChatAPI.ManagementType.INFO,
-                    true
-            );
-
             Punishment unbanPunishment = new Punishment(
                     player.getUniqueId(),
                     Punishment.PunishmentType.UNBAN,
@@ -310,6 +288,71 @@ public class ModerationDistributor {
             sender.sendMessage(Component.text("Unbanned ").color(moderationColor)
                     .append(Component.text(args[4]).color(NamedTextColor.WHITE)));
 
+        }else if (cmd.equalsIgnoreCase("banlist")) {
+
+            ProfileBanList banList = Bukkit.getBanList(BanListType.PROFILE);
+
+            if (banList.getEntries().isEmpty() && ModerationAPI.getFrozenPlayers().isEmpty()) {
+                sender.sendMessage(Component.text("There are no banned or frozen players", NamedTextColor.RED));
+                return;
+            }
+
+            sender.sendMessage(Component.text("=== Punished Players ===", moderationColor, TextDecoration.BOLD).appendNewline()
+                    .append(Component.text("-------------------", NamedTextColor.GRAY)));
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            if (!banList.getEntries().isEmpty()) {
+                sender.sendMessage(Component.text("Banned Players:", NamedTextColor.YELLOW));
+                for (BanEntry entry : banList.getEntries()) {
+                    String target = banList.getBanEntry((PlayerProfile) entry.getBanTarget()).getBanTarget().getName();
+                    String reason = entry.getReason() != null ? entry.getReason() : "No reason provided";
+                    String source = entry.getSource();
+                    String creationDate = dateFormat.format(entry.getCreated());
+                    String expiryDate = entry.getExpiration() != null
+                            ? dateFormat.format(entry.getExpiration())
+                            : "Never";
+
+
+
+                    Component banInfo = Component.text()
+                            .append(Component.text("Player: ", NamedTextColor.YELLOW))
+                            .append(Component.text(target   , NamedTextColor.WHITE))
+                            .append(Component.newline())
+                            .append(Component.text("Reason: ", NamedTextColor.YELLOW))
+                            .append(Component.text(reason, NamedTextColor.WHITE))
+                            .append(Component.newline())
+                            .append(Component.text("Banned by: ", NamedTextColor.YELLOW))
+                            .append(Component.text(source, NamedTextColor.WHITE))
+                            .append(Component.newline())
+                            .append(Component.text("Created: ", NamedTextColor.YELLOW))
+                            .append(Component.text(creationDate, NamedTextColor.WHITE))
+                            .append(Component.newline())
+                            .append(Component.text("Expires: ", NamedTextColor.YELLOW))
+                            .append(Component.text(expiryDate, NamedTextColor.WHITE))
+                            .append(Component.newline())
+                            .append(Component.text("-------------------", NamedTextColor.GRAY))
+                            .build();
+
+                    sender.sendMessage(banInfo);
+                }
+            }
+
+            if (!ModerationAPI.getFrozenPlayers().isEmpty()) {
+                sender.sendMessage(Component.text("Frozen Players:", NamedTextColor.AQUA));
+                for (UUID frozenPlayerId : ModerationAPI.getFrozenPlayers()) {
+                    String playerName = Bukkit.getOfflinePlayer(frozenPlayerId).getName();
+
+                    if (playerName == null) continue;
+                    Component freezeInfo = Component.text()
+                            .append(Component.text("Player: ", NamedTextColor.AQUA))
+                            .append(Component.text(playerName, NamedTextColor.WHITE))
+                            .append(Component.newline())
+                            .append(Component.space())
+                            .build();
+
+                    sender.sendMessage(freezeInfo);
+                }
+            }
         }
     }
 }

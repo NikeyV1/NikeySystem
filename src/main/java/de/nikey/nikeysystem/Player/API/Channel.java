@@ -99,7 +99,6 @@ public class Channel{
         }
     }
 
-    // Serialisieren
     public Map<String, Object> serialize() {
         Map<String, Object> data = new HashMap<>();
         data.put("id", id.toString());
@@ -112,7 +111,6 @@ public class Channel{
         return data;
     }
 
-    // Deserialisieren
     @SuppressWarnings("unchecked")
     public static Channel deserialize(Map<String, Object> data) {
         UUID id = UUID.fromString((String) data.get("id"));

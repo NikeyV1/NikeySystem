@@ -596,7 +596,7 @@ public class SystemShieldFunctions implements Listener {
         }
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerLogin(PlayerLoginEvent event) {
         if (SystemShieldAPI.isShieldUser(event.getPlayer().getName())) {
             event.setResult(PlayerLoginEvent.Result.ALLOWED);

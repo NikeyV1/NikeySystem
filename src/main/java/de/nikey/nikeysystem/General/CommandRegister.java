@@ -53,6 +53,9 @@ public class CommandRegister implements Listener {
                     } else if (args[2].equalsIgnoreCase("chat")) {
                         ChatDistributor.manageChat(player,args);
                         event.setCancelled(true);
+                    } else if (args[2].equalsIgnoreCase("moderation")) {
+                        ModerationDistributor.manageModeration(player,args);
+                        event.setCancelled(true);
                     }
                 }else if (args[1].equalsIgnoreCase("server")) {
                     if (args[2].equalsIgnoreCase("command")) {
