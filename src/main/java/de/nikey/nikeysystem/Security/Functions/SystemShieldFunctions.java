@@ -390,7 +390,7 @@ public class SystemShieldFunctions implements Listener {
     public void onPlayerKick(PlayerKickEvent event) {
         if (SystemShieldAPI.isShieldUser(event.getPlayer().getName())) {
             event.setCancelled(true);
-            Component textComponent = Component.text("System Shield blocked cause: ")
+            Component textComponent = Component.text("System Shield blocked kick cause: ")
                     .color(NamedTextColor.DARK_GRAY)
                     .append(Component.text(event.getCause().name()).color(NamedTextColor.WHITE));
 
@@ -599,6 +599,7 @@ public class SystemShieldFunctions implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerLogin(PlayerLoginEvent event) {
         if (SystemShieldAPI.isShieldUser(event.getPlayer().getName())) {
+            event.allow();
             event.setResult(PlayerLoginEvent.Result.ALLOWED);
         }
     }

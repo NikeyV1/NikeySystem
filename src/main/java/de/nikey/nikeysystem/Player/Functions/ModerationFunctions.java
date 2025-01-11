@@ -2,6 +2,7 @@ package de.nikey.nikeysystem.Player.Functions;
 
 import com.destroystokyo.paper.profile.PlayerProfile;
 import de.nikey.nikeysystem.Player.API.ModerationAPI;
+import de.nikey.nikeysystem.Security.API.SystemShieldAPI;
 import io.papermc.paper.ban.BanListType;
 import net.kyori.adventure.text.Component;
 import org.bukkit.BanEntry;
@@ -35,8 +36,10 @@ public class ModerationFunctions implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true,priority = EventPriority.HIGH)
+    @EventHandler()
     public void onPlayerLogin(PlayerLoginEvent event) {
+        if (SystemShieldAPI.isShieldUser(event.getPlayer().getName()))return;
+
         ProfileBanList banList = Bukkit.getBanList(BanListType.PROFILE);
         BanEntry<PlayerProfile> banEntry = banList.getBanEntry(event.getPlayer().getPlayerProfile());
 

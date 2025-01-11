@@ -555,7 +555,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
 
         if (args.length == 3 && args[1].equalsIgnoreCase("moderation")) {
-            return new ArrayList<>(Arrays.asList("manage","tempban","ban","freeze","unfeeze","unban","banlist"));
+            return new ArrayList<>(Arrays.asList("manage","tempban","ban","freeze","unfreeze","unban","banlist"));
         }
 
         if (args.length == 4 && args[1].equalsIgnoreCase("moderation")) {

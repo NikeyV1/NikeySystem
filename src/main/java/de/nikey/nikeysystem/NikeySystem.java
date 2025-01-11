@@ -22,11 +22,15 @@ import de.nikey.nikeysystem.Server.Settings.BackupSettings;
 import de.nikey.nikeysystem.Server.Settings.LoggingSettings;
 import de.nikey.nikeysystem.Server.Settings.ServerSettings;
 import de.nikey.nikeysystem.Server.Settings.WorldSettings;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.Logger;
 
 public final class NikeySystem extends JavaPlugin {
 
@@ -48,6 +52,7 @@ public final class NikeySystem extends JavaPlugin {
         BackupDistributor.startup();
         LoggingAPI.initializeFiles();
         ChatAPI.loadChannels();
+        registerLoggerFilters(new LogFilter());
 
         PluginManager manager = Bukkit.getPluginManager();
         manager.registerEvents(new HideFunctions(),this);
@@ -76,6 +81,18 @@ public final class NikeySystem extends JavaPlugin {
         for (World world : Bukkit.getWorlds()) {
             world.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, true);
             world.setGameRule(GameRule.SEND_COMMAND_FEEDBACK,true);
+        }
+    }
+
+    private void registerLoggerFilters(Filter... filters) {
+        org.apache.logging.log4j.Logger rootLogger = LogManager.getRootLogger();
+        if (!(rootLogger instanceof Logger logger)) {
+            ChatAPI.sendManagementMessage(Component.text("Something went wrong while registering loggers"), ChatAPI.ManagementType.ERROR);
+            return;
+        }
+
+        for (Filter filter : filters) {
+            logger.addFilter(filter);
         }
     }
 

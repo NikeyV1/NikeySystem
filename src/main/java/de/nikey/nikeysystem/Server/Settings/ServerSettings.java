@@ -39,11 +39,10 @@ public class ServerSettings implements Listener {
         addItemToInventory(inventory, 3, Material.NAME_TAG, "Remove from /plugin");
         String endStatus = isEndAllowed() ? "Enabled" : "Disabled";
         addItemToInventory(inventory, 4, Material.END_PORTAL_FRAME, "End Toggle: " + endStatus);
-        boolean on = NikeySystem.getPlugin().getConfig().getBoolean("system.setting.system_command_logging");
-        Component onStatus = on ? Component.text("Enabled").color(NamedTextColor.GREEN) : Component.text("Disabled").color(NamedTextColor.RED);
-        addItemToInventory(inventory,5,Material.WRITTEN_BOOK,"System command logging: "+ onStatus);
+        String onStatus = NikeySystem.getPlugin().getConfig().getBoolean("system.setting.disable_system_command_logging") ? "Enabled" : "Disabled";
+        addItemToInventory(inventory,5,Material.WRITTEN_BOOK,"Disable system-command logging: "+ onStatus);
 
-        Component statusCommandPrefix = NikeySystem.getPlugin().getConfig().getBoolean("system.setting.deactivate_command_with_prefix") ? Component.text("Enabled").color(NamedTextColor.GREEN) : Component.text("Disabled").color(NamedTextColor.RED);
+        String  statusCommandPrefix = NikeySystem.getPlugin().getConfig().getBoolean("system.setting.deactivate_command_with_prefix") ? "Enabled" : "Disabled";
         addItemToInventory(inventory,6,Material.PAPER,"Disable commands with provider prefix: "+ statusCommandPrefix);
 
         player.openInventory(inventory);
@@ -88,7 +87,7 @@ public class ServerSettings implements Listener {
                         Bukkit.getServer().setMaxPlayers(maxPlayers);
                         player.sendMessage(ChatColor.GREEN + "Max players has been updated to: " + maxPlayers);
                     } catch (NumberFormatException e) {
-                        player.sendMessage(ChatColor.RED + "Invalid number! Please try again.");
+                        player.sendMessage(ChatColor.RED + "Invalid number!");
                     }
                 });
                 break;
@@ -96,9 +95,11 @@ public class ServerSettings implements Listener {
                 boolean enabled = NikeySystem.getPlugin().getConfig().getBoolean("system.setting.remove_from_plugincmd");
                 if (enabled) {
                     NikeySystem.getPlugin().getConfig().set("system.setting.remove_from_plugincmd",false);
+                    NikeySystem.getPlugin().saveConfig();
                     player.sendMessage(Component.text("The system is now ").color(NamedTextColor.GRAY).append(Component.text("added").color(NamedTextColor.GREEN)).append(Component.text(" from /plugin command").color(NamedTextColor.GRAY)));
                 }else {
                     NikeySystem.getPlugin().getConfig().set("system.setting.remove_from_plugincmd",true);
+                    NikeySystem.getPlugin().saveConfig();
                     player.sendMessage(Component.text("The system is now ").color(NamedTextColor.GRAY).append(Component.text("removed").color(NamedTextColor.RED)).append(Component.text(" from /plugin command").color(NamedTextColor.GRAY)));
                 }
                 break;
@@ -117,34 +118,43 @@ public class ServerSettings implements Listener {
                 }
                 break;
             case Slot.SYSTEM_LOGGING:
-                boolean on = NikeySystem.getPlugin().getConfig().getBoolean("system.setting.system_command_logging");
-                Component onStatus = on ? Component.text("Enabled").color(NamedTextColor.GREEN) : Component.text("Disabled").color(NamedTextColor.RED);
-                if (on) {
-                    NikeySystem.getPlugin().getConfig().set("system.setting.system_command_logging",false);
-                    ItemStack i = event.getInventory().getItem(Slot.END);
+                boolean commandLogging = NikeySystem.getPlugin().getConfig().getBoolean("system.setting.disable_system_command_logging");
+                if (commandLogging) {
+                    NikeySystem.getPlugin().getConfig().set("system.setting.disable_system_command_logging",false);
+                    NikeySystem.getPlugin().saveConfig();
+                    ItemStack i = event.getInventory().getItem(Slot.SYSTEM_LOGGING);
                     if (i != null && i.getItemMeta() != null) {
                         ItemMeta meta = i.getItemMeta();
 
-                        meta.displayName(Component.text("System command logging: "+onStatus).color(NamedTextColor.GOLD));
+                        meta.displayName(Component.text("Disable system-command logging: ").color(NamedTextColor.GOLD).append(Component.text("Disabled").color(NamedTextColor.RED)));
+                        meta.lore(List.of(
+                                Component.text("Restart needed").color(NamedTextColor.RED)
+                        ));
                         i.setItemMeta(meta);
                     }
                 }else {
-                    NikeySystem.getPlugin().getConfig().set("system.setting.system_command_logging",true);
-                    ItemStack i = event.getInventory().getItem(Slot.END);
+                    NikeySystem.getPlugin().getConfig().set("system.setting.disable_system_command_logging",true);
+                    NikeySystem.getPlugin().saveConfig();
+                    ItemStack i = event.getInventory().getItem(Slot.SYSTEM_LOGGING);
                     if (i != null && i.getItemMeta() != null) {
                         ItemMeta meta = i.getItemMeta();
 
-                        meta.displayName(Component.text("System command logging: "+ onStatus).color(NamedTextColor.GOLD));
+                        meta.displayName(Component.text("Disable system-command logging: ").color(NamedTextColor.GOLD).append(Component.text("Enabled").color(NamedTextColor.GREEN)));
+                        meta.lore(List.of(
+                                Component.text("Reload needed").color(NamedTextColor.RED)
+                        ));
                         i.setItemMeta(meta);
                     }
                 }
                 break;
             case Slot.DEAKTIVATE_COMMANDS_WITH_PREFIX:
                 boolean isDeactivated = NikeySystem.getPlugin().getConfig().getBoolean("system.setting.deactivate_command_with_prefix");
-                Component status = Component.text(isDeactivated ? "Enabled" : "Disabled")
-                        .color(isDeactivated ? NamedTextColor.GREEN : NamedTextColor.RED);
 
                 NikeySystem.getPlugin().getConfig().set("system.setting.deactivate_command_with_prefix", !isDeactivated);
+                NikeySystem.getPlugin().saveConfig();
+
+                Component status = Component.text(!isDeactivated ? "Enabled" : "Disabled")
+                        .color(!isDeactivated ? NamedTextColor.GREEN : NamedTextColor.RED);
 
                 ItemStack slot6 = event.getInventory().getItem(Slot.DEAKTIVATE_COMMANDS_WITH_PREFIX);
                 if (slot6 != null && slot6.getItemMeta() != null) {
