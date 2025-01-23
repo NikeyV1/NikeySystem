@@ -33,6 +33,6 @@ public class LocationAPI {
         }
 
         // Spieler in der Include-Liste dürfen alles
-        return !includeList.contains(player.getName());
+        return false;
     }
 }
