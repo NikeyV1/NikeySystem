@@ -38,7 +38,7 @@ public class ModerationAPI {
         }
 
         // RegEx: Zahlen gefolgt von einem optionalen Suffix (s, m, h, d, w, M)
-        Pattern pattern = Pattern.compile("^(\\d+)([smhdwM]?)$");
+        Pattern pattern = Pattern.compile("^(\\d+(\\.\\d+)?)([smhdwM]?)$");
         Matcher matcher = pattern.matcher(input);
 
         if (!matcher.matches()) {
