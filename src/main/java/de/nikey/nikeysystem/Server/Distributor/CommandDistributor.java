@@ -159,8 +159,6 @@ public class CommandDistributor {
                 command = command.substring(1);
             }
 
-            // Den Befehl ausführen
-
             try {
                 player.performCommand(command);
             }catch (CommandException exception) {

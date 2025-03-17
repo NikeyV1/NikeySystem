@@ -1,11 +1,8 @@
 package de.nikey.nikeysystem.Server.Distributor;
 
-import de.nikey.nikeysystem.Player.API.ChatAPI;
 import de.nikey.nikeysystem.Player.API.MuteAPI;
 import de.nikey.nikeysystem.Server.API.LoggingAPI;
-import de.nikey.nikeysystem.Server.Functions.LoggingFunctions;
 import de.nikey.nikeysystem.Server.Settings.LoggingSettings;
-import net.kyori.adventure.chat.SignedMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -15,13 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.*;
 
 import static de.nikey.nikeysystem.Server.API.LoggingAPI.logConfig;
@@ -114,7 +105,14 @@ public class LoggingDistributor {
                     sec = 0;
                 }
 
-                List<String> filteredLogs = filterLogs(player, amount, timestamp, sec);
+                List<String> filteredLogs;
+
+                if (args.length == 8) {
+                    filteredLogs = filterLogs(player, amount, timestamp, sec,"");
+                }else {
+                    filteredLogs = filterLogs(player, amount, timestamp, sec,args[8]);
+                }
+
 
                 if (filteredLogs.isEmpty()) {
                     sender.sendMessage("No logs found with the given filters.");
@@ -190,7 +188,7 @@ public class LoggingDistributor {
             LoggingSettings.openSettingsMenu(sender);
         }
     }
-    private static List<String> filterLogs(String target, String amount, String timestamp, int seconds) {
+    private static List<String> filterLogs(String target, String amount, String timestamp, int seconds, String actiontype) {
         List<String> filteredLogs = new ArrayList<>();
 
         int limit = Integer.MAX_VALUE;
@@ -198,7 +196,7 @@ public class LoggingDistributor {
             try {
                 limit = Integer.parseInt(amount);
             } catch (NumberFormatException e) {
-                return filteredLogs; // Ungültige Zahl
+                return filteredLogs;
             }
         }
 
@@ -216,6 +214,10 @@ public class LoggingDistributor {
 
                 if (seconds != 0) {
                     if (isDateOlderThan(LoggingAPI.getDate(log), seconds))continue;
+                }
+
+                if (!actiontype.isEmpty()) {
+                    if (!LoggingAPI.getAction(log).equalsIgnoreCase(actiontype))continue;
                 }
 
                 filteredLogs.add(key + ": " + log);

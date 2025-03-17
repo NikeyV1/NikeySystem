@@ -2,7 +2,6 @@ package de.nikey.nikeysystem.Server.Settings;
 
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
-import de.nikey.nikeysystem.Server.Functions.LoggingFunctions;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
@@ -10,15 +9,8 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -127,9 +119,5 @@ public class LoggingSettings implements Listener {
             }
             updateItemLore(clickedItem,config.getBoolean("logging.settings.water"));
         }
-    }
-    private boolean isListenerRegistered(Listener listener) {
-        return HandlerList.getRegisteredListeners(NikeySystem.getPlugin()).stream()
-                .anyMatch(handler -> handler.getListener().equals(listener));
     }
 }

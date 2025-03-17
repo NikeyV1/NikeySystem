@@ -1,80 +1,73 @@
 package de.nikey.nikeysystem.Player.API;
 
+import de.nikey.nikeysystem.NikeySystem;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 public class HideAPI {
-    private static Set<String> hiddenPlayerNames = new HashSet<>();
-    private static Set<String> trueHiddenNames = new HashSet<>();
-    private static Set<String> hideImmunity = new HashSet<>();
-    private static Set<String> trueHideImmunity = new HashSet<>();
+    private static final Set<UUID> hiddenPlayers = new HashSet<>();
+    private static final Set<UUID> trueHidePlayers = new HashSet<>();
+    private static final Set<UUID> immunityPlayers = new HashSet<>();
 
-    public static Set<String> getHiddenPlayerNames() {
-        return hiddenPlayerNames;
-    }
+    public static boolean canSee(UUID observer, UUID target) {
+        if (observer.equals(target)) return true;
 
-    public static void setHiddenPlayerNames(Set<String> hiddenPlayerNames) {
-        HideAPI.hiddenPlayerNames = hiddenPlayerNames;
-    }
+        if (trueHidePlayers.contains(target)) return false;
 
-    public static Set<String> getTrueHiddenNames() {
-        return trueHiddenNames;
-    }
-
-    public static void setTrueHiddenNames(Set<String> trueHiddenNames) {
-        HideAPI.trueHiddenNames = trueHiddenNames;
-    }
-
-    public static Set<String> getTrueHideImmunity() {
-        return trueHideImmunity;
-    }
-
-    public static void setTrueHideImmunity(Set<String> trueHideImmunity) {
-        HideAPI.trueHideImmunity = trueHideImmunity;
-    }
-
-    public static Set<String> getHideImmunity() {
-        return hideImmunity;
-    }
-
-    public static void setHideImmunity(Set<String> hideImmunity) {
-        HideAPI.hideImmunity = hideImmunity;
-    }
-
-    public static boolean canSee(Player player , Player hidden) {
-        if (player == hidden) {
-            return true;
+        if (hiddenPlayers.contains(target)) {
+            if (hasHideImmunity(observer)) return true;
         }
-        if (HideAPI.getHiddenPlayerNames().contains(hidden.getName()) ) {
-            if (PermissionAPI.isOwner(player.getName()) ) {
-                return true;
-            } else if (PermissionAPI.isAdmin(player.getName()) && PermissionAPI.isModerator(hidden.getName())) {
-                return true;
-            } else if (PermissionAPI.isAdmin(player.getName()) && !PermissionAPI.isSystemUser(hidden.getName())) {
-                return true;
-            } else return getHideImmunity().contains(player.getName()) || getTrueHideImmunity().contains(player.getName());
-        }else if (HideAPI.getTrueHiddenNames().contains(hidden.getName())) {
-            return PermissionAPI.isOwner(player.getName()) || getTrueHideImmunity().contains(player.getName());
-        }else {
-            return true;
-        }
+
+        return !hiddenPlayers.contains(target);
     }
 
-    public static boolean canSee(String player, String hidden) {
-        if (player.equals(hidden)) return true;
+    public static void hidePlayer(UUID playerUUID) {
+        hiddenPlayers.add(playerUUID);
+    }
 
-        if (HideAPI.getHiddenPlayerNames().contains(hidden) ) {
-            if (PermissionAPI.isOwner(player) ) {
-                return true;
-            } else if (PermissionAPI.isAdmin(player) && PermissionAPI.isModerator(hidden)) {
-                return true;
-            } else if (PermissionAPI.isAdmin(player) && !PermissionAPI.isSystemUser(hidden)) {
-                return true;
-            } else return getHideImmunity().contains(player) || getTrueHideImmunity().contains(player);
-        }else if (HideAPI.getTrueHiddenNames().contains(hidden)) {
-            return PermissionAPI.isOwner(player) || getTrueHideImmunity().contains(player) ;
-        }else return true;
+    public static void revealPlayer(UUID playerUUID) {
+        hiddenPlayers.remove(playerUUID);
+    }
+
+    public static void addTrueHidePlayer(UUID playerUUID) {
+        trueHidePlayers.add(playerUUID);
+    }
+
+    public static void revealTrueHidePlayer(UUID playerUUID) {
+        trueHidePlayers.remove(playerUUID);
+    }
+
+    public static void addHideImmunity(UUID playerUUID) {
+        immunityPlayers.add(playerUUID);
+    }
+
+    public static void removeHideImmunity(UUID playerUUID) {
+        immunityPlayers.remove(playerUUID);
+    }
+
+    public static boolean hasHideImmunity(UUID playerUUID) {
+        return immunityPlayers.contains(playerUUID);
+    }
+
+    public static boolean isHidden(UUID playerUUID) {
+        return hiddenPlayers.contains(playerUUID);
+    }
+
+    public static boolean isTrueHide(UUID playerUUID) {
+        return trueHidePlayers.contains(playerUUID);
+    }
+
+    public static void updatePlayer(Player player) {
+        for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+            if (canSee(onlinePlayer.getUniqueId(), player.getUniqueId())) {
+                onlinePlayer.showPlayer(NikeySystem.getPlugin() ,player);
+            } else {
+                onlinePlayer.hidePlayer(NikeySystem.getPlugin(), player);
+            }
+        }
     }
 }

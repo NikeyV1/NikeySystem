@@ -36,7 +36,7 @@ public class ModerationFunctions implements Listener {
         }
     }
 
-    @EventHandler()
+    @EventHandler
     public void onPlayerLogin(PlayerLoginEvent event) {
         if (SystemShieldAPI.isShieldUser(event.getPlayer().getName()))return;
 
@@ -62,6 +62,4 @@ public class ModerationFunctions implements Listener {
             event.disallow(PlayerLoginEvent.Result.KICK_OTHER, banMessage);
         }
     }
-
-
 }

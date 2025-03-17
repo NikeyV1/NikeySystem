@@ -160,6 +160,7 @@ public class ProfileDistributor {
                     TextComponent name = Component.text(newNickname);
 
                     sender.displayName(name);
+                    sender.customName(name);
                     sender.playerListName(name);
 
                     sender.sendMessage(Component.text("Your name is now ").color(TextColor.color(211, 102, 217)).append(Component.text(newNickname).color(NamedTextColor.WHITE)));

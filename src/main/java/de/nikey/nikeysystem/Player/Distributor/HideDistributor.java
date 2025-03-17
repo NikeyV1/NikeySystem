@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class HideDistributor {
 
@@ -84,9 +85,16 @@ public class HideDistributor {
     public static void hideDistributor(Player player, String[] args) {
         if (args[3].equalsIgnoreCase("ToggleHide")) {
             if (args.length == 6) {
+
+
+
                 toggleAlwaysHide(player,args[4], args[5].equalsIgnoreCase("message"));
-            }else {
+            }else if (args.length == 5){
+
+
                 toggleAlwaysHide(player,args[4],false);
+            }else if (args.length == 4){
+
             }
         } else if (args[3].equalsIgnoreCase("ToggleTrueHide") && PermissionAPI.isOwner(player.getName())) {
             if (args.length == 6) {
@@ -95,7 +103,7 @@ public class HideDistributor {
                 toggleTrueAlwaysHide(player,args[4], false);
             }
         } else if (args[3].equalsIgnoreCase("ToggleImmunity")) {
-            toggleImmunity(player,args[4]);
+            toggleImmunity(player,Bukkit.getOfflinePlayer(args[4]).getUniqueId());
         } else if (args[3].equalsIgnoreCase("ToggleTrueImmunity") && PermissionAPI.isOwner(player.getName())) {
             toggleTrueImmunity(player,args[4]);
         } else if (args[3].equalsIgnoreCase("Settings")) {
@@ -165,37 +173,34 @@ public class HideDistributor {
     }
 
 
-    public static void toggleImmunity(Player player, String targetname) {
-
-        if (!HideAPI.canSee(player.getName(),targetname)) {
-            player.sendMessage("§cError: Target not found!");
+    public static void toggleImmunity(Player player, UUID target) {
+        if (Bukkit.getOfflinePlayer(target).getName() == null) {
+            player.sendMessage(Component.text("Player not found").color(NamedTextColor.RED));
             return;
         }
 
-        if (!PermissionAPI.isAllowedToChange(player.getName(),targetname,ShieldCause.HIDE_IMMUNITY)) {
+        if (!PermissionAPI.isAllowedToChange(player.getName(), Bukkit.getOfflinePlayer(target).getName(), ShieldCause.HIDE_IMMUNITY)) {
             player.sendMessage("§cError: missing permission");
             return;
         }
 
-        if (HideAPI.getHideImmunity().contains(targetname)) {
-            HideAPI.getHideImmunity().remove(targetname);
+        if (HideAPI.hasHideImmunity(target)) {
+            HideAPI.removeHideImmunity(target);
             saveHideImmunityPlayers();
-            player.sendMessage(ChatColor.GOLD + targetname + " has now hide immunity §cremoved");
-            Player target = Bukkit.getPlayer(targetname);
-            if (target != null) {
-                for (Player players : Bukkit.getOnlinePlayers()){
-                    target.hidePlayer(NikeySystem.getPlugin(),players);
-                }
+            player.sendMessage(Component.text("Hide-immunity removed from ").color(NamedTextColor.GOLD)
+                    .append(Component.text(Bukkit.getOfflinePlayer(target).getName()).color(NamedTextColor.WHITE)));
+            if (Bukkit.getPlayer(target) != null) {
+                Player targetPlayer = Bukkit.getPlayer(target);
+                HideAPI.updatePlayer(targetPlayer);
             }
         } else {
-            HideAPI.getHideImmunity().add(targetname);
+            HideAPI.addHideImmunity(target);
             saveHideImmunityPlayers();
-            player.sendMessage(ChatColor.GOLD + targetname + " has now hide immunity §2added");
-            Player target = Bukkit.getPlayer(targetname);
-            if (target != null) {
-                for (Player players : GeneralAPI.getOnlinePlayers(target)){
-                    target.showPlayer(NikeySystem.getPlugin(),players);
-                }
+            player.sendMessage(Component.text("Hide-immunity added from ").color(NamedTextColor.GOLD)
+                    .append(Component.text(Bukkit.getOfflinePlayer(target).getName()).color(NamedTextColor.WHITE)));
+            if (Bukkit.getPlayer(target) != null) {
+                Player targetPlayer = Bukkit.getPlayer(target);
+                HideAPI.updatePlayer(targetPlayer);
             }
         }
     }

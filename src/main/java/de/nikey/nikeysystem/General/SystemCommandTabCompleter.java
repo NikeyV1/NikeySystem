@@ -4,6 +4,7 @@ import com.destroystokyo.paper.profile.PlayerProfile;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.*;
 import de.nikey.nikeysystem.Player.Distributor.ChatDistributor;
+import de.nikey.nikeysystem.Server.API.LoggingAPI;
 import io.papermc.paper.ban.BanListType;
 import org.bukkit.*;
 import org.bukkit.ban.ProfileBanList;
@@ -495,6 +496,10 @@ public class SystemCommandTabCompleter implements TabCompleter {
                     return list;
                 }else if (args.length == 7) {
                     return Arrays.asList("1d","1w","30m","10h","infinity");
+                }else if (args.length == 8) {
+                    List<String> collect = Arrays.asList("placed", "broken", "placed_using_bucket", "picked_up_using_bucket", "exploded_using_end_crystal", "exploded_using_TNT"
+                            , "exploded_using_creeper", "exploded", "put", "took");
+                    return GeneralAPI.handleStringListing(collect,args[7]);
                 }
             }
         }

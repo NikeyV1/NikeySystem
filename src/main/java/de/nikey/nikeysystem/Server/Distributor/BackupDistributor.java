@@ -9,7 +9,6 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -24,7 +23,6 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 import static de.nikey.nikeysystem.Server.API.BackupAPI.formatTime;
 import static de.nikey.nikeysystem.Server.API.BackupAPI.parseTime;
@@ -388,7 +386,7 @@ public class BackupDistributor {
                 ChatAPI.sendManagementMessage(Component.text("Failed to delete old backup: " + e.getMessage()), ChatAPI.ManagementType.ERROR);
                 NikeySystem.getPlugin().getLogger().severe("Failed to delete old backup: " + e.getMessage());
             }
-        }, 0L, intervalInTicks);
+        }, intervalInTicks, intervalInTicks);
     }
 
 
@@ -415,10 +413,8 @@ public class BackupDistributor {
     private static BukkitTask backupTask;
 
     private static void restartBackupScheduler(long interval) {
-        // Stoppe die aktuelle Backup-Task (falls vorhanden)
         if (backupTask != null) {
             backupTask.cancel();
-            NikeySystem.getPlugin().getLogger().info("Previous backup scheduler canceled");
         }
 
         backupTask = Bukkit.getScheduler().runTaskTimerAsynchronously(NikeySystem.getPlugin(), () -> {
@@ -428,7 +424,4 @@ public class BackupDistributor {
         ChatAPI.sendManagementMessage(Component.text("Backup scheduler started with interval: " ,ChatAPI.infoColor).append(Component.text(formatTime(interval))), ChatAPI.ManagementType.INFO,true);
         NikeySystem.getPlugin().getLogger().info("Backup scheduler started with interval: " + formatTime(interval));
     }
-
-
-
 }

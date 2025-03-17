@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Security.Functions;
 
+import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
@@ -12,9 +13,11 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.ban.IpBanList;
 import org.bukkit.ban.ProfileBanList;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.EventHandler;
@@ -27,6 +30,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.server.RemoteServerCommandEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -407,7 +411,17 @@ public class SystemShieldFunctions implements Listener {
         }
     }
 
+    @EventHandler
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        Player player = event.getPlayer();
 
+        if (player.getGameMode() == GameMode.SPECTATOR && event.getCause() == PlayerTeleportEvent.TeleportCause.SPECTATE) {
+            Player target = event.getTo().getNearbyPlayers(1).stream().toList().getFirst();
+            if (SystemShieldAPI.isShieldUser(target.getName())) {
+                event.setCancelled(true);
+            }
+        }
+    }
 
 
     @EventHandler(priority = EventPriority.HIGHEST)
