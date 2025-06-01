@@ -1,19 +1,19 @@
 package de.nikey.nikeysystem.Player.API;
 
+import de.nikey.nikeysystem.DataBases.PunishmentDatabase;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ModerationAPI {
-
     private static final Set<UUID> frozenPlayers = new HashSet<>();
 
     public static Set<UUID> getFrozenPlayers() {
@@ -26,10 +26,12 @@ public class ModerationAPI {
 
     public static void freezePlayer(UUID uuid) {
         frozenPlayers.add(uuid);
+        PunishmentDatabase.saveFrozenPlayer(uuid);
     }
 
     public static void unfreezePlayer(UUID uuid) {
         frozenPlayers.remove(uuid);
+        PunishmentDatabase.removeFrozenPlayer(uuid);
     }
 
     public static int parseTime(String input) throws IllegalArgumentException {
@@ -46,7 +48,7 @@ public class ModerationAPI {
         }
 
         int value = Integer.parseInt(matcher.group(1));
-        String unit = matcher.group(2);
+        String unit = matcher.group(3);
 
         return switch (unit) {
             case "s" -> value; // Sekunden
@@ -59,33 +61,7 @@ public class ModerationAPI {
         };
     }
 
-    public static Duration parseDuration(String input) {
-        Map<Character, Long> timeUnits = new HashMap<>();
-        timeUnits.put('M', 30L * 24 * 60 * 60); // Months (30 days)
-        timeUnits.put('w', 7L * 24 * 60 * 60);  // Weeks
-        timeUnits.put('d', 24L * 60 * 60);      // Days
-        timeUnits.put('h', 60L * 60);           // Hours
-        timeUnits.put('m', 60L);                // Minutes
-
-        try {
-            char unit = input.charAt(input.length() - 1);
-            long value = Long.parseLong(input.substring(0, input.length() - 1));
-            long seconds = timeUnits.getOrDefault(unit, 0L) * value;
-            return Duration.ofSeconds(seconds);
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-
     public static class KickMessanges {
-
-        /**
-         * Erstellt eine Nachricht für einen permanenten Bann.
-         *
-         * @param reason Der Bann-Grund
-         * @return Die Adventure-Component für den Bann-Bildschirm
-         */
         public static Component createPermanentBanMessage(String reason) {
             return Component.text()
                     .append(Component.text("NikeySystem", NamedTextColor.RED))
@@ -104,19 +80,10 @@ public class ModerationAPI {
                     .build();
         }
 
-        /**
-         * Erstellt eine Nachricht für einen temporären Bann.
-         *
-         * @param reason Der Bann-Grund
-         * @param expiry Das Ablaufdatum des Banns
-         * @return Die Adventure-Component für den Bann-Bildschirm
-         */
         public static Component createTemporaryBanMessage(String reason, String expiry) {
-
             LocalDateTime expiryTime = LocalDateTime.parse(expiry, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             LocalDateTime now = LocalDateTime.now();
 
-            // Differenz berechnen
             Duration duration = Duration.between(now, expiryTime);
             String remainingTime;
 
@@ -139,7 +106,6 @@ public class ModerationAPI {
                 long minutes = totalSeconds / 60;
                 long seconds = totalSeconds % 60;
 
-                // Verbleibende Zeit in lesbarem Format
                 remainingTime = (months > 0 ? months + "mo " : "") +
                         (weeks > 0 ? weeks + "w " : "") +
                         (days > 0 ? days + "d " : "") +
@@ -170,5 +136,14 @@ public class ModerationAPI {
                     .append(Component.text("Unban application in Discord", NamedTextColor.DARK_GRAY))
                     .build();
         }
+    }
+
+    public static void punishmentStartup() {
+        PunishmentDatabase.connect();
+        PunishmentDatabase.loadAllData();
+    }
+
+    public static void punishmentShutdown() {
+        PunishmentDatabase.disconnect();
     }
 }

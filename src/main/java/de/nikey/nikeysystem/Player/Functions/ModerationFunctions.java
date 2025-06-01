@@ -6,15 +6,10 @@ import de.nikey.nikeysystem.Security.API.SystemShieldAPI;
 import io.papermc.paper.ban.BanListType;
 import net.kyori.adventure.text.Component;
 import org.bukkit.BanEntry;
-import org.bukkit.BanList;
 import org.bukkit.Bukkit;
 import org.bukkit.ban.ProfileBanList;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -45,7 +40,6 @@ public class ModerationFunctions implements Listener {
 
         if (banEntry != null) {
             String reason = banEntry.getReason() != null ? banEntry.getReason() : "No reason specified";
-            String source = banEntry.getSource();
             String expiry = banEntry.getExpiration() != null
                     ? new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(banEntry.getExpiration())
                     : "Permanent";

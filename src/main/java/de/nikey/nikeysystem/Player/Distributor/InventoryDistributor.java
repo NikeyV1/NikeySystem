@@ -35,14 +35,14 @@ public class InventoryDistributor implements Listener {
         if (cmd.equalsIgnoreCase("add")) {
             if (args.length == 6) {
                 Player player = Bukkit.getPlayer(args[4]);
-                if (player == null || !HideAPI.canSee(sender,player)){
+                if (player == null || !HideAPI.canSee(sender.getUniqueId(),player.getUniqueId())){
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
                 addItem(sender,player, args[5], 1);
             }else if (args.length == 7) {
                 Player player = Bukkit.getPlayer(args[4]);
-                if (player == null|| !HideAPI.canSee(sender,player)){
+                if (player == null|| !HideAPI.canSee(sender.getUniqueId(),player.getUniqueId())){
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
@@ -59,14 +59,14 @@ public class InventoryDistributor implements Listener {
         }else if (cmd.equalsIgnoreCase("remove")) {
             if (args.length == 6) {
                 Player player = Bukkit.getPlayer(args[4]);
-                if (player == null|| !HideAPI.canSee(sender,player)){
+                if (player == null|| !HideAPI.canSee(sender.getUniqueId(),player.getUniqueId())){
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
                 removeItem(player,sender, args[5], 1000);
             }else if (args.length == 7) {
                 Player player = Bukkit.getPlayer(args[4]);
-                if (player == null|| !HideAPI.canSee(sender,player)){
+                if (player == null|| !HideAPI.canSee(sender.getUniqueId(),player.getUniqueId())){
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
@@ -84,7 +84,7 @@ public class InventoryDistributor implements Listener {
                 Player player = Bukkit.getPlayer(args[4]);
                 Player target = Bukkit.getPlayer(args[5]);
 
-                if (player == null || !HideAPI.canSee(sender,player)) {
+                if (player == null || !HideAPI.canSee(sender.getUniqueId(),player.getUniqueId())) {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
@@ -128,7 +128,7 @@ public class InventoryDistributor implements Listener {
                     return;
                 }
 
-                if (!HideAPI.canSee(sender,player)){
+                if (!HideAPI.canSee(sender.getUniqueId(),player.getUniqueId())){
                     InventoryType inventoryType = InventoryType.valueOf(args[4]);
                     if (inventoryType == InventoryType.PLAYER) {
                         sender.sendMessage("§cError: wrong usage");
@@ -149,14 +149,14 @@ public class InventoryDistributor implements Listener {
                     return;
                 }
 
-                if (!HideAPI.canSee(sender,target) || !HideAPI.canSee(sender,player)) {
+                if (!HideAPI.canSee(sender,target) || !HideAPI.canSee(sender.getUniqueId(),player.getUniqueId())) {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
                 openEc(player,target);
             }else if (args.length == 5) {
                 Player player = Bukkit.getPlayer(args[4]);
-                if (player == null||!HideAPI.canSee(sender,player) ){
+                if (player == null||!HideAPI.canSee(sender.getUniqueId(),player.getUniqueId()) ){
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
@@ -170,7 +170,7 @@ public class InventoryDistributor implements Listener {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
-                if (!HideAPI.canSee(sender,target) || !HideAPI.canSee(sender,player)) {
+                if (!HideAPI.canSee(sender,target) || !HideAPI.canSee(sender.getUniqueId(),player.getUniqueId())) {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
@@ -181,7 +181,7 @@ public class InventoryDistributor implements Listener {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }
-                if (!HideAPI.canSee(sender,player)) {
+                if (!HideAPI.canSee(sender.getUniqueId(),player.getUniqueId())) {
                     sender.sendMessage("§cError: wrong usage");
                     return;
                 }

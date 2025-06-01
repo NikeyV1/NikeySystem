@@ -13,6 +13,7 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -360,17 +361,13 @@ public class ChatDistributor {
             String subCommand = args[4];
             if (subCommand.equalsIgnoreCase("mute")) {
                 if (args.length == 6) {
-                    Player player = Bukkit.getPlayer(args[5]);
-                    if (player == null || !HideAPI.canSee(sender, player)) {
-                        sender.sendMessage("§cError: wrong usage");
-                        return;
-                    }
+                    OfflinePlayer player = Bukkit.getOfflinePlayer(args[5]);
 
                     if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(), ShieldCause.MUTE)) {
                         sender.sendMessage("§cError: missing permission");
                         return;
                     }
-                    mutePlayer(player, sender, 0);
+                    mutePlayer(player.getUniqueId(), sender, 0);
                 } else if (args.length == 7) {
                     Player player = Bukkit.getPlayer(args[5]);
                     if (player == null || !HideAPI.canSee(sender, player)) {
@@ -404,14 +401,14 @@ public class ChatDistributor {
                         sender.sendMessage("§cError: player not found");
                         return;
                     }
-                    if (MuteAPI.isMuted(player.getName())) {
-                        if (MuteAPI.getMutedDuration(player.getName()) == 0) {
+                    if (MuteAPI.isMuted(player.getUniqueId())) {
+                        if (MuteAPI.getMutedDuration(player.getUniqueId()) == 0) {
                             sender.sendMessage(Component.text(player.getName()).color(NamedTextColor.WHITE)
                                     .append(Component.text(" is currently ").color(muteColor))
                                     .append(Component.text("muted ").color(NamedTextColor.RED))
                                     .append(Component.text("permanently").color(NamedTextColor.DARK_GRAY)));
                         } else {
-                            String time = MuteAPI.formatSekTime((int) MuteAPI.getMutedDuration(player.getName()));
+                            String time = MuteAPI.formatSekTime((int) MuteAPI.getMutedDuration(player.getUniqueId()));
                             sender.sendMessage(Component.text(player.getName()).color(NamedTextColor.WHITE)
                                     .append(Component.text(" is currently ").color(muteColor))
                                     .append(Component.text("muted ").color(NamedTextColor.RED))
@@ -431,17 +428,18 @@ public class ChatDistributor {
 
                     Component playerList = Component.empty();
 
-                    for (String player : MuteAPI.getMutedPlayers()) {
-                        if (MuteAPI.isMuted(player)) {
+                    for (UUID playerID : MuteAPI.getMutedPlayers()) {
+                        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerID);
+                        if (MuteAPI.isMuted(playerID)) {
                             Component playerEntry;
-                            if (MuteAPI.getMutedDuration(player) == 0) {
-                                playerEntry = Component.text(player)
+                            if (MuteAPI.getMutedDuration(playerID) == 0) {
+                                playerEntry = Component.text(offlinePlayer.getName())
                                         .color(NamedTextColor.WHITE)
                                         .append(Component.text(" - ").color(NamedTextColor.GRAY))
                                         .append(Component.text("Permanently muted").color(NamedTextColor.RED));
                             } else {
-                                String time = MuteAPI.formatSekTime((int) MuteAPI.getMutedDuration(player));
-                                playerEntry = Component.text(player)
+                                String time = MuteAPI.formatSekTime((int) MuteAPI.getMutedDuration(playerID));
+                                playerEntry = Component.text(offlinePlayer.getName())
                                         .color(NamedTextColor.WHITE)
                                         .append(Component.text(" - ").color(NamedTextColor.GRAY))
                                         .append(Component.text("Muted for: ").color(NamedTextColor.RED))
@@ -458,7 +456,7 @@ public class ChatDistributor {
     }
 
     public static void mutePlayer(Player target, Player sender, int duration) {
-        if (MuteAPI.isMuted(target.getName())) {
+        if (MuteAPI.isMuted(target.getUniqueId())) {
             sender.sendMessage(Component.text("Error: ")
                     .color(NamedTextColor.RED)
                     .append(Component.text(target.getName())
@@ -474,7 +472,7 @@ public class ChatDistributor {
                         .color(muteColor)
                         .decoration(TextDecoration.BOLD, true));
             }
-            MuteAPI.add(target.getName(), 0);
+            MuteAPI.add(target.getUniqueId(), 0);
             sender.sendMessage(Component.text(target.getName()).color(NamedTextColor.WHITE)
                     .append(Component.text(" has been muted ").color(muteColor))
                     .append(Component.text("permanently").color(NamedTextColor.DARK_GRAY)));
@@ -483,15 +481,60 @@ public class ChatDistributor {
                 target.sendMessage(Component.text("You have been muted for ").color(muteColor) // RGB color: #1dc0f0
                         .append(Component.text(MuteAPI.decodeTime(duration)).color(NamedTextColor.WHITE)));
             }
-            MuteAPI.add(target.getName(), System.currentTimeMillis() + (duration * 1000L));
+            MuteAPI.add(target.getUniqueId(), System.currentTimeMillis() + (duration * 1000L));
             sender.sendMessage(Component.text(target.getName()).color(NamedTextColor.WHITE)
                     .append(Component.text(" has been muted for ").color(muteColor))
                     .append(Component.text(MuteAPI.decodeTime(duration)).color(NamedTextColor.DARK_GRAY)));
         }
     }
 
+    public static void mutePlayer(UUID targetUUID, Player sender, int duration) {
+        OfflinePlayer offlineTarget = Bukkit.getOfflinePlayer(targetUUID);
+
+        if (offlineTarget.getName() == null) {
+            sender.sendMessage(Component.text("Player not found!").color(NamedTextColor.RED));
+            return;
+        }
+        String targetName = offlineTarget.getName();
+
+        if (MuteAPI.isMuted(targetUUID)) {
+            sender.sendMessage(Component.text("Error: ")
+                    .color(NamedTextColor.RED)
+                    .append(Component.text(targetName)
+                            .color(NamedTextColor.WHITE))
+                    .append(Component.text(" is already muted.")
+                            .color(NamedTextColor.RED)));
+            return;
+        }
+
+        boolean isSystemUser = PermissionAPI.isSystemUser(offlineTarget.getName());
+        Player onlineTarget = Bukkit.getPlayer(targetUUID);
+
+        if (duration == 0) {
+            if (isSystemUser && onlineTarget != null) {
+                onlineTarget.sendMessage(Component.text("You have been permanently muted")
+                        .color(muteColor)
+                        .decoration(TextDecoration.BOLD, true));
+            }
+            MuteAPI.add(targetUUID, 0);
+            sender.sendMessage(Component.text(targetName).color(NamedTextColor.WHITE)
+                    .append(Component.text(" has been muted ").color(muteColor))
+                    .append(Component.text("permanently").color(NamedTextColor.DARK_GRAY)));
+        } else {
+            if (isSystemUser && onlineTarget != null) {
+                onlineTarget.sendMessage(Component.text("You have been muted for ").color(muteColor)
+                        .append(Component.text(MuteAPI.decodeTime(duration)).color(NamedTextColor.WHITE)));
+            }
+            MuteAPI.add(targetUUID, System.currentTimeMillis() + (duration * 1000L));
+            sender.sendMessage(Component.text(targetName).color(NamedTextColor.WHITE)
+                    .append(Component.text(" has been muted for ").color(muteColor))
+                    .append(Component.text(MuteAPI.decodeTime(duration)).color(NamedTextColor.DARK_GRAY)));
+        }
+    }
+
+
     public static void unmutePlayer(Player target, Player sender) {
-        if (!MuteAPI.isMuted(target.getName())) {
+        if (!MuteAPI.isMuted(target.getUniqueId())) {
             sender.sendMessage(Component.text("Error: ").color(NamedTextColor.RED)
                     .append(Component.text(target.getName()).color(NamedTextColor.WHITE))
                     .append(Component.text(" is not muted").color(NamedTextColor.RED)));
@@ -508,6 +551,6 @@ public class ChatDistributor {
                 .append(Component.text(" has been ").color(muteColor))
                 .append(Component.text("unmuted").color(NamedTextColor.GREEN)));
 
-        MuteAPI.remove(target.getName());
+        MuteAPI.remove(target.getUniqueId());
     }
 }

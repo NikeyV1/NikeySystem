@@ -58,7 +58,7 @@ public class WorldSettings implements Listener {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(ChatColor.GOLD + displayName);
+            meta.displayName(Component.text(displayName).color(NamedTextColor.GOLD));
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             meta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
             item.setItemMeta(meta);
@@ -70,7 +70,7 @@ public class WorldSettings implements Listener {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(ChatColor.GOLD + displayName);
+            meta.displayName(Component.text(displayName).color(NamedTextColor.GOLD));
             List<Component> lore = new ArrayList<>();
             lore.add(Component.text("Currently: " + currentSetting).color(NamedTextColor.GRAY));
             meta.lore(lore);
@@ -85,7 +85,7 @@ public class WorldSettings implements Listener {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(ChatColor.GOLD + displayName);
+            meta.displayName(Component.text(displayName).color(NamedTextColor.GOLD));
             List<Component> lore = new ArrayList<>();
             lore.add(Component.text("Currently: " + i).color(NamedTextColor.GRAY));
             meta.lore(lore);
@@ -100,7 +100,7 @@ public class WorldSettings implements Listener {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(ChatColor.GOLD + displayName);
+            meta.displayName(Component.text(displayName).color(NamedTextColor.GOLD));
             List<Component> lore = new ArrayList<>();
             lore.add(Component.text("Currently: " + current).color(NamedTextColor.GRAY));
             meta.lore(lore);
@@ -115,7 +115,7 @@ public class WorldSettings implements Listener {
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(ChatColor.GOLD + displayName);
+            meta.displayName(Component.text(displayName).color(NamedTextColor.GOLD));
             List<Component> lore = new ArrayList<>();
             lore.add(Component.text("Current Limit: " + current).color(NamedTextColor.GRAY));
             meta.lore(lore);
@@ -211,7 +211,6 @@ public class WorldSettings implements Listener {
         }else if (slot == Slot.ALLOWMONSTERS) {
             boolean currentSetting = player.getWorld().getAllowMonsters();
             player.getWorld().setSpawnFlags(!currentSetting, player.getWorld().getAllowAnimals());
-            player.sendMessage(ChatColor.GREEN + "Allow Monsters: " + (!currentSetting ? "enabled" : "disabled"));
             ItemStack item = event.getInventory().getItem(Slot.ALLOWMONSTERS);
             if (item != null && item.getItemMeta() != null) {
                 ItemMeta meta = item.getItemMeta();
@@ -227,7 +226,6 @@ public class WorldSettings implements Listener {
         } else if (slot == Slot.ALLOWANIMALS) {
             boolean currentSetting = player.getWorld().getAllowAnimals();
             player.getWorld().setSpawnFlags(player.getWorld().getAllowMonsters(), !currentSetting);
-            player.sendMessage(ChatColor.GREEN + "Allow Animals: " + (!currentSetting ? "enabled" : "disabled"));
             ItemStack item = event.getInventory().getItem(Slot.ALLOWANIMALS);
             if (item != null && item.getItemMeta() != null) {
                 ItemMeta meta = item.getItemMeta();
@@ -258,7 +256,7 @@ public class WorldSettings implements Listener {
             int adjustment = event.isLeftClick() ? 1 : -1;
             int newOffset = currentOffset + adjustment;
 
-            player.getWorld().setSpawnLimit(SpawnCategory.MONSTER,newOffset);
+            player.getWorld().setSpawnLimit(SpawnCategory.MONSTER, newOffset);
             ItemStack item = event.getInventory().getItem(Slot.MONSTERSPAWNLIMIT);
             if (item != null && item.getItemMeta() != null) {
                 ItemMeta meta = item.getItemMeta();
@@ -403,11 +401,6 @@ public class WorldSettings implements Listener {
         player.sendMessage(ChatColor.GREEN + settingName + " is now " + (!currentValue ? "enabled" : "disabled"));
     }
 
-    private void requestInput(Player player, String message, Consumer<String> onInputReceived) {
-        player.sendMessage(ChatColor.YELLOW + message);
-        SettingsAPI.inputRequests.put(player, onInputReceived);
-    }
-
     private void cycleDifficulty(Player player) {
         Difficulty currentDifficulty = player.getWorld().getDifficulty();
         Difficulty nextDifficulty = switch (currentDifficulty) {
@@ -417,7 +410,7 @@ public class WorldSettings implements Listener {
             case HARD -> Difficulty.PEACEFUL;
         };
         player.getWorld().setDifficulty(nextDifficulty);
-        player.sendMessage(ChatColor.GREEN + "Difficulty set to " + nextDifficulty.name());
+        player.sendMessage(Component.text("The difficulty has been set to " + nextDifficulty.name()));
     }
 
 

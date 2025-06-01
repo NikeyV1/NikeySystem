@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Player.API;
 
+import de.nikey.nikeysystem.DataBases.PunishmentDatabase;
 import de.nikey.nikeysystem.NikeySystem;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -8,21 +9,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MuteAPI {
-    private static final HashMap<String, Long> mutedPlayers = new HashMap<>();
+    private static final HashMap<UUID, Long> mutedPlayers = new HashMap<>();
 
-    public static void add(String player, long endTime) {
+    public static void add(UUID player, long endTime) {
         mutedPlayers.put(player, endTime);
+        PunishmentDatabase.saveMutedPlayer(player, endTime);
     }
 
-    public static void remove(String player) {
+    public static void remove(UUID player) {
         mutedPlayers.remove(player);
+        PunishmentDatabase.removeMutedPlayer(player);
     }
 
-    public static Set<String> getMutedPlayers() {
+    public static Set<UUID> getMutedPlayers() {
         return mutedPlayers.keySet();
     }
 
-    public static long getMutedDuration(String player) {
+    public static long getMutedDuration(UUID player) {
         Long l = mutedPlayers.get(player);
         if (l == 0) {
             return l;
@@ -32,40 +35,17 @@ public class MuteAPI {
         return l;
     }
 
-    public static boolean isMuted(String player) {
+    public static boolean isMuted(UUID player) {
         if (mutedPlayers.containsKey(player)) {
             long endTime = mutedPlayers.get(player);
             if (endTime == 0 || endTime > System.currentTimeMillis()) {
                 return true;
             } else {
-                mutedPlayers.remove(player);
+                remove(player);
                 return false;
             }
         }
         return false;
-    }
-
-    public static void saveMutedPlayers() {
-        FileConfiguration config = NikeySystem.getPlugin().getConfig();
-
-        config.set("mutedPlayers", null);
-
-        for (Map.Entry<String, Long> entry : mutedPlayers.entrySet()) {
-            config.set("mutedPlayers." + entry.getKey(), entry.getValue());
-        }
-
-        NikeySystem.getPlugin().saveConfig();
-    }
-
-    public static void loadMutedPlayers() {
-        FileConfiguration config = NikeySystem.getPlugin().getConfig();
-
-        if (config.contains("mutedPlayers")) {
-            for (String playerName : config.getConfigurationSection("mutedPlayers").getKeys(false)) {
-                long muteEndTime = config.getLong("mutedPlayers." + playerName);
-                mutedPlayers.put(playerName, muteEndTime);
-            }
-        }
     }
 
     public static int parseTime(String input) throws IllegalArgumentException {

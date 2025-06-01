@@ -67,7 +67,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
         // Handle the third argument for system player hide
         if (args.length == 3 && args[1].equalsIgnoreCase("hide")) {
-            List<String> subCommands = new ArrayList<>(Arrays.asList("ToggleHide", "ToggleTrueHide", "ToggleImmunity", "ToggleTrueImmunity", "List", "Settings"));
+            List<String> subCommands = new ArrayList<>(Arrays.asList("ToggleHide", "ToggleTrueHide", "ToggleImmunity", "List", "Settings"));
             if (!PermissionAPI.isOwner(player.getName())) {
                 // Remove admin/owner-specific commands for non-owners
                 subCommands.removeAll(Arrays.asList("ToggleTrueHide", "ToggleTrueImmunity"));
@@ -417,7 +417,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         if (args.length == 3 && args[1].equalsIgnoreCase("backup")) {
             if (PermissionAPI.isManagement(sender.getName())) {
-                return new ArrayList<>(Arrays.asList("list","create","delete","load","setautointerval","setdeletetime" , "settings"));
+                return new ArrayList<>(Arrays.asList("list","create","delete","load","interval","maxbackups" , "settings"));
             }else {
                 return new ArrayList<>(Arrays.asList("list","create", "settings"));
             }
@@ -453,14 +453,12 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 return backupNames;
             }
 
-            if (args[2].equalsIgnoreCase("setautointerval") || args[2].equalsIgnoreCase("setdeletetime")) {
-                return Arrays.asList("1d","1w","30m","10h");
+            if (args[2].equalsIgnoreCase("interval")) {
+                return Arrays.asList("1d","1w","30m","10h","0");
             }
-        }
 
-        if (args.length == 5 && args[1].equalsIgnoreCase("backup")) {
-            if (args[2].equalsIgnoreCase("setdeletetime")) {
-                return Arrays.asList("1d","1w","30m","10h");
+            if (args[2].equalsIgnoreCase("maxbackups")) {
+                return Arrays.asList("4","6","8");
             }
         }
 

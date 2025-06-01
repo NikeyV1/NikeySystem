@@ -1,5 +1,6 @@
 package de.nikey.nikeysystem.Server.Distributor;
 
+import de.nikey.nikeysystem.DataBases.BackupDatabase;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.ChatAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
@@ -10,7 +11,6 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -23,10 +23,11 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static de.nikey.nikeysystem.Server.API.BackupAPI.formatTime;
 import static de.nikey.nikeysystem.Server.API.BackupAPI.parseTime;
-import static org.bukkit.Bukkit.getServer;
 
 public class BackupDistributor {
 
@@ -67,86 +68,70 @@ public class BackupDistributor {
             }
             if (!PermissionAPI.isManagement(sender.getName())) return;
             sender.sendMessage(Component.text("Loading backups is currently not available").color(NamedTextColor.RED));
-        }else if (cmd.equalsIgnoreCase("setautointerval")) {
+        }else if (cmd.equalsIgnoreCase("interval")) {
             if (!PermissionAPI.isManagement(sender.getName())) return;
-            if (args.length < 5) {
-                String time = formatTime(NikeySystem.getPlugin().getConfig().getLong("settings.backup_interval"));
-                if (time.isEmpty()) {
+            if (args.length == 4) {
+                String interval = BackupDatabase.loadSetting("backup_interval");
+
+                if (interval == null) {
+                    sender.sendMessage(Component.text("Backup interval is not set").color(TextColor.color(138, 138, 135)));
+                    return;
+                }
+
+                if (isLong(interval)) {
+                    String time = formatTime(Long.parseLong(interval));
+
+                    sender.sendMessage(Component.text("Backup interval is currently: ").color(TextColor.color(138, 138, 135))
+                            .append(Component.text(time).color(NamedTextColor.WHITE)));
+                }else {
                     sender.sendMessage(Component.text("The current interval time is not set").color(TextColor.color(138, 138, 135)));
-                }else {
-                    sender.sendMessage(Component.text("The current interval time is ").color(TextColor.color(138, 138, 135))
-                            .append(Component.text(time).color(NamedTextColor.WHITE)));
                 }
-                return;
-            }
-            try {
-                long interval = parseTime(args[4]);
-                NikeySystem.getPlugin().getConfig().set("settings.backup_interval", interval);
-                NikeySystem.getPlugin().saveConfig();
-
-                sender.sendMessage(Component.text("Backup interval set to: ").color(TextColor.color(138, 138, 135))
-                        .append(Component.text(args[4]).color(NamedTextColor.WHITE)));
-
-                restartBackupScheduler(interval);
-            } catch (IllegalArgumentException e) {
-                sender.sendMessage("§cError: " + e.getMessage());
-            }
-        }else if (cmd.equalsIgnoreCase("setdeletetime")) {
-            if (!PermissionAPI.isManagement(sender.getName())) return;
-            if (args.length < 5) {
-                String time = formatTime(NikeySystem.getPlugin().getConfig().getLong("backup.auto_delete_interval"));
-                if (time.isEmpty()) {
-                    sender.sendMessage(Component.text("The current delete interval time is not set").color(TextColor.color(138, 138, 135)));
-                }else {
-                    sender.sendMessage(Component.text("The current delete interval time is ").color(TextColor.color(138, 138, 135))
-                            .append(Component.text(time).color(NamedTextColor.WHITE)));
-                }
-                return;
-            }
-
-            if (args.length  == 5) {
+            }else if (args.length == 5) {
                 try {
-                    // Zeit aus Argument parsen
-                    long deleteInterval = parseTime(args[4]);
+                    if (args[4].equalsIgnoreCase("0")) {
+                        BackupDatabase.removeSetting("backup_interval");
+                        sender.sendMessage(Component.text("Removed/Stopped backup interval").color(TextColor.color(138, 138, 135)));
+                        backupTask.cancel();
+                        return;
+                    }
 
-                    // Config-Eintrag aktualisieren
-                    NikeySystem.getPlugin().getConfig().set("backup.auto_delete_interval", deleteInterval);
-                    NikeySystem.getPlugin().saveConfig();
+                    long interval = parseTime(args[4]);
+                    BackupDatabase.saveSetting("backup_interval", String.valueOf(interval));
 
-                    // Auto-Delete-Task starten
-                    startAutoDeleteTask();
-
-                    sender.sendMessage(Component.text("Backup delete interval set to: ").color(TextColor.color(138, 138, 135))
+                    sender.sendMessage(Component.text("Backup interval set to: ").color(TextColor.color(138, 138, 135))
                             .append(Component.text(args[4]).color(NamedTextColor.WHITE)));
-                    NikeySystem.getPlugin().getLogger().info("Auto-delete interval set to " + args[4]);
+
+                    restartBackupScheduler(interval);
                 } catch (IllegalArgumentException e) {
-                    sender.sendMessage("§cInvalid time format: " + e.getMessage());
+                    sender.sendMessage("§cError: " + e.getMessage());
                 }
-                return;
             }
+        }else if (cmd.equalsIgnoreCase("maxBackups")) {
+            if (!PermissionAPI.isManagement(sender.getName())) return;
 
-            if (args.length == 6) {
-                try {
-                    long deleteInterval = parseTime(args[4]);
-                    long waitTime = parseTime(args[5]);
+            if (args.length == 4) {
+                String max = BackupDatabase.loadSetting("max_backups");
 
-                    // Config-Eintrag aktualisieren
-                    NikeySystem.getPlugin().getConfig().set("backup.auto_delete_interval", deleteInterval);
-                    NikeySystem.getPlugin().saveConfig();
-                    long intervalInTicks = waitTime / 50;
+                if (max == null) {
+                    sender.sendMessage(Component.text("Max backup limit is not set").color(TextColor.color(138, 138, 135)));
+                    return;
+                }
 
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            startAutoDeleteTask();
-                        }
-                    }.runTaskLater(NikeySystem.getPlugin(),intervalInTicks);
+                sender.sendMessage(Component.text("Max backup limit is currently: ").color(TextColor.color(138, 138, 135))
+                        .append(Component.text(max).color(NamedTextColor.WHITE)));
+            } else if (args.length == 5) {
+                if (isNumeric(args[4])) {
+                    if (args[4].equalsIgnoreCase("0")) {
+                        BackupDatabase.removeSetting("max_backups");
+                        sender.sendMessage(Component.text("Removed max backup limit").color(TextColor.color(138, 138, 135)));
+                        return;
+                    }
 
-                    sender.sendMessage(Component.text("Backup delete interval set to: ").color(TextColor.color(138, 138, 135))
-                            .append(Component.text(args[4]).color(NamedTextColor.WHITE)).append(Component.text(" in "))
-                            .append(Component.text(args[5]).color(NamedTextColor.GRAY)));
-                } catch (IllegalArgumentException e) {
-                    sender.sendMessage("§cInvalid time format: " + e.getMessage());
+                    BackupDatabase.saveSetting("max_backups", args[4]);
+                    sender.sendMessage(Component.text("Max backup limit set to: ").color(TextColor.color(138, 138, 135))
+                            .append(Component.text(args[4]).color(NamedTextColor.WHITE)));
+                }else {
+                    sender.sendMessage(Component.text("Error: Argument needs to be an integer").color(NamedTextColor.RED));
                 }
             }
         }else if (cmd.equalsIgnoreCase("settings")) {
@@ -154,13 +139,64 @@ public class BackupDistributor {
         }
     }
 
+    public static boolean isNumeric(String str) {
+        try {
+            Integer.parseInt(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    public static boolean isLong(String str) {
+        try {
+            Long.parseLong(str);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
     private static void createBackup(String name, @Nullable Player player ) {
         File backupDestination = new File(backupFolder, name);
         NikeySystem.getPlugin().getLogger().info("Creating backup: " + backupDestination.getAbsolutePath());
+
+        String maxBackupsStr = BackupDatabase.loadSetting("max_backups");
+        Integer maxBackups = null;
+        if (maxBackupsStr != null && !maxBackupsStr.isBlank()) {
+            try {
+                maxBackups = Integer.parseInt(maxBackupsStr);
+            } catch (NumberFormatException ignored) {}
+        }
+
+        if (maxBackups != null) {
+            File[] backups = backupFolder.listFiles();
+            if (backups != null) {
+                List<File> sortedBackups = Arrays.stream(backups)
+                        .filter(File::isDirectory)
+                        .sorted(Comparator.comparingLong(File::lastModified))
+                        .collect(Collectors.toList());
+
+                int currentCount = sortedBackups.size();
+
+                while (currentCount >= maxBackups) {
+                    File oldest = sortedBackups.get(0);
+                    deleteBackup(oldest.getName());
+                    if (player != null) {
+                        player.sendMessage(Component.text("Deleted oldest backup: ").color(TextColor.color(138, 138, 135))
+                                .append(Component.text(oldest.getName()).color(NamedTextColor.WHITE)));
+                    }
+                    NikeySystem.getPlugin().getLogger().info("Deleted oldest backup: " + oldest.getName());
+                    sortedBackups.remove(0);
+                    currentCount--;
+                }
+            }
+        }
+
         try {
             long freeSpace = getFreeDiskSpace(backupFolder);
             long estimatedBackupSize = estimateBackupSize(getServerFolder());
-            long minimumFreeSpace = 5L * 1024 * 1024 * 1024;
+            long minimumFreeSpace = 10L * 1024 * 1024 * 1024;
 
             if (freeSpace - estimatedBackupSize < minimumFreeSpace) {
                 NikeySystem.getPlugin().getLogger().warning("Not enough disk space for backup. Required: "
@@ -173,7 +209,6 @@ public class BackupDistributor {
             Files.walkFileTree(getServerFolder().toPath(), new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
-                    // Überspringe den Backup-Ordner selbst
                     if (dir.getFileName().toString().equalsIgnoreCase(backupFolder.toPath().toString())) {
                         return FileVisitResult.SKIP_SUBTREE;
                     }
@@ -181,7 +216,7 @@ public class BackupDistributor {
                 }
 
                 @Override
-                public @NotNull FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                public @NotNull FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
                     try {
                         Path target = backupDestination.toPath().resolve(getServerFolder().toPath().relativize(file));
                         Files.createDirectories(target.getParent());
@@ -242,7 +277,6 @@ public class BackupDistributor {
         }
 
         try {
-            // Rekursiv den Ordner und seine Inhalte löschen
             Files.walkFileTree(backupToDelete.toPath(), new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -274,7 +308,6 @@ public class BackupDistributor {
         }
 
         try {
-            // Rekursiv den Ordner und seine Inhalte löschen
             Files.walkFileTree(backupToDelete.toPath(), new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -293,49 +326,6 @@ public class BackupDistributor {
         }
     }
 
-    private static void loadBackup(CommandSender sender, String name) {
-        File backupToLoad = new File(backupFolder, name);
-        if (!backupToLoad.exists()) {
-            sender.sendMessage("§cBackup doesn't exist: " + name);
-            return;
-        }
-        sender.sendMessage(Component.text("Loading backup: ").color(TextColor.color(138, 138, 135))
-                .append(Component.text(name).color(NamedTextColor.WHITE))
-                .append(Component.text(" (This will overwrite current server data)").color(TextColor.color(138, 138, 135))));
-
-        try {
-            Files.walkFileTree(backupToLoad.toPath(), new SimpleFileVisitor<>() {
-                @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    Path targetPath = getServerFolder().toPath().resolve(backupToLoad.toPath().relativize(dir));
-                    Path targetDir = targetPath.resolve(backupToLoad.toPath().relativize(dir));
-                    if (Files.exists(targetDir) && Files.isDirectory(targetDir)) {
-                        return FileVisitResult.CONTINUE;
-                    }
-                    return FileVisitResult.SKIP_SUBTREE;
-                }
-
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    // Zielpfad für die Datei berechnen
-                    Path targetPath = getServerFolder().toPath().resolve(backupToLoad.toPath().relativize(file));
-
-                    if (Files.isRegularFile(file)) {
-                        Path targetFile = targetPath.resolve(backupToLoad.toPath().relativize(file));
-                        Files.copy(file, targetFile, StandardCopyOption.REPLACE_EXISTING);
-                        ChatAPI.sendManagementMessage(Component.text("Copied file:" + file.toString()), ChatAPI.ManagementType.INFO);
-                    }
-                    return FileVisitResult.CONTINUE;
-                }
-            });
-            ChatAPI.sendManagementMessage(Component.text("Backup loaded!"), ChatAPI.ManagementType.INFO);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return; // Fehlerbehandlung
-        }
-
-    }
-
 
     private static void listBackups(CommandSender sender) {
         File[] backups = backupFolder.listFiles();
@@ -349,65 +339,29 @@ public class BackupDistributor {
         }
     }
 
-    private static void startAutoDeleteTask() {
-        long deleteInterval = NikeySystem.getPlugin().getConfig().getLong("backup.auto_delete_interval", 0);
-
-        if (deleteInterval <= 0) {
-            return;
-        }
-
-        ChatAPI.sendManagementMessage(Component.text("Backup delete scheduler started with interval: " ,ChatAPI.infoColor).append(Component.text(formatTime(deleteInterval))), ChatAPI.ManagementType.INFO,true);
-
-        // Konvertiere das Intervall von Millisekunden in Ticks
-        long intervalInTicks = deleteInterval / 50;
-
-        Bukkit.getScheduler().runTaskTimerAsynchronously(NikeySystem.getPlugin(), () -> {
-            try {
-                File[] backups = backupFolder.listFiles((dir, name) -> new File(dir, name).isDirectory());
-                if (backups == null || backups.length == 0) {
-                    return;
-                }
-
-                // Ältestes Backup finden
-                File oldestBackup = Arrays.stream(backups)
-                        .min(Comparator.comparingLong(File::lastModified))
-                        .orElse(null);
-
-                long age = System.currentTimeMillis() - oldestBackup.lastModified();
-
-                // Löschen, wenn das Intervall überschritten wurde
-                if (age > deleteInterval) {
-                    String backupName = oldestBackup.getName();
-
-                    NikeySystem.getPlugin().getLogger().info("Deleting old backup: " + backupName);
-                    deleteBackup(backupName);
-                }
-            } catch (Exception e) {
-                ChatAPI.sendManagementMessage(Component.text("Failed to delete old backup: " + e.getMessage()), ChatAPI.ManagementType.ERROR);
-                NikeySystem.getPlugin().getLogger().severe("Failed to delete old backup: " + e.getMessage());
-            }
-        }, intervalInTicks, intervalInTicks);
-    }
-
 
     private static File getServerFolder() {
-        return getServer().getWorldContainer();
+        return Bukkit.getServer().getWorldContainer();
     }
 
 
     public static void startup() {
-        // Ordner für Backups erstellen
         if (!backupFolder.exists() && !backupFolder.mkdirs()) {
             NikeySystem.getPlugin().getLogger().warning("Failed to create backup folder: " + backupFolder.getAbsolutePath());
             ChatAPI.sendManagementMessage(Component.text("Failed to create backup folder: " + backupFolder.getAbsolutePath()), ChatAPI.ManagementType.ERROR);
         }
+        BackupDatabase.connect();
 
-        // Zeit seit dem letzten Backup berechnen und AutoBackup planen
-        long interval = NikeySystem.getPlugin().getConfig().getLong("settings.backup_interval", 0);
-        if (interval > 0) {
-            restartBackupScheduler(interval);
+
+        String interval = BackupDatabase.loadSetting("backup_interval");
+
+        if (interval == null) {
+            return;
         }
-        startAutoDeleteTask();
+
+        if (isLong(interval)) {
+            restartBackupScheduler(Long.parseLong(interval));
+        }
     }
 
     private static BukkitTask backupTask;
@@ -421,6 +375,7 @@ public class BackupDistributor {
             String name = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
             createBackup(name,null);
         }, interval / 50, interval / 50); // Bukkit verwendet Ticks (1 Tick = 50 ms)
+
         ChatAPI.sendManagementMessage(Component.text("Backup scheduler started with interval: " ,ChatAPI.infoColor).append(Component.text(formatTime(interval))), ChatAPI.ManagementType.INFO,true);
         NikeySystem.getPlugin().getLogger().info("Backup scheduler started with interval: " + formatTime(interval));
     }

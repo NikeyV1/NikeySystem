@@ -44,6 +44,7 @@ public class Punishment {
     }
 
     public enum PunishmentType {
+        MUTE,
         WARN,
         TEMPWARN,
         BAN,
@@ -53,6 +54,7 @@ public class Punishment {
         FULLBAN,
         KICK,
         FREEZE,
+        UNMUTE,
         UNFREEZE,
         UNBAN;
 

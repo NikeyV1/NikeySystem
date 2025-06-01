@@ -121,6 +121,6 @@ public class EffectDistributor {
     }
 
     private static LivingEntity getTargetEntity(Player player) {
-        return (LivingEntity) player.getTargetEntity(10); // Findet die Entität in einem Umkreis von 10 Blöcken
+        return (LivingEntity) player.getTargetEntity(10);
     }
 }

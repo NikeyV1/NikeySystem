@@ -65,7 +65,7 @@ public class ModerationDistributor {
             );
 
             // Add to history and kick player
-            PlayerHistoryManager historyManager = new PlayerHistoryManager();
+            PlayerHistoryManager historyManager = NikeySystem.getManager();
             historyManager.addPunishment(target.getUniqueId(), punishment);
             Instant banExpiry = Instant.now().plusSeconds(duration);
             Bukkit.getBanList(BanListType.PROFILE).addBan(target.getPlayerProfile(), reason, banExpiry, sender.getName());
@@ -106,7 +106,7 @@ public class ModerationDistributor {
             );
 
             // Füge das Punishment der Historie hinzu
-            PlayerHistoryManager historyManager = new PlayerHistoryManager();
+            PlayerHistoryManager historyManager = NikeySystem.getManager();
             historyManager.addPunishment(target.getUniqueId(), punishment);
 
             // Banne den Spieler
@@ -124,7 +124,7 @@ public class ModerationDistributor {
         }else if (cmd.equalsIgnoreCase("freeze")) {
             if (args.length == 5) {
                 Player target = Bukkit.getPlayer(args[4]);
-                if (target == null || !HideAPI.canSee(sender,target)) {
+                if (target == null || !HideAPI.canSee(sender.getUniqueId(),target.getUniqueId())) {
                     sender.sendMessage(Component.text("Target not found").color(NamedTextColor.RED));
                     return;
                 }
@@ -149,7 +149,7 @@ public class ModerationDistributor {
                         true
                 );
 
-                PlayerHistoryManager historyManager = new PlayerHistoryManager();
+                PlayerHistoryManager historyManager = NikeySystem.getManager();
                 historyManager.addPunishment(target.getUniqueId(), punishment);
 
                 ModerationAPI.freezePlayer(target.getUniqueId());
@@ -158,7 +158,7 @@ public class ModerationDistributor {
                         .append(Component.text(target.getName()).color(NamedTextColor.WHITE)));
             } else if (args.length == 6) {
                 Player target = Bukkit.getPlayer(args[4]);
-                if (target == null || !HideAPI.canSee(sender,target)) {
+                if (target == null || !HideAPI.canSee(sender.getUniqueId(),target.getUniqueId())) {
                     sender.sendMessage(Component.text("Target not found").color(NamedTextColor.RED));
                     return;
                 }
@@ -192,7 +192,7 @@ public class ModerationDistributor {
                         false
                 );
 
-                PlayerHistoryManager historyManager = new PlayerHistoryManager();
+                PlayerHistoryManager historyManager = NikeySystem.getManager();
                 historyManager.addPunishment(target.getUniqueId(), punishment);
 
                 ModerationAPI.freezePlayer(target.getUniqueId());
@@ -227,7 +227,7 @@ public class ModerationDistributor {
             }
 
             Player target = Bukkit.getPlayer(args[4]);
-            if (target == null || !HideAPI.canSee(sender,target)) {
+            if (target == null || !HideAPI.canSee(sender.getUniqueId(),target.getUniqueId())) {
                 sender.sendMessage(Component.text("Target not found").color(NamedTextColor.RED));
                 return;
             }
@@ -253,7 +253,7 @@ public class ModerationDistributor {
                     0,
                     true
             );
-            PlayerHistoryManager historyManager = new PlayerHistoryManager();
+            PlayerHistoryManager historyManager = NikeySystem.getManager();
             historyManager.addPunishment(target.getUniqueId(), unfreezePunishment);
 
             sender.sendMessage(Component.text("Unfroze ").color(moderationColor)
@@ -282,7 +282,7 @@ public class ModerationDistributor {
                     0,
                     true
             );
-            PlayerHistoryManager historyManager = new PlayerHistoryManager();
+            PlayerHistoryManager historyManager = NikeySystem.getManager();
             historyManager.addPunishment(player.getUniqueId(), unbanPunishment);
 
             sender.sendMessage(Component.text("Unbanned ").color(moderationColor)
@@ -327,7 +327,7 @@ public class ModerationDistributor {
                             .append(Component.text("Created: ", NamedTextColor.YELLOW))
                             .append(Component.text(creationDate, NamedTextColor.WHITE))
                             .append(Component.newline())
-                            .append(Component.text("Expires: ", NamedTextColor.YELLOW))
+                            .append(Component.text("Expires: ", NamedTextColor.RED))
                             .append(Component.text(expiryDate, NamedTextColor.WHITE))
                             .append(Component.newline())
                             .append(Component.text("-------------------", NamedTextColor.GRAY))
