@@ -49,7 +49,11 @@ public class ChatFunctions implements Listener {
     public void onAsyncChat(AsyncChatEvent event) {
         Player player = event.getPlayer();
         if (MuteAPI.isMuted(player.getUniqueId())) {
-            if (PermissionAPI.isSystemUser(player)) player.sendMessage("§cYou are muted and cannot chat");
+            if (PermissionAPI.isSystemUser(player)) {
+                player.sendMessage("§cYou are muted and cannot chat");
+            }else {
+                player.sendMessage(Component.text("<" + player.getName() + "> ").append(event.message()));
+            }
             event.setCancelled(true);
         }
     }

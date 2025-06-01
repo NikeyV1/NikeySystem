@@ -51,21 +51,20 @@ public class PunishmentDatabase {
 
     // ---------------- FREEZE ----------------
 
-    public static void saveFrozenPlayer(UUID uuid) {
-        try (PreparedStatement ps = connection.prepareStatement(
-                "REPLACE INTO frozen_players (uuid) VALUES (?);")) {
-            ps.setString(1, uuid.toString());
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+    public static void saveFrozenPlayers() {
+        Set<UUID> frozenPlayers = ModerationAPI.getFrozenPlayers();
+        try {
+            try (PreparedStatement deleteStmt = connection.prepareStatement("DELETE FROM frozen_players")) {
+                deleteStmt.executeUpdate();
+            }
 
-    public static void removeFrozenPlayer(UUID uuid) {
-        try (PreparedStatement ps = connection.prepareStatement(
-                "DELETE FROM frozen_players WHERE uuid = ?;")) {
-            ps.setString(1, uuid.toString());
-            ps.executeUpdate();
+            try (PreparedStatement insertStmt = connection.prepareStatement("INSERT INTO frozen_players (uuid) VALUES (?)")) {
+                for (UUID uuid : frozenPlayers) {
+                    insertStmt.setString(1, uuid.toString());
+                    insertStmt.addBatch();
+                }
+                insertStmt.executeBatch();
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -103,15 +102,21 @@ public class PunishmentDatabase {
         }
     }
 
-    public static void removeMutedPlayer(UUID uuid) {
-        try (PreparedStatement ps = connection.prepareStatement(
-                "DELETE FROM muted_players WHERE uuid = ?")) {
-            ps.setString(1, uuid.toString());
-            ps.executeUpdate();
+    public static void saveAllMutedPlayers() {
+        try (PreparedStatement deleteStmt = connection.prepareStatement("DELETE FROM muted_players")) {
+            deleteStmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            return;
+        }
+        Set<UUID> muted = MuteAPI.getMutedPlayers();
+        for (UUID uuid : muted) {
+            long endTime = MuteAPI.getMutedLong(uuid);
+            NikeySystem.getPlugin().getLogger().info("save: " + endTime);
+            saveMutedPlayer(uuid, endTime);
         }
     }
+
 
     public static void loadAllMutedPlayers() {
         try (PreparedStatement ps = connection.prepareStatement("SELECT uuid, end_time FROM muted_players");
@@ -201,6 +206,11 @@ public class PunishmentDatabase {
     public static void loadAllData() {
         loadAllFrozenPlayers();
         loadAllMutedPlayers();
-        //NikeySystem.getManager().loadAllHistories();
+        NikeySystem.getManager().loadAllHistories();
+    }
+
+    public static void saveAllData() {
+        saveAllMutedPlayers();
+        saveFrozenPlayers();
     }
 }

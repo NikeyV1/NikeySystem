@@ -1,9 +1,5 @@
 package de.nikey.nikeysystem.Player.API;
 
-import de.nikey.nikeysystem.DataBases.PunishmentDatabase;
-import de.nikey.nikeysystem.NikeySystem;
-import org.bukkit.configuration.file.FileConfiguration;
-
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,18 +9,22 @@ public class MuteAPI {
 
     public static void add(UUID player, long endTime) {
         mutedPlayers.put(player, endTime);
-        PunishmentDatabase.saveMutedPlayer(player, endTime);
     }
 
     public static void remove(UUID player) {
         mutedPlayers.remove(player);
-        PunishmentDatabase.removeMutedPlayer(player);
     }
 
     public static Set<UUID> getMutedPlayers() {
         return mutedPlayers.keySet();
     }
 
+    //Real data
+    public static long getMutedLong(UUID player) {
+        return mutedPlayers.get(player);
+    }
+
+    //Recalced data
     public static long getMutedDuration(UUID player) {
         Long l = mutedPlayers.get(player);
         if (l == 0) {

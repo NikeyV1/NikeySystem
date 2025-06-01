@@ -26,12 +26,10 @@ public class ModerationAPI {
 
     public static void freezePlayer(UUID uuid) {
         frozenPlayers.add(uuid);
-        PunishmentDatabase.saveFrozenPlayer(uuid);
     }
 
     public static void unfreezePlayer(UUID uuid) {
         frozenPlayers.remove(uuid);
-        PunishmentDatabase.removeFrozenPlayer(uuid);
     }
 
     public static int parseTime(String input) throws IllegalArgumentException {
@@ -144,6 +142,7 @@ public class ModerationAPI {
     }
 
     public static void punishmentShutdown() {
+        PunishmentDatabase.saveAllData();
         PunishmentDatabase.disconnect();
     }
 }
