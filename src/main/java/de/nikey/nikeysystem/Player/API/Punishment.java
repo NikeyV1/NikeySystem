@@ -46,7 +46,6 @@ public class Punishment {
     public enum PunishmentType {
         MUTE,
         WARN,
-        TEMPWARN,
         BAN,
         TEMPBAN,
         IPBAN,
