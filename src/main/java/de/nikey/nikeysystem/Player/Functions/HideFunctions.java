@@ -145,20 +145,14 @@ public class HideFunctions implements Listener {
                     Team playerTeam = event.getPlayer().getScoreboard().getPlayerTeam(event.getPlayer());
 
                     if (playerTeam == null) {
-                        online.sendMessage(Component.text(event.getPlayer().getName() + " joined the game").color(NamedTextColor.YELLOW));
+                        online.sendMessage(Component.text(event.getPlayer().getName() + " left the game").color(NamedTextColor.YELLOW));
                     }else {
-                        online.sendMessage(playerTeam.prefix().append(Component.text(" " + event.getPlayer().getName() + " joined the game").color(NamedTextColor.YELLOW)));
+                        online.sendMessage(playerTeam.prefix().append(Component.text(" " + event.getPlayer().getName() + " left the game").color(NamedTextColor.YELLOW)));
                     }
-                    online.sendMessage("§e" +event.getPlayer().getName() + " left the game");
                 }
             }
         } else if (HideAPI.isTrueHide(event.getPlayer().getUniqueId())) {
             event.setQuitMessage("");
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                if (HideAPI.canSee(player,event.getPlayer())) {
-                    player.sendMessage("§e" +event.getPlayer().getName() + " left the game");
-                }
-            }
         }
     }
 
