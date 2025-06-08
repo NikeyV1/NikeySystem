@@ -20,8 +20,10 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
+import static de.nikey.nikeysystem.Player.API.ModerationAPI.freezePlayer;
 import static de.nikey.nikeysystem.Player.API.ModerationAPI.parseTime;
 
 public class ModerationDistributor {
@@ -50,13 +52,15 @@ public class ModerationDistributor {
             if (duration <= 0) {
                 sender.sendMessage("Invalid duration format");
                 return;
-            }
+            };
+
 
             String reason = String.join(" ", Arrays.copyOfRange(args, 6, args.length));
 
             // Create punishment
             Punishment punishment = new Punishment(
                     target.getUniqueId(),
+                    sender.getUniqueId(),
                     Punishment.PunishmentType.TEMPBAN,
                     reason,
                     System.currentTimeMillis(),
@@ -98,6 +102,7 @@ public class ModerationDistributor {
 
             Punishment punishment = new Punishment(
                     target.getUniqueId(),
+                    sender.getUniqueId(),
                     Punishment.PunishmentType.BAN,
                     reason,
                     System.currentTimeMillis(),
@@ -142,6 +147,7 @@ public class ModerationDistributor {
 
                 Punishment punishment = new Punishment(
                         target.getUniqueId(),
+                        sender.getUniqueId(),
                         Punishment.PunishmentType.FREEZE,
                         "Frozen by " + sender.getName(),
                         System.currentTimeMillis(),
@@ -185,6 +191,7 @@ public class ModerationDistributor {
 
                 Punishment punishment = new Punishment(
                         target.getUniqueId(),
+                        sender.getUniqueId(),
                         Punishment.PunishmentType.FREEZE,
                         "Frozen for " + timeInput,
                         System.currentTimeMillis(),
@@ -206,6 +213,7 @@ public class ModerationDistributor {
                     ModerationAPI.unfreezePlayer(target.getUniqueId());
                     Punishment unfreezePunishment = new Punishment(
                             target.getUniqueId(),
+                            sender.getUniqueId(),
                             Punishment.PunishmentType.UNFREEZE,
                             "Unfrozen after " + timeInput,
                             System.currentTimeMillis(),
@@ -247,6 +255,7 @@ public class ModerationDistributor {
 
             Punishment unfreezePunishment = new Punishment(
                     target.getUniqueId(),
+                    sender.getUniqueId(),
                     Punishment.PunishmentType.UNFREEZE,
                     "Unfrozen manually",
                     System.currentTimeMillis(),
@@ -276,6 +285,7 @@ public class ModerationDistributor {
 
             Punishment unbanPunishment = new Punishment(
                     player.getUniqueId(),
+                    sender.getUniqueId(),
                     Punishment.PunishmentType.UNBAN,
                     "Unbanned manually",
                     System.currentTimeMillis(),
@@ -353,6 +363,70 @@ public class ModerationDistributor {
                     sender.sendMessage(freezeInfo);
                 }
             }
+        } else if (cmd.equalsIgnoreCase("history")) {
+            if (args.length != 5) return;
+
+            UUID id = Bukkit.getPlayerUniqueId(args[4]);
+            if (id == null) {
+                sender.sendMessage(Component.text("Error: Player not found").color(NamedTextColor.RED));
+                return;
+            }
+
+            List<Punishment> punishments = NikeySystem.getManager().getHistory(id);
+
+            if (punishments.isEmpty()) {
+                sender.sendMessage(Component.text("No punishments found for this player.", moderationColor));
+                return;
+            }
+
+            sender.sendMessage(Component.text("──── Punishment History for " + args[4] + " ────", moderationColor));
+
+            SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+
+            for (Punishment p : punishments) {
+                Component base = Component.text("» ", NamedTextColor.GRAY)
+                        .append(Component.text(p.getType().name(), NamedTextColor.RED));
+
+                // Staff name (causer)
+                String causerName = Bukkit.getOfflinePlayer(p.getCauserUUID()).getName();
+                if (causerName == null) causerName = "Unknown";
+
+                base = base.append(Component.text(" by ", NamedTextColor.GRAY))
+                        .append(Component.text(causerName, NamedTextColor.AQUA));
+
+                // Time
+                base = base.append(Component.text(" on ", NamedTextColor.GRAY))
+                        .append(Component.text(sdf.format(p.getStartTime()), NamedTextColor.WHITE));
+
+                // Optional: Duration / Permanent
+                boolean isPunish = switch (p.getType()) {
+                    case BAN, TEMPBAN, MUTE, TEMPIPBAN, IPBAN, FULLBAN, FREEZE, KICK -> true;
+                    default -> false;
+                };
+
+                String s = ModerationAPI.formatTime((int) p.getDuration());
+
+                if (isPunish) {
+                    if (p.isPermanent()) {
+                        base = base.append(Component.text(" [Permanent]", NamedTextColor.DARK_RED));
+                    } else {
+                        base = base.append(Component.text(" [" + s + "]", NamedTextColor.YELLOW));
+                    }
+                }
+
+                // Hover shows detailed info
+                String hover = "Reason: " + p.getReason() +
+                        "\nType: " + p.getType().name() +
+                        "\nCaused by: " + causerName +
+                        (p.isPermanent() ? "\nDuration: Permanent" :
+                                (p.getDuration() > 0 ? "\nDuration: " + s : ""));
+
+                base = base.hoverEvent(Component.text(hover, NamedTextColor.GRAY));
+
+                sender.sendMessage(base);
+            }
+
+            sender.sendMessage(Component.text("────────────────────────────", moderationColor));
         }
     }
 }

@@ -4,14 +4,16 @@ import java.util.UUID;
 
 public class Punishment {
     private final UUID playerUUID;
+    private final UUID causerUUID;
     private final PunishmentType type;
     private final String reason;
     private final long startTime;
     private final long duration;
     private final boolean isPermanent;
 
-    public Punishment(UUID playerUUID, PunishmentType type, String reason, long startTime, long duration, boolean isPermanent) {
+    public Punishment(UUID playerUUID,UUID causerUUID, PunishmentType type, String reason, long startTime, long duration, boolean isPermanent) {
         this.playerUUID = playerUUID;
+        this.causerUUID = causerUUID;
         this.type = type;
         this.reason = reason;
         this.startTime = startTime;
@@ -43,6 +45,10 @@ public class Punishment {
         return isPermanent;
     }
 
+    public UUID getCauserUUID() {
+        return causerUUID;
+    }
+
     public enum PunishmentType {
         MUTE,
         WARN,
@@ -65,6 +71,4 @@ public class Punishment {
             }
         }
     }
-
 }
-

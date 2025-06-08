@@ -59,6 +59,25 @@ public class ModerationAPI {
         };
     }
 
+    public static String formatTime(int seconds) {
+        if (seconds <= 0) return "0s";
+
+        if (seconds % (30 * 24 * 60 * 60) == 0) {
+            return (seconds / (30 * 24 * 60 * 60)) + "M"; // Monate
+        } else if (seconds % (7 * 24 * 60 * 60) == 0) {
+            return (seconds / (7 * 24 * 60 * 60)) + "w"; // Wochen
+        } else if (seconds % (24 * 60 * 60) == 0) {
+            return (seconds / (24 * 60 * 60)) + "d"; // Tage
+        } else if (seconds % (60 * 60) == 0) {
+            return (seconds / (60 * 60)) + "h"; // Stunden
+        } else if (seconds % 60 == 0) {
+            return (seconds / 60) + "m"; // Minuten
+        } else {
+            return seconds + "s"; // Sekunden
+        }
+    }
+
+
     public static class KickMessanges {
         public static Component createPermanentBanMessage(String reason) {
             return Component.text()

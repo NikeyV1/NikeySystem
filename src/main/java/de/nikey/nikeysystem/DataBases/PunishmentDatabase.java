@@ -28,6 +28,7 @@ public class PunishmentDatabase {
 
                 stmt.executeUpdate("CREATE TABLE IF NOT EXISTS punishment_history (" +
                         "uuid TEXT NOT NULL," +
+                        "causer TEXT NOT NULL," +
                         "type TEXT NOT NULL," +
                         "reason TEXT NOT NULL," +
                         "start_time INTEGER NOT NULL," +
@@ -145,13 +146,14 @@ public class PunishmentDatabase {
 
     public static void savePunishmentHistory(Punishment punishment) {
         try (PreparedStatement ps = connection.prepareStatement(
-                "INSERT INTO punishment_history (uuid, type, reason, start_time, duration, is_permanent) VALUES (?, ?, ?, ?, ?, ?)")) {
+                "INSERT INTO punishment_history (uuid, causer, type, reason, start_time, duration, is_permanent) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
             ps.setString(1, punishment.getPlayerUUID().toString());
-            ps.setString(2, punishment.getType().name());
-            ps.setString(3, punishment.getReason());
-            ps.setLong(4, punishment.getStartTime());
-            ps.setLong(5, punishment.getDuration());
-            ps.setInt(6, punishment.isPermanent() ? 1 : 0);
+            ps.setString(2, punishment.getCauserUUID().toString());
+            ps.setString(3, punishment.getType().name());
+            ps.setString(4, punishment.getReason());
+            ps.setLong(5, punishment.getStartTime());
+            ps.setLong(6, punishment.getDuration());
+            ps.setInt(7, punishment.isPermanent() ? 1 : 0);
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -161,18 +163,19 @@ public class PunishmentDatabase {
     public static List<Punishment> loadPunishmentHistory(UUID uuid) {
         List<Punishment> history = new ArrayList<>();
         try (PreparedStatement ps = connection.prepareStatement(
-                "SELECT type, reason, start_time, duration, is_permanent FROM punishment_history WHERE uuid = ?")) {
+                "SELECT causer, type, reason, start_time, duration, is_permanent FROM punishment_history WHERE uuid = ?")) {
             ps.setString(1, uuid.toString());
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
                 Punishment.PunishmentType type = Punishment.PunishmentType.fromString(rs.getString("type"));
                 String reason = rs.getString("reason");
+                UUID causer = UUID.fromString(rs.getString("causer"));
                 long startTime = rs.getLong("start_time");
                 long duration = rs.getLong("duration");
                 boolean isPermanent = rs.getInt("is_permanent") == 1;
 
-                history.add(new Punishment(uuid, type, reason, startTime, duration, isPermanent));
+                history.add(new Punishment(uuid,causer, type, reason, startTime, duration, isPermanent));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -183,18 +186,19 @@ public class PunishmentDatabase {
     public static Map<UUID, List<Punishment>> loadAllPunishmentHistories() {
         Map<UUID, List<Punishment>> allHistories = new HashMap<>();
         try (PreparedStatement ps = connection.prepareStatement(
-                "SELECT uuid, type, reason, start_time, duration, is_permanent FROM punishment_history")) {
+                "SELECT uuid, causer, type, reason, start_time, duration, is_permanent FROM punishment_history")) {
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 UUID uuid = UUID.fromString(rs.getString("uuid"));
                 Punishment.PunishmentType type = Punishment.PunishmentType.fromString(rs.getString("type"));
                 String reason = rs.getString("reason");
+                UUID causer = UUID.fromString(rs.getString("causer"));
                 long startTime = rs.getLong("start_time");
                 long duration = rs.getLong("duration");
                 boolean isPermanent = rs.getInt("is_permanent") == 1;
 
-                Punishment punishment = new Punishment(uuid, type, reason, startTime, duration, isPermanent);
+                Punishment punishment = new Punishment(uuid, causer, type, reason, startTime, duration, isPermanent);
                 allHistories.computeIfAbsent(uuid, k -> new ArrayList<>()).add(punishment);
             }
         } catch (SQLException e) {
