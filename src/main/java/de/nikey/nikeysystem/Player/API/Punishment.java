@@ -16,7 +16,7 @@ public class Punishment {
         this.causerUUID = causerUUID;
         this.type = type;
         this.reason = reason;
-        this.startTime = startTime;
+        this.startTime = startTime; //in System.currentTimeMillis()
         this.duration = duration;
         this.isPermanent = isPermanent;
     }

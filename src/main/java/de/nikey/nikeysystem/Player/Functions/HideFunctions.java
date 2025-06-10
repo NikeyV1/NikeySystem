@@ -35,7 +35,7 @@ public class HideFunctions implements Listener {
     public void onPlayerShowPlayer(PlayerShowEntityEvent event) {
         if (event.getEntity() instanceof Player player) {
             if (HideAPI.isHidden(player.getUniqueId())) {
-                if (!HideAPI.canSee(event.getPlayer(), player)) {
+                if (!HideAPI.canSee(event.getPlayer(), player) && event.getPlayer().canSee(player)) {
                     event.getPlayer().hidePlayer(NikeySystem.getPlugin(),player);
                 }else {
                     Component textComponent = Component.text(event.getPlayer().getName())
@@ -44,7 +44,7 @@ public class HideFunctions implements Listener {
 
                     event.getEntity().showTitle(Title.title(Component.empty(),textComponent));
                 }
-            }else if (HideAPI.isTrueHide(player.getUniqueId())) {
+            }else if (HideAPI.isTrueHidden(player.getUniqueId()) && event.getPlayer().canSee(player)) {
                 event.getPlayer().hidePlayer(NikeySystem.getPlugin(), (Player) event.getEntity());
             }
         }
@@ -56,7 +56,7 @@ public class HideFunctions implements Listener {
         Player player = event.getPlayer();
         if (!(hidden instanceof Player))return;
 
-        if (HideAPI.canSee(player, (Player) hidden)) {
+        if (HideAPI.canSee(player, (Player) hidden) && !player.canSee(hidden)) {
             player.showEntity(NikeySystem.getPlugin(), hidden);
         }
     }
@@ -112,7 +112,7 @@ public class HideFunctions implements Listener {
             }
         }
 
-        if (HideAPI.isTrueHide(joiningPlayer.getUniqueId())) {
+        if (HideAPI.isTrueHidden(joiningPlayer.getUniqueId())) {
             event.setJoinMessage("");
             for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
                 if (!HideAPI.canSee(onlinePlayer,joiningPlayer)) {
@@ -129,7 +129,7 @@ public class HideFunctions implements Listener {
             }
         }
 
-        if (HideAPI.isTrueHide(joiningPlayer.getUniqueId())) {
+        if (HideAPI.isTrueHidden(joiningPlayer.getUniqueId())) {
             joiningPlayer.sendMessage(Component.text("You're now true hidden").color(NamedTextColor.DARK_GRAY));
         }else if (HideAPI.isHidden(joiningPlayer.getUniqueId())) {
             joiningPlayer.sendMessage(Component.text("You're now hidden").color(NamedTextColor.DARK_GRAY));
@@ -151,7 +151,7 @@ public class HideFunctions implements Listener {
                     }
                 }
             }
-        } else if (HideAPI.isTrueHide(event.getPlayer().getUniqueId())) {
+        } else if (HideAPI.isTrueHidden(event.getPlayer().getUniqueId())) {
             event.setQuitMessage("");
         }
     }
@@ -579,7 +579,7 @@ public class HideFunctions implements Listener {
                     player.sendMessage(Component.text("<" + sender.getName() + "> ").append(event.message()));
                 }
             }
-        }else if (HideAPI.isTrueHide(sender.getUniqueId())) {
+        }else if (HideAPI.isTrueHidden(sender.getUniqueId())) {
             event.setCancelled(true);
         }
     }
@@ -587,7 +587,7 @@ public class HideFunctions implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         Player player = event.getPlayer();
-        if (HideAPI.isHidden(player.getUniqueId()) || HideAPI.isTrueHide(player.getUniqueId())) {
+        if (HideAPI.isHidden(player.getUniqueId()) || HideAPI.isTrueHidden(player.getUniqueId())) {
             if (player.getWorld().getGameRuleValue(SEND_COMMAND_FEEDBACK)) {
                 player.getWorld().setGameRule(SEND_COMMAND_FEEDBACK,false);
                 new BukkitRunnable() {
@@ -613,7 +613,7 @@ public class HideFunctions implements Listener {
         Player player = event.getPlayer();
         String playerName = player.getName();
 
-        if (HideAPI.isHidden(player.getUniqueId()) || HideAPI.isTrueHide(player.getUniqueId())) {
+        if (HideAPI.isHidden(player.getUniqueId()) || HideAPI.isTrueHidden(player.getUniqueId())) {
 
             if (player.getWorld().getGameRuleValue(GameRule.ANNOUNCE_ADVANCEMENTS)) {
                 player.getWorld().setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS,false);
@@ -638,7 +638,7 @@ public class HideFunctions implements Listener {
                     players.sendMessage(deathMessage);
                 }
             }
-        }else if (HideAPI.isTrueHide(player.getUniqueId())) {
+        }else if (HideAPI.isTrueHidden(player.getUniqueId())) {
             event.deathMessage(Component.empty());
             for (Player players : Bukkit.getOnlinePlayers()) {
                 if (HideAPI.canSee(players,player)) {
@@ -652,7 +652,7 @@ public class HideFunctions implements Listener {
     public void onEntityTargetLivingEntity(EntityTargetLivingEntityEvent event) {
         LivingEntity target = event.getTarget();
         if (target == null)return;
-        if (HideAPI.isHidden(target.getUniqueId()) || HideAPI.isTrueHide(target.getUniqueId())){
+        if (HideAPI.isHidden(target.getUniqueId()) || HideAPI.isTrueHidden(target.getUniqueId())){
             if (!PlayerSettingsAPI.hasMobTargeting(target.getName())) {
                 event.setCancelled(true);
             }
@@ -663,7 +663,7 @@ public class HideFunctions implements Listener {
     public void onPlayerAttemptPickupItem(PlayerAttemptPickupItemEvent event) {
         LivingEntity target = event.getPlayer();
         if (target == null)return;
-        if (HideAPI.isHidden(target.getUniqueId()) || HideAPI.isTrueHide(target.getUniqueId())){
+        if (HideAPI.isHidden(target.getUniqueId()) || HideAPI.isTrueHidden(target.getUniqueId())){
             if (!PlayerSettingsAPI.hasItemPickup(target.getName())) {
                 event.setCancelled(true);
             }
@@ -674,7 +674,7 @@ public class HideFunctions implements Listener {
     public void onPlayerCropTrample(PlayerInteractEvent event) {
         Player target = event.getPlayer();
         if(event.getAction() == Action.PHYSICAL && event.getClickedBlock().getType() == Material.FARMLAND){
-            if (HideAPI.isHidden(target.getUniqueId()) || HideAPI.isTrueHide(target.getUniqueId())){
+            if (HideAPI.isHidden(target.getUniqueId()) || HideAPI.isTrueHidden(target.getUniqueId())){
                 if (!PlayerSettingsAPI.hasCropTrample(target.getName())) {
                     event.setCancelled(true);
                 }

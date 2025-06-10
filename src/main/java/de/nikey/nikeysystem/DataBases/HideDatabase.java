@@ -1,6 +1,7 @@
 package de.nikey.nikeysystem.DataBases;
 
 import de.nikey.nikeysystem.Player.API.HideAPI;
+import org.bukkit.Bukkit;
 
 import java.sql.*;
 import java.util.UUID;
@@ -60,49 +61,6 @@ public class HideDatabase {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-    }
-
-    public static void saveChanges() {
-        try {
-            connection.setAutoCommit(false);
-
-            try (PreparedStatement insert = connection.prepareStatement(
-                    "INSERT OR IGNORE INTO hide_status (uuid, type) VALUES (?, ?)")) {
-
-                for (UUID uuid : HideAPI.getChangedPlayers()) {
-                    String type = HideAPI.getTypeOf(uuid);
-                    if (type == null) continue;
-                    insert.setString(1, uuid.toString());
-                    insert.setString(2, type);
-                    insert.addBatch();
-                }
-
-                insert.executeBatch();
-            }
-
-            try (PreparedStatement delete = connection.prepareStatement(
-                    "DELETE FROM hide_status WHERE uuid = ?")) {
-                for (UUID uuid : HideAPI.getRemovedPlayers()) {
-                    delete.setString(1, uuid.toString());
-                    delete.addBatch();
-                }
-
-                delete.executeBatch();
-            }
-
-            connection.commit();
-
-            // Wichtig: Nach dem Commit aufräumen
-            HideAPI.clearChangedAndRemoved();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            try {
-                connection.rollback();
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
         }
     }
 

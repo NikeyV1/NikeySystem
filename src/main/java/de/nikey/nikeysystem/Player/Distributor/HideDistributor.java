@@ -64,7 +64,7 @@ public class HideDistributor {
                     messages.add("§bHidden");
                 }
 
-                if (HideAPI.isTrueHide(playerId)) {
+                if (HideAPI.isTrueHidden(playerId)) {
                     messages.add("§3True Hidden");
                 }
 
@@ -210,7 +210,7 @@ public class HideDistributor {
             return;
         }
 
-        if (!HideAPI.isTrueHide(offlineTarget.getUniqueId())) {
+        if (!HideAPI.isTrueHidden(offlineTarget.getUniqueId())) {
             HideAPI.trueHidePlayer(offlineTarget.getUniqueId());
             if (message && offlineTarget.isOnline()) {
                 Player target = Bukkit.getPlayer(offlineTarget.getUniqueId());

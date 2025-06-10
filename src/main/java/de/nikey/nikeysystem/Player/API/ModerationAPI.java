@@ -7,30 +7,53 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ModerationAPI {
-    private static final Set<UUID> frozenPlayers = new HashSet<>();
+    private static final HashMap<UUID, Long> frozenPlayers = new HashMap<>();
+
+    public static void freezePlayer(UUID player) {
+        frozenPlayers.put(player, 0L); // 0 = permanent
+    }
+
+    public static void freezePlayer(UUID player, long durationSeconds) {
+        long endTime = System.currentTimeMillis() + (durationSeconds * 1000);
+        frozenPlayers.put(player, endTime);
+    }
 
     public static Set<UUID> getFrozenPlayers() {
-        return frozenPlayers;
+        return frozenPlayers.keySet();
     }
 
-    public static boolean isFrozen(UUID uuid) {
-        return frozenPlayers.contains(uuid);
+    public static void unfreezePlayer(UUID player) {
+        frozenPlayers.remove(player);
     }
 
-    public static void freezePlayer(UUID uuid) {
-        frozenPlayers.add(uuid);
+    public static boolean isFrozen(UUID player) {
+        if (!frozenPlayers.containsKey(player)) return false;
+
+        long endTime = frozenPlayers.get(player);
+        if (endTime == 0) return true; // permanent
+
+        if (System.currentTimeMillis() > endTime) {
+            unfreezePlayer(player);
+            return false;
+        }
+        return true;
     }
 
-    public static void unfreezePlayer(UUID uuid) {
-        frozenPlayers.remove(uuid);
+    public static long getRemainingFreezeTime(UUID player) {
+        if (!frozenPlayers.containsKey(player)) return 0;
+
+        long endTime = frozenPlayers.get(player);
+        if (endTime == 0) return -1;
+
+        long remaining = (endTime - System.currentTimeMillis()) / 1000;
+        return Math.max(remaining, 0);
     }
+
 
     public static int parseTime(String input) throws IllegalArgumentException {
         if (input == null || input.isEmpty()) {
@@ -62,18 +85,33 @@ public class ModerationAPI {
     public static String formatTime(int seconds) {
         if (seconds <= 0) return "0s";
 
-        if (seconds % (30 * 24 * 60 * 60) == 0) {
-            return (seconds / (30 * 24 * 60 * 60)) + "M"; // Monate
-        } else if (seconds % (7 * 24 * 60 * 60) == 0) {
-            return (seconds / (7 * 24 * 60 * 60)) + "w"; // Wochen
-        } else if (seconds % (24 * 60 * 60) == 0) {
-            return (seconds / (24 * 60 * 60)) + "d"; // Tage
-        } else if (seconds % (60 * 60) == 0) {
-            return (seconds / (60 * 60)) + "h"; // Stunden
-        } else if (seconds % 60 == 0) {
-            return (seconds / 60) + "m"; // Minuten
-        } else {
-            return seconds + "s"; // Sekunden
+        if (seconds >= 30 * 24 * 60 * 60) {
+            double months = seconds / (30.0 * 24 * 60 * 60);
+            return String.format(Locale.US,"%.1fM", months);
+        }
+        // Wochen
+        else if (seconds >= 7 * 24 * 60 * 60) {
+            double weeks = seconds / (7.0 * 24 * 60 * 60);
+            return String.format(Locale.US,"%.1fw", weeks);
+        }
+        // Tage
+        else if (seconds >= 24 * 60 * 60) {
+            double days = seconds / (24.0 * 60 * 60);
+            return String.format(Locale.US,"%.1fd", days);
+        }
+        // Stunden
+        else if (seconds >= 60 * 60) {
+            double hours = seconds / (60.0 * 60);
+            return String.format(Locale.US,"%.1fh", hours);
+        }
+        // Minuten
+        else if (seconds >= 60) {
+            double minutes = seconds / 60.0;
+            return String.format(Locale.US,"%.1fm", minutes);
+        }
+        // Sekunden
+        else {
+            return seconds + "s";
         }
     }
 

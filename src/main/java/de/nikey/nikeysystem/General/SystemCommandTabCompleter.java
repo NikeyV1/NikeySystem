@@ -214,7 +214,6 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length >= 3 && args[1].equalsIgnoreCase("location")) {
-            // Second argument (subcommands for mute)
             if (args.length == 3) {
                 return Arrays.asList("getLocation", "tp", "lastseen", "placeGuard", "removeGuard", "listGuard", "settings");
             }
@@ -550,6 +549,14 @@ public class SystemCommandTabCompleter implements TabCompleter {
             if (args.length == 4) {
                 return Arrays.asList("mute", "unmute", "get");
             } else if (args.length == 5) {
+                if (args[3].equalsIgnoreCase("unmute")) {
+                    ArrayList<String> comps = new ArrayList<>();
+                    for (UUID uuid : MuteAPI.getMutedPlayers()) {
+                        comps.add(Bukkit.getOfflinePlayer(uuid).getName());
+                    }
+                    return GeneralAPI.handleStringListing(comps,args[4]);
+                }
+
                 return GeneralAPI.handlePlayerListing((Player) sender,args,4);
             } else if (args.length == 6 && args[3].equalsIgnoreCase("mute")) {
                 return Arrays.asList("1d","1w","30m","10h");
@@ -558,7 +565,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
 
         if (args.length == 3 && args[1].equalsIgnoreCase("moderation")) {
-            return new ArrayList<>(Arrays.asList("manage","tempban","ban","freeze","unfreeze","unban","banlist"));
+            return new ArrayList<>(Arrays.asList("manage","tempban","ban","freeze","unfreeze","unban","banlist","history"));
         }
 
         if (args.length == 4 && args[1].equalsIgnoreCase("moderation")) {
@@ -566,7 +573,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
                 return GeneralAPI.handlePlayerListing(player, args, 3);
             }
 
-            if (args[2].equalsIgnoreCase("ban") || args[2].equalsIgnoreCase("tempban")) {
+            if (args[2].equalsIgnoreCase("ban") || args[2].equalsIgnoreCase("tempban") || args[2].equalsIgnoreCase("history")) {
                 return GeneralAPI.handleStringListing(Arrays.stream(Bukkit.getOfflinePlayers()).map(OfflinePlayer::getName).collect(Collectors.toList()),args[3]);
             }
 
@@ -590,6 +597,23 @@ public class SystemCommandTabCompleter implements TabCompleter {
 
         if (args.length == 5 && args[1].equalsIgnoreCase("moderation") && (args[2].equalsIgnoreCase("tempban") || args[2].equalsIgnoreCase("freeze"))) {
             return Arrays.asList("1h", "12h", "2d", "5d");
+        }
+
+        if (args.length == 5 && args[1].equalsIgnoreCase("moderation") && (args[2].equalsIgnoreCase("history"))) {
+            UUID id = Bukkit.getPlayerUniqueId(args[3]);
+            if (id == null) return Collections.emptyList();
+
+            List<Punishment> punishments = NikeySystem.getManager().getHistory(id);
+            if (punishments == null || punishments.isEmpty()) return Collections.emptyList();
+
+            int totalPages = (int) Math.ceil(punishments.size() / 20.0);
+            List<String> suggestions = new ArrayList<>();
+
+            for (int i = 1; i <= Math.min(5, totalPages); i++) {
+                suggestions.add(String.valueOf(i));
+            }
+
+            return GeneralAPI.handleStringListing(suggestions,args[4]);
         }
 
         if (args.length == 5 && args[1].equalsIgnoreCase("moderation") && args[2].equalsIgnoreCase("ban")) {

@@ -2,10 +2,7 @@ package de.nikey.nikeysystem.Player.Distributor;
 
 import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.NikeySystem;
-import de.nikey.nikeysystem.Player.API.Channel;
-import de.nikey.nikeysystem.Player.API.HideAPI;
-import de.nikey.nikeysystem.Player.API.MuteAPI;
-import de.nikey.nikeysystem.Player.API.PermissionAPI;
+import de.nikey.nikeysystem.Player.API.*;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -473,6 +470,20 @@ public class ChatDistributor {
                         .decoration(TextDecoration.BOLD, true));
             }
             MuteAPI.add(target.getUniqueId(), 0);
+
+            Punishment mutePunishment = new Punishment(
+                    target.getUniqueId(),
+                    sender.getUniqueId(),
+                    Punishment.PunishmentType.MUTE,
+                    "Muted manually",
+                    System.currentTimeMillis(),
+                    0,
+                    true
+            );
+
+            PlayerHistoryManager historyManager = NikeySystem.getManager();
+            historyManager.addPunishment(target.getUniqueId(), mutePunishment);
+
             sender.sendMessage(Component.text(target.getName()).color(NamedTextColor.WHITE)
                     .append(Component.text(" has been muted ").color(muteColor))
                     .append(Component.text("permanently").color(NamedTextColor.DARK_GRAY)));
@@ -482,6 +493,20 @@ public class ChatDistributor {
                         .append(Component.text(MuteAPI.decodeTime(duration)).color(NamedTextColor.WHITE)));
             }
             MuteAPI.add(target.getUniqueId(), System.currentTimeMillis() + (duration * 1000L));
+
+            Punishment mutePunishment = new Punishment(
+                    target.getUniqueId(),
+                    sender.getUniqueId(),
+                    Punishment.PunishmentType.MUTE,
+                    "Muted manually",
+                    System.currentTimeMillis(),
+                    duration,
+                    false
+            );
+
+            PlayerHistoryManager historyManager = NikeySystem.getManager();
+            historyManager.addPunishment(target.getUniqueId(), mutePunishment);
+
             sender.sendMessage(Component.text(target.getName()).color(NamedTextColor.WHITE)
                     .append(Component.text(" has been muted for ").color(muteColor))
                     .append(Component.text(MuteAPI.decodeTime(duration)).color(NamedTextColor.DARK_GRAY)));
@@ -492,7 +517,7 @@ public class ChatDistributor {
         OfflinePlayer offlineTarget = Bukkit.getOfflinePlayer(targetUUID);
 
         if (offlineTarget.getName() == null) {
-            sender.sendMessage(Component.text("Player not found!").color(NamedTextColor.RED));
+            sender.sendMessage(Component.text("Error: Player not found!").color(NamedTextColor.RED));
             return;
         }
         String targetName = offlineTarget.getName();
@@ -512,11 +537,23 @@ public class ChatDistributor {
 
         if (duration == 0) {
             if (isSystemUser && onlineTarget != null) {
-                onlineTarget.sendMessage(Component.text("You have been permanently muted")
-                        .color(muteColor)
-                        .decoration(TextDecoration.BOLD, true));
+                onlineTarget.sendMessage(Component.text("You have been permanently muted").color(muteColor));
             }
             MuteAPI.add(targetUUID, 0);
+
+            Punishment mutePunishment = new Punishment(
+                    offlineTarget.getUniqueId(),
+                    sender.getUniqueId(),
+                    Punishment.PunishmentType.MUTE,
+                    "Muted manually",
+                    System.currentTimeMillis(),
+                    0,
+                    true
+            );
+
+            PlayerHistoryManager historyManager = NikeySystem.getManager();
+            historyManager.addPunishment(offlineTarget.getUniqueId(), mutePunishment);
+
             sender.sendMessage(Component.text(targetName).color(NamedTextColor.WHITE)
                     .append(Component.text(" has been muted ").color(muteColor))
                     .append(Component.text("permanently").color(NamedTextColor.DARK_GRAY)));
@@ -526,6 +563,21 @@ public class ChatDistributor {
                         .append(Component.text(MuteAPI.decodeTime(duration)).color(NamedTextColor.WHITE)));
             }
             MuteAPI.add(targetUUID, System.currentTimeMillis() + (duration * 1000L));
+
+            Punishment mutePunishment = new Punishment(
+                    offlineTarget.getUniqueId(),
+                    sender.getUniqueId(),
+                    Punishment.PunishmentType.MUTE,
+                    "Muted manually",
+                    System.currentTimeMillis(),
+                    duration,
+                    false
+            );
+
+            PlayerHistoryManager historyManager = NikeySystem.getManager();
+            historyManager.addPunishment(offlineTarget.getUniqueId(), mutePunishment);
+
+
             sender.sendMessage(Component.text(targetName).color(NamedTextColor.WHITE)
                     .append(Component.text(" has been muted for ").color(muteColor))
                     .append(Component.text(MuteAPI.decodeTime(duration)).color(NamedTextColor.DARK_GRAY)));
@@ -547,10 +599,24 @@ public class ChatDistributor {
                     .append(Component.text("!")
                             .color(TextColor.color(0, 255, 0))));
         }
+
+        MuteAPI.remove(target.getUniqueId());
+
         sender.sendMessage(Component.text(target.getName()).color(NamedTextColor.WHITE)
                 .append(Component.text(" has been ").color(muteColor))
                 .append(Component.text("unmuted").color(NamedTextColor.GREEN)));
 
-        MuteAPI.remove(target.getUniqueId());
+        Punishment unmutePunishment = new Punishment(
+                target.getUniqueId(),
+                sender.getUniqueId(),
+                Punishment.PunishmentType.UNMUTE,
+                "Unmuted manually",
+                System.currentTimeMillis(),
+                0,
+                true
+        );
+
+        PlayerHistoryManager historyManager = NikeySystem.getManager();
+        historyManager.addPunishment(target.getUniqueId(), unmutePunishment);
     }
 }

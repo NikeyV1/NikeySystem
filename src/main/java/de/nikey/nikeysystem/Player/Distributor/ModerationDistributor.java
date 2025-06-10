@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import static de.nikey.nikeysystem.Player.API.ModerationAPI.freezePlayer;
 import static de.nikey.nikeysystem.Player.API.ModerationAPI.parseTime;
 
 public class ModerationDistributor {
@@ -202,31 +201,12 @@ public class ModerationDistributor {
                 PlayerHistoryManager historyManager = NikeySystem.getManager();
                 historyManager.addPunishment(target.getUniqueId(), punishment);
 
-                ModerationAPI.freezePlayer(target.getUniqueId());
+                ModerationAPI.freezePlayer(target.getUniqueId(), freezeTimeInSeconds);
 
                 sender.sendMessage(Component.text("Froze ").color(moderationColor)
                         .append(Component.text(target.getName()).color(NamedTextColor.WHITE))
                         .append(Component.text(" for ").color(moderationColor))
                         .append(Component.text(timeInput).color(NamedTextColor.GRAY)));
-
-                Bukkit.getScheduler().runTaskLater(NikeySystem.getPlugin(), () -> {
-                    ModerationAPI.unfreezePlayer(target.getUniqueId());
-                    Punishment unfreezePunishment = new Punishment(
-                            target.getUniqueId(),
-                            sender.getUniqueId(),
-                            Punishment.PunishmentType.UNFREEZE,
-                            "Unfrozen after " + timeInput,
-                            System.currentTimeMillis(),
-                            0,
-                            true
-                    );
-                    historyManager.addPunishment(target.getUniqueId(), unfreezePunishment);
-
-                    if (sender.isOnline()) {
-                        sender.sendMessage(Component.text("Unfroze ").color(moderationColor)
-                                .append(Component.text(target.getName()).color(NamedTextColor.WHITE)));
-                    }
-                }, freezeTimeInSeconds * 20L);
             }
         } else if (cmd.equalsIgnoreCase("Unfreeze")) {
             if (args.length != 5) {
@@ -364,7 +344,7 @@ public class ModerationDistributor {
                 }
             }
         } else if (cmd.equalsIgnoreCase("history")) {
-            if (args.length != 5) return;
+            if (args.length < 5) return;
 
             UUID id = Bukkit.getPlayerUniqueId(args[4]);
             if (id == null) {
@@ -379,11 +359,27 @@ public class ModerationDistributor {
                 return;
             }
 
-            sender.sendMessage(Component.text("──── Punishment History for " + args[4] + " ────", moderationColor));
+            int page = 1;
+            if (args.length >= 6) {
+                try {
+                    page = Math.max(1, Integer.parseInt(args[5]));
+                } catch (NumberFormatException ignored) {}
+            }
+
+            int pageSize = 18;
+            int totalPages = (int) Math.ceil((double) punishments.size() / pageSize);
+            if (page > totalPages) page = totalPages;
+
+            int startIndex = (page - 1) * pageSize;
+            int endIndex = Math.min(startIndex + pageSize, punishments.size());
+
+            sender.sendMessage(Component.text("──── Punishment History for " + args[4] + " | Page " + page + " of " + totalPages + " ────", moderationColor));
 
             SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm");
 
-            for (Punishment p : punishments) {
+            List<Punishment> pageList = punishments.subList(startIndex, endIndex);
+
+            for (Punishment p : pageList) {
                 Component base = Component.text("» ", NamedTextColor.GRAY)
                         .append(Component.text(p.getType().name(), NamedTextColor.RED));
 
@@ -392,10 +388,8 @@ public class ModerationDistributor {
                 if (causerName == null) causerName = "Unknown";
 
                 base = base.append(Component.text(" by ", NamedTextColor.GRAY))
-                        .append(Component.text(causerName, NamedTextColor.AQUA));
-
-                // Time
-                base = base.append(Component.text(" on ", NamedTextColor.GRAY))
+                        .append(Component.text(causerName, NamedTextColor.AQUA))
+                        .append(Component.text(" on ", NamedTextColor.GRAY))
                         .append(Component.text(sdf.format(p.getStartTime()), NamedTextColor.WHITE));
 
                 // Optional: Duration / Permanent
@@ -410,7 +404,15 @@ public class ModerationDistributor {
                     if (p.isPermanent()) {
                         base = base.append(Component.text(" [Permanent]", NamedTextColor.DARK_RED));
                     } else {
-                        base = base.append(Component.text(" [" + s + "]", NamedTextColor.YELLOW));
+                        long end = p.getStartTime() + (p.getDuration() * 1000L); // Sek -> ms
+                        long remaining = end - System.currentTimeMillis();
+
+                        if (remaining <= 0) {
+                            base = base.append(Component.text(" [Expired]", NamedTextColor.GRAY));
+                        } else {
+                            String time = ModerationAPI.formatTime((int) (remaining / 1000)); // wieder in Sekunden für Formatierung
+                            base = base.append(Component.text(" [" + time + "]", NamedTextColor.YELLOW));
+                        }
                     }
                 }
 

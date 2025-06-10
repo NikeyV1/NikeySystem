@@ -19,7 +19,8 @@ public class PunishmentDatabase {
             try (Statement stmt = connection.createStatement()) {
                 // Tabelle für Frozen-Spieler
                 stmt.executeUpdate("CREATE TABLE IF NOT EXISTS frozen_players (" +
-                        "uuid TEXT PRIMARY KEY);");
+                        "uuid TEXT PRIMARY KEY," +
+                        "end_time INTEGER NOT NULL);");
 
                 // Tabelle für Mute-Spieler
                 stmt.executeUpdate("CREATE TABLE IF NOT EXISTS muted_players (" +
@@ -59,9 +60,10 @@ public class PunishmentDatabase {
                 deleteStmt.executeUpdate();
             }
 
-            try (PreparedStatement insertStmt = connection.prepareStatement("INSERT INTO frozen_players (uuid) VALUES (?)")) {
+            try (PreparedStatement insertStmt = connection.prepareStatement("INSERT INTO frozen_players (uuid, end_time) VALUES (?, ?)")) {
                 for (UUID uuid : frozenPlayers) {
                     insertStmt.setString(1, uuid.toString());
+                    insertStmt.setLong(2, ModerationAPI.getRemainingFreezeTime(uuid));
                     insertStmt.addBatch();
                 }
                 insertStmt.executeBatch();
@@ -73,13 +75,14 @@ public class PunishmentDatabase {
 
     public static void loadAllFrozenPlayers() {
         try (PreparedStatement ps = connection.prepareStatement(
-                "SELECT uuid FROM frozen_players");
+                "SELECT uuid, end_time FROM frozen_players");
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 try {
                     UUID uuid = UUID.fromString(rs.getString("uuid"));
-                    ModerationAPI.freezePlayer(uuid);
+                    long endTime = rs.getLong("end_time");
+                    ModerationAPI.freezePlayer(uuid, endTime);
                 } catch (IllegalArgumentException e) {
                     NikeySystem.getPlugin().getLogger().info("Ungültige UUID in DB: " + rs.getString("uuid"));
                 }
@@ -113,7 +116,6 @@ public class PunishmentDatabase {
         Set<UUID> muted = MuteAPI.getMutedPlayers();
         for (UUID uuid : muted) {
             long endTime = MuteAPI.getMutedLong(uuid);
-            NikeySystem.getPlugin().getLogger().info("save: " + endTime);
             saveMutedPlayer(uuid, endTime);
         }
     }
@@ -175,7 +177,7 @@ public class PunishmentDatabase {
                 long duration = rs.getLong("duration");
                 boolean isPermanent = rs.getInt("is_permanent") == 1;
 
-                history.add(new Punishment(uuid,causer, type, reason, startTime, duration, isPermanent));
+                history.add(new Punishment(uuid, causer, type, reason, startTime, duration, isPermanent));
             }
         } catch (SQLException e) {
             e.printStackTrace();
