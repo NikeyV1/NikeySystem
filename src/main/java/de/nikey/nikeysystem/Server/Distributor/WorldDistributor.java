@@ -209,7 +209,7 @@ public class WorldDistributor {
                         return;
                     }
                     World world = Bukkit.getWorld(worldName);
-                    
+
                     if (world != null) {
                         sender.sendMessage(Component.text("World '").color(TextColor.color(25,167,80))
                                 .append(Component.text(world.getName()).color(NamedTextColor.WHITE))
@@ -224,6 +224,54 @@ public class WorldDistributor {
                     }
                 } else {
                     // Fehlermeldung, wenn die Welt nicht existiert
+                    sender.sendMessage(Component.text("Error: World '").color(NamedTextColor.RED)
+                            .append(Component.text(worldName).color(NamedTextColor.WHITE))
+                            .append(Component.text("' does not exist").color(NamedTextColor.RED)));
+                }
+            }
+        }else if (cmd.equalsIgnoreCase("unload")) {
+            if (args.length == 5) {
+                String worldName = args[4];
+                File worldFolder = new File(Bukkit.getWorldContainer(), worldName);
+
+                if (worldFolder.exists() && worldFolder.isDirectory()) {
+                    List<String > folder = Arrays.asList("plugins","versions","logs","libraries","debug","config","cache","crash-reports");
+                    if (folder.contains(worldName)){
+                        sender.sendMessage(Component.text("World '").color(TextColor.color(25,167,80))
+                                .append(Component.text(worldName).color(NamedTextColor.WHITE))
+                                .append(Component.text("' is not a world").color(TextColor.color(25,167,80))));
+                        return;
+                    }
+                    World world = Bukkit.getWorld(worldName);
+
+                    if (world == null) {
+                        sender.sendMessage(Component.text("World '").color(TextColor.color(25,167,80))
+                                .append(Component.text(worldName).color(NamedTextColor.WHITE))
+                                .append(Component.text("' isn't loaded").color(TextColor.color(25,167,80))));
+                    } else {
+
+                        World mainWorld = Bukkit.getWorld("world");
+                        for (Player player : Bukkit.getOnlinePlayers()) {
+                            if (player.getWorld().equals(world)) {
+                                if (mainWorld != null) {
+                                    player.teleport(mainWorld.getSpawnLocation());
+                                } else {
+                                    player.kick();
+                                }
+                            }
+                        }
+
+                        boolean success = Bukkit.unloadWorld(world, true);
+
+                        if (success) {
+                            sender.sendMessage(Component.text("World '").color(TextColor.color(25,167,80))
+                                    .append(Component.text(worldName).color(NamedTextColor.WHITE))
+                                    .append(Component.text("' has been successfully unloaded").color(TextColor.color(25,167,80))));
+                        }else {
+                            sender.sendMessage(Component.text("The world couldn't be unloaded correctly"));
+                        }
+                    }
+                } else {
                     sender.sendMessage(Component.text("Error: World '").color(NamedTextColor.RED)
                             .append(Component.text(worldName).color(NamedTextColor.WHITE))
                             .append(Component.text("' does not exist").color(NamedTextColor.RED)));

@@ -348,7 +348,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("world")) {
-            return new ArrayList<>(Arrays.asList("create","delete","tp","list","settings","load","createTempWorld"));
+            return new ArrayList<>(Arrays.asList("create","delete","tp","list","settings","load","createTempWorld","unload"));
         }
 
         if (args[1].equalsIgnoreCase("world") && args[2].equalsIgnoreCase("create")) {
@@ -414,9 +414,20 @@ public class SystemCommandTabCompleter implements TabCompleter {
             }
         }
 
+        if (args[1].equalsIgnoreCase("world") && args[2].equalsIgnoreCase("unload")) {
+            if (args.length == 4) {
+                List<World> worlds = Bukkit.getWorlds();
+                List<String> names = new ArrayList<>();
+                for (World world : worlds) {
+                    names.add(world.getName());
+                }
+                return GeneralAPI.handleStringListing(names,args[3]);
+            }
+        }
+
         if (args.length == 3 && args[1].equalsIgnoreCase("backup")) {
             if (PermissionAPI.isManagement(sender.getName())) {
-                return new ArrayList<>(Arrays.asList("list","create","delete","load","interval","maxbackups" , "settings"));
+                return new ArrayList<>(Arrays.asList("list","create","delete","load","interval","maxbackups", "settings"));
             }else {
                 return new ArrayList<>(Arrays.asList("list","create", "settings"));
             }
