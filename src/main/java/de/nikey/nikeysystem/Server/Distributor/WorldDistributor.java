@@ -268,7 +268,7 @@ public class WorldDistributor {
                                     .append(Component.text(worldName).color(NamedTextColor.WHITE))
                                     .append(Component.text("' has been successfully unloaded").color(TextColor.color(25,167,80))));
                         }else {
-                            sender.sendMessage(Component.text("The world couldn't be unloaded correctly"));
+                            sender.sendMessage(Component.text("The world couldn't be unloaded correctly").color(NamedTextColor.RED));
                         }
                     }
                 } else {

@@ -124,7 +124,6 @@ public class Channel{
         Set<UUID> invitedPlayers = ((List<String>) data.get("invitedPlayers")).stream()
                 .map(UUID::fromString).collect(Collectors.toSet());
 
-        Bukkit.broadcastMessage(String.valueOf(owner));
         Channel channel = new Channel(id, name, owner, isClosed, messages, members);
         channel.invitedPlayers.addAll(invitedPlayers);
         new BukkitRunnable() {

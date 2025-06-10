@@ -161,10 +161,10 @@ public class HideDistributor {
                 if (target != null) {
                     Team playerTeam = target.getScoreboard().getPlayerTeam(target);
 
-                    if (playerTeam == null) {
+                    if (playerTeam == null || playerTeam.prefix().equals(Component.empty())) {
                         Bukkit.broadcast(Component.text(target.getName() + " left the game").color(NamedTextColor.YELLOW));
                     }else {
-                        Bukkit.broadcast(playerTeam.prefix().append(Component.text(" " + target.getName() + " left the game").color(NamedTextColor.YELLOW)));
+                        Bukkit.broadcast(playerTeam.prefix().color(playerTeam.color()).append(Component.text(target.getName() + " left the game").color(NamedTextColor.YELLOW)));
                     }
                 }
             }
@@ -183,10 +183,10 @@ public class HideDistributor {
                 if (target != null) {
                     Team playerTeam = target.getScoreboard().getPlayerTeam(target);
 
-                    if (playerTeam == null) {
+                    if (playerTeam == null || playerTeam.prefix().equals(Component.empty())) {
                         Bukkit.broadcast(Component.text(target.getName() + " joined the game").color(NamedTextColor.YELLOW));
                     }else {
-                        Bukkit.broadcast(playerTeam.prefix().append(Component.text(" " + target.getName() + " joined the game").color(NamedTextColor.YELLOW)));
+                        Bukkit.broadcast(playerTeam.prefix().color(playerTeam.color()).append(Component.text(target.getName() + " joined the game").color(NamedTextColor.YELLOW)));
                     }
                 }
             }
@@ -217,10 +217,10 @@ public class HideDistributor {
                 if (target != null) {
                     Team playerTeam = target.getScoreboard().getPlayerTeam(target);
 
-                    if (playerTeam == null) {
+                    if (playerTeam == null || playerTeam.prefix().equals(Component.empty())) {
                         Bukkit.broadcast(Component.text(target.getName() + " left the game").color(NamedTextColor.YELLOW));
                     }else {
-                        Bukkit.broadcast(playerTeam.prefix().append(Component.text(" " + target.getName() + " left the game").color(NamedTextColor.YELLOW)));
+                        Bukkit.broadcast(playerTeam.prefix().color(playerTeam.color()).append(Component.text(target.getName() + " left the game").color(NamedTextColor.YELLOW)));
                     }
                 }
             }
@@ -239,10 +239,10 @@ public class HideDistributor {
                 if (target != null) {
                     Team playerTeam = target.getScoreboard().getPlayerTeam(target);
 
-                    if (playerTeam == null) {
+                    if (playerTeam == null || playerTeam.prefix().equals(Component.empty())) {
                         Bukkit.broadcast(Component.text(target.getName() + " joined the game").color(NamedTextColor.YELLOW));
                     }else {
-                        Bukkit.broadcast(playerTeam.prefix().append(Component.text(" " + target.getName() + " joined the game").color(NamedTextColor.YELLOW)));
+                        Bukkit.broadcast(playerTeam.prefix().color(playerTeam.color()).append(Component.text(target.getName() + " joined the game").color(NamedTextColor.YELLOW)));
                     }
                 }
             }

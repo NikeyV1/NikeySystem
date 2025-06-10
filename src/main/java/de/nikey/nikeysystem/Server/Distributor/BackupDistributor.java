@@ -91,7 +91,9 @@ public class BackupDistributor {
                     if (args[4].equalsIgnoreCase("0")) {
                         BackupDatabase.removeSetting("backup_interval");
                         sender.sendMessage(Component.text("Removed/Stopped backup interval").color(TextColor.color(138, 138, 135)));
-                        backupTask.cancel();
+                        if (backupTask != null) {
+                            backupTask.cancel();
+                        }
                         return;
                     }
 

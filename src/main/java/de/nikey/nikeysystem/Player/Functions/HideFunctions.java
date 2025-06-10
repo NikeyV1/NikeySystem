@@ -103,10 +103,10 @@ public class HideFunctions implements Listener {
                 }else {
                     Team playerTeam = onlinePlayer.getScoreboard().getPlayerTeam(onlinePlayer);
 
-                    if (playerTeam == null) {
+                    if (playerTeam == null || playerTeam.prefix().equals(Component.empty())) {
                         onlinePlayer.sendMessage(Component.text(joiningPlayer.getName() + " joined the game").color(NamedTextColor.YELLOW));
                     }else {
-                        onlinePlayer.sendMessage(playerTeam.prefix().append(Component.text(" " + joiningPlayer.getName() + " joined the game").color(NamedTextColor.YELLOW)));
+                        onlinePlayer.sendMessage(playerTeam.prefix().color(playerTeam.color()).append(Component.text(joiningPlayer.getName() + " joined the game").color(NamedTextColor.YELLOW)));
                     }
                 }
             }
@@ -120,10 +120,10 @@ public class HideFunctions implements Listener {
                 }else {
                     Team playerTeam = onlinePlayer.getScoreboard().getPlayerTeam(onlinePlayer);
 
-                    if (playerTeam == null) {
+                    if (playerTeam == null || playerTeam.prefix().equals(Component.empty())) {
                         onlinePlayer.sendMessage(Component.text(joiningPlayer.getName() + " joined the game").color(NamedTextColor.YELLOW));
                     }else {
-                        onlinePlayer.sendMessage(playerTeam.prefix().append(Component.text(" " + joiningPlayer.getName() + " joined the game").color(NamedTextColor.YELLOW)));
+                        onlinePlayer.sendMessage(playerTeam.prefix().color(playerTeam.color()).append(Component.text(joiningPlayer.getName() + " joined the game").color(NamedTextColor.YELLOW)));
                     }
                 }
             }
@@ -144,10 +144,10 @@ public class HideFunctions implements Listener {
                 if (HideAPI.canSee(online, event.getPlayer())) {
                     Team playerTeam = event.getPlayer().getScoreboard().getPlayerTeam(event.getPlayer());
 
-                    if (playerTeam == null) {
+                    if (playerTeam == null || playerTeam.prefix().equals(Component.empty())) {
                         online.sendMessage(Component.text(event.getPlayer().getName() + " left the game").color(NamedTextColor.YELLOW));
                     }else {
-                        online.sendMessage(playerTeam.prefix().append(Component.text(" " + event.getPlayer().getName() + " left the game").color(NamedTextColor.YELLOW)));
+                        online.sendMessage(playerTeam.prefix().color(playerTeam.color()).append(Component.text(event.getPlayer().getName() + " left the game").color(NamedTextColor.YELLOW)));
                     }
                 }
             }
