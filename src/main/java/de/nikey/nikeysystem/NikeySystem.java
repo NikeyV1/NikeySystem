@@ -1,7 +1,6 @@
 package de.nikey.nikeysystem;
 
 import de.nikey.nikeysystem.DataBases.BackupDatabase;
-import de.nikey.nikeysystem.DataBases.PunishmentDatabase;
 import de.nikey.nikeysystem.General.CommandRegister;
 import de.nikey.nikeysystem.General.SystemCommandTabCompleter;
 import de.nikey.nikeysystem.Player.API.*;
@@ -49,7 +48,7 @@ public final class NikeySystem extends JavaPlugin {
         WorldAPI.loadWorlds();
         BackupDistributor.startup();
         LoggingAPI.initializeFiles();
-        ChatAPI.loadChannels();
+        ChatAPI.chatStartup();
         ModerationAPI.punishmentStartup();
         registerLoggerFilters(new LogFilter());
 
@@ -97,7 +96,7 @@ public final class NikeySystem extends JavaPlugin {
         WorldFunctions.deleteTemporaryWorlds();
         InventoryAPI.saveInventories();
         LoggingAPI.saveLogs();
-        ChatAPI.saveChannels();
+        ChatAPI.chatShutdown();
         BackupDatabase.disconnect();
         ModerationAPI.punishmentShutdown();
     }

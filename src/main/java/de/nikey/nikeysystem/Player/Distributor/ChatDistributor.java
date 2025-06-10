@@ -14,7 +14,6 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +23,6 @@ public class ChatDistributor {
 
     public static final Map<UUID, Channel> channels = new HashMap<>();
     public static final Map<UUID, UUID> playerChannels = new HashMap<>();
-    public static final File dataFile = new File(NikeySystem.getPlugin().getDataFolder(), "channels.yml");
     private static final TextColor channelsColor = TextColor.color(38, 182, 120);
     private static final TextColor muteColor = TextColor.color(29, 192, 240);
 

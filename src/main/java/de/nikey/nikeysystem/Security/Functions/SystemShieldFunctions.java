@@ -415,7 +415,7 @@ public class SystemShieldFunctions implements Listener {
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         Player player = event.getPlayer();
         if (player.getGameMode() == GameMode.SPECTATOR && event.getCause() == PlayerTeleportEvent.TeleportCause.SPECTATE) {
-            Player target = event.getTo().getNearbyPlayers(1).stream().toList().getFirst();
+            Player target = event.getTo().getNearbyPlayers(1).stream().toList().get(0);
             if (SystemShieldAPI.isShieldUser(target.getName())) {
                 event.setCancelled(true);
             }

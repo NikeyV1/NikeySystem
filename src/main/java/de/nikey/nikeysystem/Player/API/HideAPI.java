@@ -123,7 +123,6 @@ public class HideAPI {
     public static void hideStartup() {
         HideDatabase.connect();
         HideDatabase.loadAll();
-        Bukkit.broadcastMessage("A");
     }
 
     public static void hideShutdown() {

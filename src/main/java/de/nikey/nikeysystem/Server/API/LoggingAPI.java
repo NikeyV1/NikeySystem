@@ -22,7 +22,8 @@ public class LoggingAPI {
                 logFile.createNewFile();
             } catch (IOException e) {
                 ChatAPI.sendManagementMessage(Component.text("Couldn't create logging file: ").color(NamedTextColor.RED)
-                        .append(Component.text(e.getMessage()).color(NamedTextColor.WHITE)), ChatAPI.ManagementType.ERROR,true);
+                        .append(Component.text(e.getMessage()).color(NamedTextColor.WHITE))
+                        , ChatAPI.ManagementType.ERROR);
                 e.printStackTrace();
             }
         }
@@ -34,7 +35,8 @@ public class LoggingAPI {
             logConfig.save(logFile);
         } catch (IOException e) {
             ChatAPI.sendManagementMessage(Component.text("Couldn't save logging file: ").color(NamedTextColor.RED)
-                    .append(Component.text(e.getMessage()).color(NamedTextColor.WHITE)), ChatAPI.ManagementType.ERROR,true);
+                    .append(Component.text(e.getMessage()).color(NamedTextColor.WHITE))
+                    ,ChatAPI.ManagementType.ERROR);
             e.printStackTrace();
         }
     }

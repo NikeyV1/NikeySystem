@@ -305,27 +305,6 @@ public class WorldDistributor {
         }
     }
 
-    private CompletableFuture<World> createWorldAsync(WorldCreator creator) {
-        return CompletableFuture.supplyAsync(() -> {
-            return creator;
-        }).thenComposeAsync(preparedCreator -> {
-            // Welt im Hauptthread erstellen
-            CompletableFuture<World> worldFuture = new CompletableFuture<>();
-            Bukkit.getScheduler().runTask(NikeySystem.getPlugin(), () -> {
-                try {
-                    World world = Bukkit.createWorld(preparedCreator);
-                    worldFuture.complete(world); // Erfolgreich
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    ChatAPI.sendManagementMessage(Component.text("An error occurred while creating world: ").color(NamedTextColor.RED)
-                            .append(Component.text(e.getMessage()).color(NamedTextColor.WHITE)), ChatAPI.ManagementType.ERROR,true);
-                    worldFuture.complete(null); // Fehler
-                }
-            });
-            return worldFuture;
-        });
-    }
-
     private static File findWorldFile(File container, String worldName) {
         for (File file : container.listFiles()) {
             Set<String> stringSet = Set.of("plugins", "versions", "logs", "libraries", "debug", "config", "cache");

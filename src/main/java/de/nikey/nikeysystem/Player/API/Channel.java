@@ -20,9 +20,9 @@ public class Channel{
     private final UUID id;
     private final UUID owner;
     private final String name;
-    private List<String> messages = new ArrayList<>();
-    private Set<UUID> members = new HashSet<>();
-    private boolean isClosed = false;
+    private final List<String> messages;
+    private final Set<UUID> members;
+    private boolean isClosed;
     private final Set<UUID> invitedPlayers = new HashSet<>();
 
     public Channel(UUID id, String name, UUID owner, boolean isClosed, List<String> messages, Set<UUID> members) {

@@ -378,7 +378,7 @@ public class BackupDistributor {
             createBackup(name,null);
         }, interval / 50, interval / 50); // Bukkit verwendet Ticks (1 Tick = 50 ms)
 
-        ChatAPI.sendManagementMessage(Component.text("Backup scheduler started with interval: " ,ChatAPI.infoColor).append(Component.text(formatTime(interval))), ChatAPI.ManagementType.INFO,true);
+        ChatAPI.sendManagementMessage(Component.text("Backup scheduler started with interval: ", TextColor.color(138, 138, 135)).append(Component.text(formatTime(interval))), ChatAPI.ManagementType.INFO);
         NikeySystem.getPlugin().getLogger().info("Backup scheduler started with interval: " + formatTime(interval));
     }
 }
