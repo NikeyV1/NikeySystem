@@ -2,9 +2,11 @@ package de.nikey.nikeysystem.Player.Functions;
 
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.Channel;
+import de.nikey.nikeysystem.Player.API.ChatAPI;
 import de.nikey.nikeysystem.Player.API.MuteAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.chat.SignedMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -21,7 +23,7 @@ import static de.nikey.nikeysystem.Player.Distributor.ChatDistributor.channels;
 import static de.nikey.nikeysystem.Player.Distributor.ChatDistributor.playerChannels;
 
 public class ChatFunctions implements Listener {
-    @EventHandler(ignoreCancelled = true)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onPlayerChatInChannel(AsyncChatEvent event) {
         Player player = event.getPlayer();
         UUID playerUUID = player.getUniqueId();
@@ -45,7 +47,18 @@ public class ChatFunctions implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true,priority = EventPriority.HIGH)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    public void onChatSave(AsyncChatEvent event) {
+        Player player = event.getPlayer();
+        SignedMessage signedMessage = event.signedMessage();
+
+        Bukkit.getScheduler().runTask(NikeySystem.getPlugin(), () -> {
+            ChatAPI.getChatHistory(player.getUniqueId()).addMessage(signedMessage);
+        });
+    }
+
+
+    @EventHandler(ignoreCancelled = true)
     public void onAsyncChat(AsyncChatEvent event) {
         Player player = event.getPlayer();
         if (MuteAPI.isMuted(player.getUniqueId())) {

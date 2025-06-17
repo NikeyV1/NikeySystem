@@ -2,8 +2,8 @@ package de.nikey.nikeysystem.Player.Functions;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import de.nikey.nikeysystem.General.GeneralAPI;
-import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.NikeySystem;
+import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.Player.API.PlayerSettingsAPI;
 import io.papermc.paper.event.player.AsyncChatEvent;

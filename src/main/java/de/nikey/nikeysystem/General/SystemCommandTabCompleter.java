@@ -20,6 +20,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static de.nikey.nikeysystem.Player.Distributor.ChatDistributor.channels;
 
@@ -513,7 +514,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("chat")) {
-            return new ArrayList<>(Arrays.asList("channel","mute"));
+            return new ArrayList<>(Arrays.asList("channel","mute","deletemsg","viewmsgs"));
         }
 
         if (args[2].equalsIgnoreCase("channel") && args[1].equalsIgnoreCase("chat")) {
@@ -574,6 +575,19 @@ public class SystemCommandTabCompleter implements TabCompleter {
             }
         }
 
+        if (args[1].equalsIgnoreCase("chat") ) {
+            if (args[2].equalsIgnoreCase("deletemsg")) {
+                if (args.length == 4) {
+                    return GeneralAPI.handlePlayerListing((Player) sender, args,3);
+                } else if (args.length == 5 || args.length == 6) {
+                    return IntStream.rangeClosed(1,30).mapToObj(String::valueOf).filter(s -> s.startsWith(args[args.length-1])).toList();
+                }
+            }else if (args[2].equalsIgnoreCase("viewmsgs")) {
+                if (args.length == 4) {
+                    return GeneralAPI.handlePlayerListing((Player) sender, args,3);
+                }
+            }
+        }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("moderation")) {
             return new ArrayList<>(Arrays.asList("manage","tempban","ban","freeze","unfreeze","unban","banlist","history"));

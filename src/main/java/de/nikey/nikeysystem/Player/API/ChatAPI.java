@@ -6,8 +6,14 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 
 public class ChatAPI {
+
+    public static final Map<UUID,ChatHistory> chatHistories = new HashMap<>();
 
     private static final Component managementChannel = Component.text("[Management]").color(TextColor.color(50, 168, 98));
 
@@ -29,6 +35,10 @@ public class ChatAPI {
         }
     }
 
+    public static ChatHistory getChatHistory(UUID id) {
+        return chatHistories.computeIfAbsent(id, uuid -> new ChatHistory());
+    }
+    
     public static void chatStartup() {
         ChannelDatabase.connect();
         ChannelDatabase.loadChannels();

@@ -3,12 +3,14 @@ package de.nikey.nikeysystem.Player.Distributor;
 import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.*;
+import net.kyori.adventure.chat.SignedMessage;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -446,6 +448,78 @@ public class ChatDistributor {
                     }
                     sender.sendMessage(listHeader.append(Component.newline()).append(playerList));
                 }
+            }
+        } else if (cmd.equalsIgnoreCase("deletemsg")) {
+            if (args.length < 6 || args.length > 7) {
+                sender.sendMessage(Component.text("Usage: deletemsg <Player> <from> [to]").color(NamedTextColor.RED));
+                return;
+            }
+
+            UUID targetID = Bukkit.getPlayerUniqueId(args[4]);
+
+            int from, to;
+
+            try {
+                from = Integer.parseInt(args[5]);
+                to = (args.length == 7) ? Integer.parseInt(args[6]) : from;
+            }catch (NumberFormatException ex) {
+                sender.sendMessage(Component.text("Invalid number for from/to", NamedTextColor.RED));
+                return;
+            }
+
+            if (from < 1 || from > to) {
+                sender.sendMessage(Component.text("Invalid range", NamedTextColor.RED));
+                return;
+            }
+
+            ChatHistory history = ChatAPI.getChatHistory(targetID);
+            List<SignedMessage> allMessages = history.getAllMessages();
+
+            int count = 0;
+            for (int i = from; i<= to; i++) {
+                SignedMessage msg = history.getMessagebyIndex(i);
+                if (msg != null && msg.canDelete()) {
+                    for (Player online : Bukkit.getOnlinePlayers()) {
+                        online.deleteMessage(msg);
+                    }
+                    count++;
+                }
+            }
+
+            if (count == 0) {
+                sender.sendMessage(Component.text("No messages found in range" , NamedTextColor.RED));
+            }else {
+                sender.sendMessage(Component.text("Deleted " + count + " message(s) from " + args[4], NamedTextColor.GREEN));
+            }
+        } else if (cmd.equalsIgnoreCase("viewmsgs")) {
+            if (args.length != 5) {
+                sender.sendMessage(Component.text("Usage: viewmsgs <Player>" , NamedTextColor.RED));
+                return;
+            }
+
+            OfflinePlayer target = Bukkit.getOfflinePlayer(args[4]);
+
+            ChatHistory history = ChatAPI.getChatHistory(target.getUniqueId());
+            List<SignedMessage> allMessages = history.getAllMessages();
+
+            if (allMessages.isEmpty()) {
+                sender.sendMessage(Component.text("No messages from " + target.getName()).color(channelsColor));
+                return;
+            }
+
+            sender.sendMessage(Component.text("Last messages from " + target.getName() + ":" , channelsColor));
+
+            int i = 1;
+            for (SignedMessage msg : allMessages) {
+                String message = msg.message();
+
+                Component line = Component.text("[" + i + "] ", NamedTextColor.YELLOW)
+                        .append(Component.text(message, NamedTextColor.WHITE))
+                        .hoverEvent(HoverEvent.showText(Component.text("Click to delete").color(NamedTextColor.GRAY)))
+                        .clickEvent(ClickEvent.suggestCommand("/system player chat deletemsg " + target.getName() + " " + i));
+
+                sender.sendMessage(line);
+                i++;
             }
         }
     }
