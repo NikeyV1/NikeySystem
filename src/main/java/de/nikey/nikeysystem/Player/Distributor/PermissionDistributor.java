@@ -7,7 +7,9 @@ import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.NikeySystem;
 import de.nikey.nikeysystem.Player.API.PermissionRole;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -26,29 +28,7 @@ public class PermissionDistributor {
 
         if (cmd.equalsIgnoreCase("set")) {
             if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "set") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
-            if (args.length == 5) {
-                String roleId = args[4].toUpperCase();
-                PermissionRole targetRole = PermissionAPI.get(roleId);
-                if (targetRole == null) {
-                    sender.sendMessage(Component.text("This role doesn't exist").color(NamedTextColor.RED));
-                    return;
-                }
-
-                if (!PermissionAPI.canAssignRole(sender.getUniqueId(), targetRole)) {
-                    sender.sendMessage(Component.text("You can't assign a role equal to or higher than your own.", NamedTextColor.RED));
-                    return;
-                }
-
-                PermissionDatabase.setRole(sender.getUniqueId(), targetRole.getName().toUpperCase(Locale.US));
-                PermissionAPI.playerRoles.put(sender.getUniqueId(),targetRole.getName().toUpperCase(Locale.US));
-                sender.sendMessage(Component.text()
-                        .append(Component.text("You assigned ").color(NamedTextColor.GREEN))
-                        .append(Component.text("yourself").color(NamedTextColor.YELLOW))
-                        .append(Component.text(" the role ").color(NamedTextColor.GREEN))
-                        .append(Component.text(targetRole.getName()).color(NamedTextColor.WHITE))
-                        .append(Component.text(" successfully!").color(NamedTextColor.GREEN)));
-                return;
-            } else if (args.length == 6) {
+            if (args.length == 6) {
                 String roleId = args[5].toUpperCase(Locale.US);
                 PermissionRole targetRole = PermissionAPI.get(roleId);
                 if (targetRole == null) {
@@ -68,9 +48,12 @@ public class PermissionDistributor {
                     return;
                 }
 
-                if (PermissionAPI.getRole(target.getUniqueId()) != null) {
-                    sender.sendMessage(Component.text("Player already has a role").color(NamedTextColor.RED));
-                    return;
+                PermissionRole playerRole = PermissionAPI.getRole(target.getUniqueId());
+                if (playerRole != null) {
+                    if (playerRole.getLevel() >= targetRole.getLevel()) {
+                        sender.sendMessage(Component.text("Player has a stronger role").color(NamedTextColor.RED));
+                        return;
+                    }
                 }
 
                 PermissionDatabase.setRole(target.getUniqueId(), targetRole.getName().toUpperCase(Locale.US));
@@ -84,7 +67,6 @@ public class PermissionDistributor {
                 return;
             }
         }
-
         if (args.length == 5 && cmd.equalsIgnoreCase("remove")) {
             if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "remove") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             String playerName = args[4];
@@ -109,7 +91,6 @@ public class PermissionDistributor {
 
             sender.sendMessage(Component.text("Role from " + playerName + " removed").color(NamedTextColor.GREEN));
         }
-
 
         if (cmd.equalsIgnoreCase("list")) {
             if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "list") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
@@ -148,6 +129,64 @@ public class PermissionDistributor {
                 sender.sendMessage(Component.text(" - ").color(NamedTextColor.DARK_GRAY)
                         .append(Component.text(perm).color(NamedTextColor.WHITE)));
             }
+        }
+
+        if (cmd.equalsIgnoreCase("info")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "info") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
+            if (args.length == 4) {
+                List<PermissionRole> roles = PermissionAPI.getSortedRoles();
+
+                for (PermissionRole role : roles) {
+                    // Zähle, wie viele Spieler diese Rolle aktuell haben
+                    long count = PermissionAPI.playerRoles.values().stream()
+                            .filter(r -> r.equalsIgnoreCase(role.getName()))
+                            .count();
+
+                    Component line = Component.text("[", NamedTextColor.DARK_GRAY)
+                            .append(Component.text(role.getName(), NamedTextColor.AQUA))
+                            .append(Component.text("] ", NamedTextColor.DARK_GRAY))
+                            .append(Component.text("Level: ", NamedTextColor.GRAY))
+                            .append(Component.text(String.valueOf(role.getLevel()), NamedTextColor.YELLOW))
+                            .append(Component.text(" | ", NamedTextColor.DARK_GRAY))
+                            .append(Component.text(role.getPermissions().size() + " perms", NamedTextColor.GREEN))
+                            .append(Component.text(" | ", NamedTextColor.DARK_GRAY))
+                            .append(Component.text(count + " player" + (count == 1 ? "" : "s"), NamedTextColor.GOLD));
+
+                    sender.sendMessage(line);
+                }
+            } else if (args.length == 5) {
+                String roleName = args[4].toUpperCase();
+                PermissionRole role = PermissionAPI.get(roleName);
+
+                if (role == null) {
+                    sender.sendMessage(Component.text("That role does not exist").color(NamedTextColor.RED));
+                    return;
+                }
+
+                sender.sendMessage(Component.text("» ", NamedTextColor.DARK_GRAY)
+                                .append(Component.text("Details for role: ", NamedTextColor.GRAY))
+                                .append(Component.text(role.getName(), NamedTextColor.WHITE)));
+
+                sender.sendMessage(Component.text("• ", NamedTextColor.DARK_GRAY)
+                                .append(Component.text("Level: ", NamedTextColor.GRAY))
+                                .append(Component.text(String.valueOf(role.getLevel()), NamedTextColor.AQUA)));
+
+                sender.sendMessage(Component.text("• ", NamedTextColor.DARK_GRAY)
+                                .append(Component.text("Permissions: ", NamedTextColor.GRAY))
+                                .append(Component.text(String.valueOf(role.getPermissions().size()), NamedTextColor.GREEN)));
+
+                for (String permission : role.getPermissions()) {
+                    sender.sendMessage(
+                            Component.text("  - ", NamedTextColor.DARK_GRAY)
+                                    .append(Component.text(permission, NamedTextColor.WHITE))
+                    );
+                }
+            }
+        }else if (cmd.equalsIgnoreCase("reload")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "reload") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
+
+            PermissionAPI.loadRoles();
+            sender.sendMessage(Component.text("Reloaded the roles").color(NamedTextColor.GREEN));
         }
     }
 }

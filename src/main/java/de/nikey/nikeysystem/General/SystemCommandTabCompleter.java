@@ -53,17 +53,21 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("permissions")) {
-            return List.of("set","list","remove");
+            return List.of("set","list","remove","info","reload");
         }
 
         // Handle the fourth argument (player name) for permissions commands that require a target player
-        if (args.length == 4 && args[1].equalsIgnoreCase("permissions")) {
+        if (args.length == 4 && args[1].equalsIgnoreCase("permissions") && !args[2].equalsIgnoreCase("info")) {
             // Provide list of online player names as suggestions
             return GeneralAPI.handlePlayerListing((Player) sender,args,3);
         }
 
+        if (args.length == 4 && args[1].equalsIgnoreCase("permissions") && args[2].equalsIgnoreCase("info")) {
+            return GeneralAPI.handleStringListing(PermissionAPI.ROLES.keySet().stream().toList(),args[3]);
+        }
+
         if (args.length == 5 && args[1].equalsIgnoreCase("permissions") && args[2].equalsIgnoreCase("set")) {
-            return PermissionAPI.ROLES.keySet().stream().toList();
+            return GeneralAPI.handleStringListing(PermissionAPI.ROLES.keySet().stream().toList(),args[4]);
         }
         // Handle the third argument for system player hide
         if (args.length == 3 && args[1].equalsIgnoreCase("hide")) {
