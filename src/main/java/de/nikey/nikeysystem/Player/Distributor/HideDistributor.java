@@ -19,7 +19,9 @@ public class HideDistributor {
 
 
     public static void hideDistributor(Player player, String[] args) {
+        String basePerm = "system.player.hide.";
         if (args[3].equalsIgnoreCase("ToggleHide")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "togglehide") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             if (args.length == 6) {
                 toggleHide(player,args[4], args[5].equalsIgnoreCase("message"));
             }else if (args.length == 5){
@@ -27,7 +29,8 @@ public class HideDistributor {
             }else if (args.length == 4){
                 toggleHide(player, player.getName(),false);
             }
-        } else if (args[3].equalsIgnoreCase("ToggleTrueHide") && PermissionAPI.isManagement(player.getName())) {
+        } else if (args[3].equalsIgnoreCase("ToggleTrueHide")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "toggletruehide") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             if (args.length == 6) {
                 toggleTrueHide(player, args[4], args[5].equalsIgnoreCase("message"));
             }else if (args.length == 5){
@@ -36,6 +39,7 @@ public class HideDistributor {
                 toggleTrueHide(player, player.getName(), false);
             }
         } else if (args[3].equalsIgnoreCase("ToggleImmunity")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "toggleimmunity") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             if (args.length == 4) {
                 toggleImmunity(player, player.getName());
             }else if (args.length == 5){
@@ -45,7 +49,7 @@ public class HideDistributor {
             HideSettings.openSettingsMenu(player);
         }
         if (args[3].equalsIgnoreCase("List")) {
-            if (PermissionAPI.isOwner(player.getName())) {
+            if (PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "toggletruehide") || PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) {
                 String playerName = "";
                 if (args.length == 4) {
                     playerName = player.getName();
@@ -101,15 +105,8 @@ public class HideDistributor {
 
                 player.sendMessage(message);
             }
-        }else if (args[3].equalsIgnoreCase("help")) {
-            if (PermissionAPI.isOwner(player.getName())) {
-                player.sendMessage("§7The path 'System/Player/Hide' has following sub-paths: §fToggleHide <PlayerName>, ToggleTrueHide <PlayerName>, ToggleImmunity <PlayerName>, ToggleTrueImmunity <PlayerName>, List <PlayerName>.");
-            }else {
-                player.sendMessage("§7The path 'System/Player/Hide' has following sub-paths: §fToggleHide <PlayerName>, ToggleImmunity <PlayerName>, List <PlayerName>.");
-            }
         }
     }
-
 
     public static void toggleImmunity(Player player, String targetName) {
         OfflinePlayer offlineTarget = Bukkit.getOfflinePlayer(targetName);

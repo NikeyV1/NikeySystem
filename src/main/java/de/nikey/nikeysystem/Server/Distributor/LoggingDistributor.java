@@ -1,6 +1,7 @@
 package de.nikey.nikeysystem.Server.Distributor;
 
 import de.nikey.nikeysystem.Player.API.MuteAPI;
+import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.Server.API.LoggingAPI;
 import de.nikey.nikeysystem.Server.Settings.LoggingSettings;
 import net.kyori.adventure.text.Component;
@@ -19,10 +20,12 @@ import static de.nikey.nikeysystem.Server.API.LoggingAPI.logConfig;
 
 public class LoggingDistributor {
     public static void loggingManager(Player sender, String[] args) {
+        String basePerm = "system.server.logging.";
         String cmd = args[3];
         if (cmd.isEmpty()) return;
 
         if (cmd.equalsIgnoreCase("blocklog")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "blocklog") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length >= 7) {
                 try {
                     double x = Double.parseDouble(args[4]);
@@ -47,6 +50,7 @@ public class LoggingDistributor {
                 }
             }
         }else if (cmd.equalsIgnoreCase("clearBlockLog")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "clearblocklog") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length >= 7) {
                 try {
                     double x = Double.parseDouble(args[4]);
@@ -72,6 +76,7 @@ public class LoggingDistributor {
                 }
             }
         }else if (cmd.equalsIgnoreCase("cleanup")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "cleanup") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             String timeLimit = args[4];
             try {
                 int cleaned = cleanupLogs(timeLimit);
@@ -91,6 +96,7 @@ public class LoggingDistributor {
                 e.printStackTrace();
             }
         }else if (cmd.equalsIgnoreCase("filter")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "filter") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length >= 7) {
                 String player = args[4];
                 sender.sendMessage(Component.text("Block changes for filter:").color(TextColor.color(157, 230, 41)).decoration(TextDecoration.BOLD,true));
@@ -185,6 +191,7 @@ public class LoggingDistributor {
                 }
             }
         }else if (cmd.equalsIgnoreCase("settings")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "settings") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             LoggingSettings.openSettingsMenu(sender);
         }
     }

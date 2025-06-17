@@ -18,8 +18,10 @@ public class ResourcePackDistributor {
     public static void ResourcePackManager(Player sender, String[] args) {
         String cmd = args[3];
         if (cmd.isEmpty()) return;
+        String basePerm = "system.player.resourcepack.";
 
         if (cmd.equalsIgnoreCase("download")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "download") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 5) {
                 Player player = Bukkit.getPlayer(args[4]);
                 if (player == null || !HideAPI.canSee(sender.getName(), player.getName())) {
@@ -56,6 +58,7 @@ public class ResourcePackDistributor {
                         .append(Component.text(player.getName()).color(NamedTextColor.WHITE)));
             }
         }else if (cmd.equalsIgnoreCase("clear")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "clear") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 4){
                 sender.clearResourcePacks();
             }else if (args.length == 5) {
@@ -74,6 +77,7 @@ public class ResourcePackDistributor {
                         .append(Component.text(player.getName()).color(NamedTextColor.WHITE)));
             }
         }else if (cmd.equalsIgnoreCase("remove")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "remove") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 5) {
                 UUID id = UUID.fromString(args[4]);
                 sender.removeResourcePack(id);

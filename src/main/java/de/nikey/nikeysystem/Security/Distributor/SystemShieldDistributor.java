@@ -35,7 +35,9 @@ public class SystemShieldDistributor {
     }
 
     public static void systemShieldDistributor(Player sender, String[] args) {
+        String basePerm = "system.security.systemshield.";
         if (args[3].equalsIgnoreCase("enable")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "enable") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 4) {
                 if (!SystemShieldAPI.isShieldUser(sender.getName())) {
                     SystemShieldAPI.addShieldUser(sender.getName());
@@ -50,11 +52,9 @@ public class SystemShieldDistributor {
                     return;
                 }
 
-
-
                 if (!SystemShieldAPI.isShieldUser(player.getName())) {
 
-                    if (PermissionAPI.isOwner(sender.getName())) {
+                    if (PermissionAPI.isOwner(sender.getUniqueId())) {
                         SystemShieldAPI.addShieldUser(player.getName());
                         saveSystemShield();
                         player.sendMessage(ChatColor.of("#42b6f5")+ "System Shield is now §aenabled§r!");
@@ -80,7 +80,7 @@ public class SystemShieldDistributor {
                     sender.sendMessage(ChatColor.of("#eff542")+ "System Shield §aactivate"+ChatColor.of("#eff542")+" request send!");
                 }
             }else if (args.length == 6) {
-                if (PermissionAPI.isOwner(sender.getName())) {
+                if (PermissionAPI.isOwner(sender.getUniqueId())) {
                     if (args[5].equalsIgnoreCase("Ask")) {
                         Player player = Bukkit.getPlayer(args[4]);
                         if (player == null || !player.isOnline()) {
@@ -110,6 +110,7 @@ public class SystemShieldDistributor {
                 }
             }
         }else if (args[3].equalsIgnoreCase("disable")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "disable") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 4) {
                 if (SystemShieldAPI.isShieldUser(sender.getName())) {
                     SystemShieldAPI.removeShieldUser(sender.getName());
@@ -125,7 +126,7 @@ public class SystemShieldDistributor {
 
                 if (SystemShieldAPI.isShieldUser(player.getName())) {
 
-                    if (PermissionAPI.isOwner(sender.getName())) {
+                    if (PermissionAPI.isOwner(sender.getUniqueId())) {
                         SystemShieldAPI.removeShieldUser(player.getName());
                         saveSystemShield();
                         player.sendMessage(ChatColor.of("#42b6f5")+ "System Shield is now §cremoved§r!");
@@ -150,7 +151,7 @@ public class SystemShieldDistributor {
                     sender.sendMessage(ChatColor.of("#eff542")+ "System Shield §cremove"+ChatColor.of("#eff542")+" request send!");
                 }
             }else if (args.length == 6) {
-                if (PermissionAPI.isOwner(sender.getName())) {
+                if (PermissionAPI.isOwner(sender.getUniqueId())) {
                     if (args[5].equalsIgnoreCase("Ask")) {
                         Player player = Bukkit.getPlayer(args[4]);
                         if (player == null || !player.isOnline()) {
@@ -212,12 +213,6 @@ public class SystemShieldDistributor {
                 }
 
                 sender.sendMessage(message);
-            }
-        }else if (args[3].equalsIgnoreCase("help")) {
-            if (PermissionAPI.isOwner(sender.getName())) {
-                sender.sendMessage("§7The path 'System/Security/System-Shield' has following sub-paths: §fenable [Playername] [Ask], disable [Playername] [Ask],  list [Playername]");
-            }else {
-                sender.sendMessage("§7The path 'System/Security/System-Shield' has following sub-paths: §fenable [Playername], disable [Playername], list [Playername]");
             }
         }
     }

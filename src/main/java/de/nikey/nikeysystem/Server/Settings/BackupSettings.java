@@ -52,7 +52,7 @@ public class BackupSettings implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player))return;
-        if (!event.getView().title().equals(Component.text("Backup Settings").color(NamedTextColor.GRAY)) || !PermissionAPI.isSystemUser(player)) return;
+        if (!event.getView().title().equals(Component.text("Backup Settings").color(NamedTextColor.GRAY)) || !PermissionAPI.isSystemUser(player.getUniqueId())) return;
         event.setCancelled(true);
 
         ItemStack clickedItem = event.getCurrentItem();

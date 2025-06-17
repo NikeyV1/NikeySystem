@@ -29,7 +29,7 @@ public class ChatAPI {
         }
 
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (PermissionAPI.isManagement(player.getName())) {
+            if (PermissionAPI.isManagement(player.getUniqueId())) {
                 player.sendMessage(managementChannel.append(subComponent).append(message));
             }
         }

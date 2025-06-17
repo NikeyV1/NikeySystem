@@ -64,7 +64,10 @@ public enum ShieldCause {
     /**
      * Toggle permission on target isn't allowed
      */
-    TOGGLE_PERMISSION,
+    TOGGLE_PERMISSION,/**
+     * Changing role on target isn't allowed
+     */
+    PERMISSION_ROLE_CHANGE,
     /**
      * Skin reset on target isn't allowed
      */

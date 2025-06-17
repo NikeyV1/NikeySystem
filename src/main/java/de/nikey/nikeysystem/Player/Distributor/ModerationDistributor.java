@@ -32,10 +32,13 @@ public class ModerationDistributor {
     public static void manageModeration(Player sender, String[] args) {
         String cmd = args[3];
         if (cmd.isEmpty()) return;
+        String basePerm = "system.player.moderation.";
 
         if (cmd.equalsIgnoreCase("manage")) {
+
             ModerationGUI.openModerationGUI(sender, sender);
         } else if (cmd.equalsIgnoreCase("tempban")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "tempban") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length < 6) {
                 sender.sendMessage("Usage: tempban <player> <duration> [reason]");
                 return;
@@ -84,6 +87,7 @@ public class ModerationDistributor {
                     .append(Component.text(" due to ").color(moderationColor))
                     .append(Component.text(reason).color(NamedTextColor.DARK_GRAY)));
         }else if (cmd.equalsIgnoreCase("ban")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "ban") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length < 5) {
                 sender.sendMessage("Usage: ban <player> [reason]");
                 return;
@@ -126,6 +130,7 @@ public class ModerationDistributor {
                     .append(Component.text(" for ").color(moderationColor))
                     .append(Component.text(reason).color(NamedTextColor.DARK_GRAY)));
         }else if (cmd.equalsIgnoreCase("freeze")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "freeze") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 5) {
                 Player target = Bukkit.getPlayer(args[4]);
                 if (target == null || !HideAPI.canSee(sender.getUniqueId(),target.getUniqueId())) {
@@ -209,6 +214,7 @@ public class ModerationDistributor {
                         .append(Component.text(timeInput).color(NamedTextColor.GRAY)));
             }
         } else if (cmd.equalsIgnoreCase("Unfreeze")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "unfreeze") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length != 5) {
                 sender.sendMessage("Usage: unfreeze <player>");
                 return;
@@ -248,6 +254,7 @@ public class ModerationDistributor {
             sender.sendMessage(Component.text("Unfroze ").color(moderationColor)
                     .append(Component.text(target.getName()).color(NamedTextColor.WHITE)));
         }else if (cmd.equalsIgnoreCase("unban")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "unban") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length != 5) {
                 sender.sendMessage("Usage: unban <player>");
                 return;
@@ -279,6 +286,7 @@ public class ModerationDistributor {
                     .append(Component.text(args[4]).color(NamedTextColor.WHITE)));
 
         }else if (cmd.equalsIgnoreCase("banlist")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "banlist") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
 
             ProfileBanList banList = Bukkit.getBanList(BanListType.PROFILE);
 
@@ -344,6 +352,7 @@ public class ModerationDistributor {
                 }
             }
         } else if (cmd.equalsIgnoreCase("history")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "history") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length < 5) return;
 
             UUID id = Bukkit.getPlayerUniqueId(args[4]);

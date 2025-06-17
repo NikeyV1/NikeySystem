@@ -27,58 +27,55 @@ public class CommandDistributor {
     }
 
     public static void commandDistributor(Player player, String[] args) {
+        String basePerm = "system.server.command.";
         if (args[3].equalsIgnoreCase("execute")) {
-            if (PermissionAPI.isAdmin(player.getName()) || PermissionAPI.isOwner(player.getName())) {
-                execute(args,player);
-            }
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "execute") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
+            execute(args,player);
         }else if (args[3].equalsIgnoreCase("executeas")) {
-            if (PermissionAPI.isAdmin(player.getName()) || PermissionAPI.isOwner(player.getName())) {
-                executeas(player,args);
-            }
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "executeas") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
+            executeas(player,args);
         }else if (args[3].equalsIgnoreCase("ToggleBlock")) {
-            if (PermissionAPI.isAdmin(player.getName()) || PermissionAPI.isOwner(player.getName())) {
-
-                if (args[4].equalsIgnoreCase("default")) {
-                    defaultBlock(player);
-                    return;
-                }
-
-                if (CommandAPI.isBlocked(args[4])) {
-                    CommandAPI.removeCommand(args[4]);
-                    saveBlockedCommands();
-                    player.sendMessage("§7Now §aallowing §7command: §f§n" + args[4]);
-                }else {
-                    CommandAPI.addCommand(args[4]);
-                    saveBlockedCommands();
-                    player.sendMessage("§7Now §cblocking §7command: §f§n" + args[4]);
-                }
-                Bukkit.getServer().reloadCommandAliases();
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "toggleblock") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
+            if (args[4].equalsIgnoreCase("default")) {
+                defaultBlock(player);
+                return;
             }
+
+            if (CommandAPI.isBlocked(args[4])) {
+                CommandAPI.removeCommand(args[4]);
+                saveBlockedCommands();
+                player.sendMessage("§7Now §aallowing §7command: §f§n" + args[4]);
+            }else {
+                CommandAPI.addCommand(args[4]);
+                saveBlockedCommands();
+                player.sendMessage("§7Now §cblocking §7command: §f§n" + args[4]);
+            }
+            Bukkit.getServer().reloadCommandAliases();
         }else if (args[3].equalsIgnoreCase("blockplayer")) {
-            if (PermissionAPI.isAdmin(player.getName()) || PermissionAPI.isOwner(player.getName())) {
-                Player target = Bukkit.getPlayer(args[4]);
-                if (target == null|| !HideAPI.canSee(player,target)){
-                    player.sendMessage("§cError: player not found");
-                    return;
-                }
-
-                if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName(),ShieldCause.COMMAND_BLOCK_PLAYER)) {
-                    player.sendMessage("§cError: missing permission");
-                    return;
-                }
-
-                if (CommandAPI.isCommandBlockedForPlayer(target,args[5])) {
-                    CommandAPI.unblockCommandForPlayer(target,args[5]);
-                    player.sendMessage("§7Now §aallowing §7command for§8 "+target.getName()+": §n§f" + args[5]);
-                    target.updateCommands();
-                }else {
-                    CommandAPI.blockCommandForPlayer(target,args[5]);
-                    player.sendMessage("§7Now §cblocking §7command for§8 "+target.getName()+": §n§f" + args[5]);
-                    target.updateCommands();
-                }
-                Bukkit.getServer().reloadCommandAliases();
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "blockplayer") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
+            Player target = Bukkit.getPlayer(args[4]);
+            if (target == null|| !HideAPI.canSee(player,target)){
+                player.sendMessage("§cError: player not found");
+                return;
             }
+
+            if (!PermissionAPI.isAllowedToChange(player.getName(),target.getName(),ShieldCause.COMMAND_BLOCK_PLAYER)) {
+                player.sendMessage("§cError: missing permission");
+                return;
+            }
+
+            if (CommandAPI.isCommandBlockedForPlayer(target,args[5])) {
+                CommandAPI.unblockCommandForPlayer(target,args[5]);
+                player.sendMessage("§7Now §aallowing §7command for§8 "+target.getName()+": §n§f" + args[5]);
+                target.updateCommands();
+            }else {
+                CommandAPI.blockCommandForPlayer(target,args[5]);
+                player.sendMessage("§7Now §cblocking §7command for§8 "+target.getName()+": §n§f" + args[5]);
+                target.updateCommands();
+            }
+            Bukkit.getServer().reloadCommandAliases();
         }else if (args[3].equalsIgnoreCase("list")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "list") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             List<String> messages = new ArrayList<>(CommandAPI.getDisabledCommands());
 
             if (messages.isEmpty()) {

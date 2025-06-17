@@ -13,6 +13,7 @@ import org.bukkit.potion.PotionEffectType;
 public class EffectDistributor {
 
     public static void effectDistributor(Player player, String[] args) {
+        String basePerm = "system.player.effect.";
         // Bestimme das Ziel: Spieler oder die Entität in Sichtlinie
         LivingEntity target = null;
 
@@ -41,6 +42,7 @@ public class EffectDistributor {
 
         // Handling different commands
         if (args[3].equalsIgnoreCase("give")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "give") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             if (args.length >= 6) {
                 PotionEffectType effectType = PotionEffectType.getByName(args[5]);
                 if (effectType == null) {
@@ -78,6 +80,7 @@ public class EffectDistributor {
             }
 
         } else if (args[3].equalsIgnoreCase("remove")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "remove") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             if (args.length == 6) {
                 PotionEffectType effectType = PotionEffectType.getByName(args[5]);
                 if (effectType == null) {
@@ -93,6 +96,7 @@ public class EffectDistributor {
             }
 
         } else if (args[3].equalsIgnoreCase("clear")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "clear") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             for (PotionEffect effect : target.getActivePotionEffects()) {
                 target.removePotionEffect(effect.getType());
             }
@@ -100,6 +104,7 @@ public class EffectDistributor {
 
 
         } else if (args[3].equalsIgnoreCase("list")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "list") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             if (target.getActivePotionEffects().isEmpty()) {
                 player.sendMessage(ChatColor.YELLOW + target.getName() + " has no active effects.");
             } else {

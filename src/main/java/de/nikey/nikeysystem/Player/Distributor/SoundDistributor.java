@@ -26,8 +26,10 @@ public class SoundDistributor {
     public static void manageSound(Player sender, String[] args) {
         String cmd = args[3];
         if (cmd.isEmpty()) return;
+        String basePerm = "system.player.sound.";
 
         if (cmd.equalsIgnoreCase("play")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "play") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 7) {
 
                 if (args[4].equalsIgnoreCase("all")) {
@@ -151,6 +153,7 @@ public class SoundDistributor {
 
             }
         }else if (cmd.equalsIgnoreCase("stopall")){
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "stopall") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 4) {
                 sender.stopAllSounds();
             }else if (args.length == 5) {
@@ -167,6 +170,7 @@ public class SoundDistributor {
                 player.stopAllSounds();
             }
         }else if (cmd.equalsIgnoreCase("queue")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "queue") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length != 10) return;
 
             Player player = Bukkit.getPlayer(args[4]);
@@ -187,6 +191,7 @@ public class SoundDistributor {
                     .append(Component.text(" to ").color(TextColor.color(52, 183, 235)))
                     .append(Component.text(player.getName()).color(NamedTextColor.GRAY)));
         }else if (cmd.equalsIgnoreCase("showQueue")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "showqueue") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             Player player = Bukkit.getPlayer(args[4]);
             if (player == null || !HideAPI.canSee(sender.getName(), player.getName())) {
                 sender.sendMessage("§cError: wrong usage");
@@ -207,6 +212,7 @@ public class SoundDistributor {
                 player.sendMessage(message.toString());
             }
         }else if (cmd.equalsIgnoreCase("clearQueue")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "clearqueue") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             Player player = Bukkit.getPlayer(args[4]);
             if (player == null || !HideAPI.canSee(sender.getName(), player.getName())) {
                 sender.sendMessage("§cError: wrong usage");
@@ -231,6 +237,7 @@ public class SoundDistributor {
                 player.sendMessage("§cYour sound queue is already empty");
             }
         }else if (cmd.equalsIgnoreCase("removequeue")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "removequeue") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             Player player = Bukkit.getPlayer(args[4]);
             if (player == null || !HideAPI.canSee(sender.getName(), player.getName())) {
                 sender.sendMessage("§cError: wrong usage");

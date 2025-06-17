@@ -31,8 +31,10 @@ public class InventoryDistributor implements Listener {
     public static void inventoryDistributor(Player sender, String[] args) {
         String cmd = args[3];
         if (cmd.isEmpty())return;
+        String basePerm = "system.player.inventory.";
 
         if (cmd.equalsIgnoreCase("add")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "add") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 6) {
                 Player player = Bukkit.getPlayer(args[4]);
                 if (player == null || !HideAPI.canSee(sender.getUniqueId(),player.getUniqueId())){
@@ -57,6 +59,7 @@ public class InventoryDistributor implements Listener {
                 addItem(sender,player, args[5], amount);
             }
         }else if (cmd.equalsIgnoreCase("remove")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "remove") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 6) {
                 Player player = Bukkit.getPlayer(args[4]);
                 if (player == null|| !HideAPI.canSee(sender.getUniqueId(),player.getUniqueId())){
@@ -80,6 +83,7 @@ public class InventoryDistributor implements Listener {
                 removeItem(player,sender, args[5], amount);
             }
         }else if (cmd.equalsIgnoreCase("openinv")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "openinv") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 6) {
                 Player player = Bukkit.getPlayer(args[4]);
                 Player target = Bukkit.getPlayer(args[5]);
@@ -141,6 +145,7 @@ public class InventoryDistributor implements Listener {
                 openInventory(sender,player);
             }
         }else if (cmd.equalsIgnoreCase("openec")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "openec") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 6) {
                 Player player = Bukkit.getPlayer(args[4]);
                 Player target = Bukkit.getPlayer(args[5]);
@@ -163,6 +168,7 @@ public class InventoryDistributor implements Listener {
                 openEc(sender,player);
             }
         }else if (cmd.equalsIgnoreCase("openeq")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "openeq") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 6) {
                 Player player = Bukkit.getPlayer(args[4]);
                 Player target = Bukkit.getPlayer(args[5]);

@@ -1,130 +1,152 @@
 package de.nikey.nikeysystem.Player.Distributor;
 
+import de.nikey.nikeysystem.DataBases.PermissionDatabase;
 import de.nikey.nikeysystem.General.ShieldCause;
 import de.nikey.nikeysystem.Player.API.HideAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import de.nikey.nikeysystem.NikeySystem;
+import de.nikey.nikeysystem.Player.API.PermissionRole;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class PermissionDistributor {
-    public static void loadAdmins() {
-        FileConfiguration config = NikeySystem.getPlugin().getConfig();
-        PermissionAPI.clearAdmins();
-        PermissionAPI.getAdminsList().addAll(config.getStringList("permissions.admins"));
-    }
 
-    public static void saveAdmins() {
-        FileConfiguration config = NikeySystem.getPlugin().getConfig();
-        config.set("permissions.admins", new ArrayList<>(PermissionAPI.getAdminsList()));
-        NikeySystem.getPlugin().saveConfig();
-    }
+    public static void permissionDistributor(Player sender, String[] args) {
+        String cmd = args[3];
+        if (cmd.isEmpty()) return;
+        String basePerm = "system.player.permissions.";
 
-    public static void loadModerators() {
-        FileConfiguration config = NikeySystem.getPlugin().getConfig();
-        PermissionAPI.clearModerator();
-        PermissionAPI.getModeratorList().addAll(config.getStringList("permissions.moderators"));
-    }
-
-    public static void saveModerators() {
-        FileConfiguration config = NikeySystem.getPlugin().getConfig();
-        config.set("permissions.moderators", new ArrayList<>(PermissionAPI.getModeratorList()));
-        NikeySystem.getPlugin().saveConfig();
-    }
-
-    public static void permissionDistributor(Player sender,String[] args) {
-        if (args[3].equalsIgnoreCase("ToggleAdmin")) {
-            String target = args[4];
-            if (PermissionAPI.isOwner(sender.getName())) {
-                if (!PermissionAPI.isAdmin(target)) {
-                    PermissionAPI.addAdmin(target);
-                    saveAdmins();
-                    sender.sendMessage("§bAdded "+target+"'s §cadmin §bpermissions!");
-                }else {
-                    PermissionAPI.removeAdmin(target);
-                    saveAdmins();
-                    sender.sendMessage("§bRemoved "+target+"'s §cadmin §bpermissions!");
+        if (cmd.equalsIgnoreCase("set")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "set") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
+            if (args.length == 5) {
+                String roleId = args[4].toUpperCase();
+                PermissionRole targetRole = PermissionAPI.get(roleId);
+                if (targetRole == null) {
+                    sender.sendMessage(Component.text("This role doesn't exist").color(NamedTextColor.RED));
+                    return;
                 }
-            }else {
-                sender.sendMessage("§cError: required permission missing!");
-            }
-        } else if (args[3].equalsIgnoreCase("ToggleModerator")) {
-            String target = args[4];
-            if (!PermissionAPI.isModerator(target)) {
-                PermissionAPI.addModerator(target);
-                saveModerators();
-                sender.sendMessage("§bAdded "+target+"'s §0moderator §bpermissions!");
-            }else {
-                PermissionAPI.removeModerator(target);
-                saveModerators();
-                sender.sendMessage("§bRemoved "+target+"'s §0moderator §bpermissions!");
-            }
-        }else if (args[3].equalsIgnoreCase("TogglePermission")) {
-            String target = args[4];
-            String permission = args[5];
-            // Zielspieler holen
-            Player player = Bukkit.getPlayer(target);
-            if (player == null || !HideAPI.canSee(sender,player)) {
-                sender.sendMessage("§cError: Player not found");
+
+                if (!PermissionAPI.canAssignRole(sender.getUniqueId(), targetRole)) {
+                    sender.sendMessage(Component.text("You can't assign a role equal to or higher than your own.", NamedTextColor.RED));
+                    return;
+                }
+
+                PermissionDatabase.setRole(sender.getUniqueId(), targetRole.getName().toUpperCase(Locale.US));
+                PermissionAPI.playerRoles.put(sender.getUniqueId(),targetRole.getName().toUpperCase(Locale.US));
+                sender.sendMessage(Component.text()
+                        .append(Component.text("You assigned ").color(NamedTextColor.GREEN))
+                        .append(Component.text("yourself").color(NamedTextColor.YELLOW))
+                        .append(Component.text(" the role ").color(NamedTextColor.GREEN))
+                        .append(Component.text(targetRole.getName()).color(NamedTextColor.WHITE))
+                        .append(Component.text(" successfully!").color(NamedTextColor.GREEN)));
+                return;
+            } else if (args.length == 6) {
+                String roleId = args[5].toUpperCase(Locale.US);
+                PermissionRole targetRole = PermissionAPI.get(roleId);
+                if (targetRole == null) {
+                    sender.sendMessage(Component.text("This role doesn't exist").color(NamedTextColor.RED));
+                    return;
+                }
+
+                if (!PermissionAPI.canAssignRole(sender.getUniqueId(), targetRole)) {
+                    sender.sendMessage(Component.text("You can't assign a role equal to or higher than your own.", NamedTextColor.RED));
+                    return;
+                }
+
+                OfflinePlayer target = Bukkit.getOfflinePlayer(args[4]);
+
+                if (target.getName() == null) {
+                    sender.sendMessage(Component.text("Target not found").color(NamedTextColor.RED));
+                    return;
+                }
+
+                if (PermissionAPI.getRole(target.getUniqueId()) != null) {
+                    sender.sendMessage(Component.text("Player already has a role").color(NamedTextColor.RED));
+                    return;
+                }
+
+                PermissionDatabase.setRole(target.getUniqueId(), targetRole.getName().toUpperCase(Locale.US));
+                PermissionAPI.playerRoles.put(target.getUniqueId(),targetRole.getName().toUpperCase(Locale.US));
+                sender.sendMessage(Component.text()
+                        .append(Component.text("You assigned ").color(NamedTextColor.GREEN))
+                        .append(Component.text(target.getName()).color(NamedTextColor.YELLOW))
+                        .append(Component.text(" the role ").color(NamedTextColor.GREEN))
+                        .append(Component.text(targetRole.getName()))
+                        .append(Component.text(" successfully!").color(NamedTextColor.GREEN)));
                 return;
             }
-            if (!PermissionAPI.isAllowedToChange(sender.getName(),player.getName(), ShieldCause.TOGGLE_PERMISSION)) {
-                sender.sendMessage("§cError: missing permission");
+        }
+
+        if (args.length == 5 && cmd.equalsIgnoreCase("remove")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "remove") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
+            String playerName = args[4];
+            UUID uuid = Bukkit.getPlayerUniqueId(playerName);
+            if (uuid == null) {
+                sender.sendMessage(Component.text("Player not found").color(NamedTextColor.RED));
                 return;
             }
-            // Prüfen, ob der Spieler die Berechtigung bereits hat
-            if (!player.hasPermission(permission)) {
-                PermissionAttachment attachment = player.addAttachment(NikeySystem.getPlugin()); // Plugin-Instanz holen
-                attachment.setPermission(permission, true);  // Berechtigung hinzufügen
-                sender.sendMessage("§bAdded permission §6" + permission + " §bto " + target + "!");
-            } else {
-                // Berechtigung entfernen
-                PermissionAttachment attachment = player.addAttachment(NikeySystem.getPlugin());
-                attachment.setPermission(permission, false);
-                sender.sendMessage("§bRemoved permission §6" + permission + " §bfrom " + target + "!");
-            }
-            player.recalculatePermissions();
-            player.updateCommands();
-    } else if (args[3].equalsIgnoreCase("List")) {
-            String target = args[4];
-            if (PermissionAPI.isAdmin(target) || PermissionAPI.isModerator(target) || PermissionAPI.isOwner(target)) {
-                sender.sendMessage("§8"+target+" has following permissions: " +
-                        (PermissionAPI.isAdmin(target) ? "§cAdmin":"") + (PermissionAPI.isModerator(target) ? "§0Moderator" : "") + (PermissionAPI.isOwner(target) ? "§cOwner" : ""));
-            }else {
-                sender.sendMessage("§8"+target+" has normal member permissions");
-            }
-        }else if (args[3].equalsIgnoreCase("ListAll")) {
-            String target = args[4];
-            if (PermissionAPI.isAdmin(target) || PermissionAPI.isModerator(target) || PermissionAPI.isOwner(target)) {
-                sender.sendMessage("§8"+target+" has following permissions: " +
-                        (PermissionAPI.isAdmin(target) ? "§cAdmin":"") + (PermissionAPI.isModerator(target) ? "§0Moderator" : "") + (PermissionAPI.isOwner(target) ? "§cOwner" : ""));
-            }else {
-                sender.sendMessage("§8"+target+" has normal member permissions");
-            }
-            Player player = Bukkit.getPlayer(target);
-            if (player == null || !HideAPI.canSee(sender,player)) {
-                sender.sendMessage("§cError: player is null");
+
+            if (!PermissionAPI.playerRoles.containsKey(uuid)) {
+                sender.sendMessage(Component.text("This player doesn't have a role").color(NamedTextColor.YELLOW));
                 return;
             }
-            player.recalculatePermissions();
-            Iterator<PermissionAttachmentInfo> iterator = player.getEffectivePermissions().iterator();
-            List<String> perm = new ArrayList<>();
-            while (iterator.hasNext()){
-                perm.add(iterator.next().getPermission());
+
+            if (!PermissionAPI.hasHigherLevelThan(sender.getUniqueId(),uuid)) {
+                sender.sendMessage(Component.text("You don't have enough permissions").color(NamedTextColor.RED));
+                return;
             }
-            sender.sendMessage("§8"+target +" has following default permissions " +(player.isOp() ? "§cOperator + ":"") +"§7" +perm);
-        }else if (args[3].equalsIgnoreCase("help")) {
-            if (PermissionAPI.isOwner(sender.getName())) {
-                sender.sendMessage("§7The path 'System/Player/Permissions' has following sub-paths: §fToggleAdmin <PlayerName>, ToggleModerator <PlayerName>, List <PlayerName>, ListAll <PlayerName>.");
-            }else {
-                sender.sendMessage("§7The path 'System/Player/Permissions' has following sub-paths: §fToggleModerator <PlayerName>, List <PlayerName>, ListAll <PlayerName>.");
+
+            PermissionAPI.playerRoles.remove(uuid);
+            PermissionDatabase.removePlayerRole(uuid);
+
+            sender.sendMessage(Component.text("Role from " + playerName + " removed").color(NamedTextColor.GREEN));
+        }
+
+
+        if (cmd.equalsIgnoreCase("list")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "list") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
+            OfflinePlayer target = sender;
+
+            if (args.length == 5) {
+                target = Bukkit.getOfflinePlayer(args[4]);
+            }
+
+            if (target.getName() == null) {
+                sender.sendMessage(Component.text("Target not found").color(NamedTextColor.RED));
+                return;
+            }
+
+
+            PermissionRole targetRole = PermissionAPI.getRole(target.getUniqueId());
+            if (targetRole == null) {
+                sender.sendMessage(Component.text()
+                        .append(Component.text(target.getName(), NamedTextColor.YELLOW))
+                        .append(Component.text(" has no role.", NamedTextColor.GRAY)));
+                return;
+            }
+
+            sender.sendMessage(Component.text("» ").color(NamedTextColor.DARK_GRAY)
+                    .append(Component.text("Role of ").color(NamedTextColor.GRAY))
+                    .append(Component.text(target.getName()).color(NamedTextColor.WHITE))
+                    .append(Component.text(": ").color(NamedTextColor.GRAY))
+                    .append(Component.text(targetRole.getName()).color(NamedTextColor.WHITE)));
+
+            sender.sendMessage(Component.text("» Level: ").color(NamedTextColor.DARK_GRAY)
+                    .append(Component.text(String.valueOf(targetRole.getLevel())).color(NamedTextColor.YELLOW)));
+
+            sender.sendMessage(Component.text("» Permissions:").color(NamedTextColor.DARK_GRAY));
+
+            for (String perm : targetRole.getPermissions()) {
+                sender.sendMessage(Component.text(" - ").color(NamedTextColor.DARK_GRAY)
+                        .append(Component.text(perm).color(NamedTextColor.WHITE)));
             }
         }
     }

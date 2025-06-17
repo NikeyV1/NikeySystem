@@ -39,8 +39,7 @@ public final class NikeySystem extends JavaPlugin {
         manager = new PlayerHistoryManager();
         saveDefaultConfig();
         HideAPI.hideStartup();
-        PermissionDistributor.loadAdmins();
-        PermissionDistributor.loadModerators();
+        PermissionAPI.permissionStartup();
         CommandDistributor.loadBlockedCommands();
         SystemShieldDistributor.loadSystemShield();
         InventoryAPI.startup();
@@ -91,6 +90,7 @@ public final class NikeySystem extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        PermissionAPI.permissionShutdown();
         HideAPI.hideShutdown();
         WorldFunctions.deleteAndUnloadTemporaryWorlds();
         WorldFunctions.deleteTemporaryWorlds();

@@ -23,8 +23,10 @@ public class ProfileDistributor {
     public static void manageProfile(Player sender, String[] args) {
         String cmd = args[3];
         if (cmd.isEmpty()) return;
+        String basePerm = "system.player.profile.";
 
         if (cmd.equalsIgnoreCase("skin")){
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "skin") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 5 && args[4].equalsIgnoreCase("reset")) {
                 PlayerProfile playerProfile = sender.getPlayerProfile();
                 try {
@@ -154,6 +156,7 @@ public class ProfileDistributor {
                 }
             }
         }else if (cmd.equalsIgnoreCase("name")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "name") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 6) {
                 if (args[4].equalsIgnoreCase("set")) {
                     String newNickname = args[5];

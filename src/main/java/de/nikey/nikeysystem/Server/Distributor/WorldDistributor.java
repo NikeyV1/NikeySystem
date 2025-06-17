@@ -28,9 +28,11 @@ public class WorldDistributor {
     public static void worldManager(Player sender, String[] args) {
         String cmd = args[3];
         if (cmd.isEmpty()) return;
+        String basePerm = "system.server.world.";
 
         if (cmd.equalsIgnoreCase("create")) {
-            if (PermissionAPI.isAdmin(sender.getName()) || PermissionAPI.isOwner(sender.getName())) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "create") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
+            if (PermissionAPI.isManagement(sender.getUniqueId())) {
                 if (args.length == 5) {
                     WorldCreator creator = new WorldCreator(args[4]);
 
@@ -116,7 +118,8 @@ public class WorldDistributor {
                 }
             }
         } else if (cmd.equalsIgnoreCase("delete")) {
-            if (PermissionAPI.isAdmin(sender.getName()) || PermissionAPI.isOwner(sender.getName())) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "delete") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
+            if (PermissionAPI.isManagement(sender.getUniqueId())) {
                 if (args.length == 5) {
                     World world = Bukkit.getWorld(args[4]);
 
@@ -157,6 +160,7 @@ public class WorldDistributor {
                 }
             }
         } else if (cmd.equalsIgnoreCase("tp")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "tp") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 5) {
                 World world = Bukkit.getWorld(args[4]);
 
@@ -175,6 +179,7 @@ public class WorldDistributor {
                 sender.teleportAsync(world.getSpawnLocation(), PlayerTeleportEvent.TeleportCause.COMMAND);
             }
         } else if (cmd.equalsIgnoreCase("list")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "list") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             Component message = Component.text("Available Worlds:\n", NamedTextColor.GOLD);
 
             for (World world : Bukkit.getWorlds()) {
@@ -193,8 +198,10 @@ public class WorldDistributor {
             // Send the complete message to the player
             sender.sendMessage(message);
         }else if (cmd.equalsIgnoreCase("settings")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "settings") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             WorldSettings.openSettingsInventory(sender);
         }else if (cmd.equalsIgnoreCase("load")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "load") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 5) {
                 String worldName = args[4];
                 File worldFolder = new File(Bukkit.getWorldContainer(), worldName);
@@ -230,6 +237,7 @@ public class WorldDistributor {
                 }
             }
         }else if (cmd.equalsIgnoreCase("unload")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "unload") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 5) {
                 String worldName = args[4];
                 File worldFolder = new File(Bukkit.getWorldContainer(), worldName);
@@ -278,6 +286,7 @@ public class WorldDistributor {
                 }
             }
         } else if (cmd.equalsIgnoreCase("createTempWorld")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "createtempworld") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             String worldName = "temp_" + sender.getName();
 
             // Prüfen, ob die Welt bereits existiert

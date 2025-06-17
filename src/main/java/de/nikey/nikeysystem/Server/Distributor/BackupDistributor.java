@@ -34,10 +34,12 @@ public class BackupDistributor {
     private static final File backupFolder = new File(NikeySystem.getPlugin().getDataFolder().getParentFile().getParent(), "Backups");
 
     public static void manageBackup(Player sender, String[] args) {
+        String basePerm = "system.server.backup.";
         String cmd = args[3];
         if (cmd.isEmpty()) return;
 
         if (cmd.equalsIgnoreCase("list")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "list") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             listBackups(sender);
         }else if (cmd.equalsIgnoreCase("create")) {
             String name = args.length > 4 ? args[4] : new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
@@ -57,19 +59,21 @@ public class BackupDistributor {
                         .append(Component.text(name).color(NamedTextColor.WHITE)));
             });
         }else if (cmd.equalsIgnoreCase("delete")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "delete") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length < 5) {
                 return;
             }
-            if (!PermissionAPI.isManagement(sender.getName())) return;
+            if (!PermissionAPI.isManagement(sender.getUniqueId())) return;
             deleteBackup(sender, args[4]);
         }else if (cmd.equalsIgnoreCase("load")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "load") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length < 5) {
                 return;
             }
-            if (!PermissionAPI.isManagement(sender.getName())) return;
+            if (!PermissionAPI.isManagement(sender.getUniqueId())) return;
             sender.sendMessage(Component.text("Loading backups is currently not available").color(NamedTextColor.RED));
         }else if (cmd.equalsIgnoreCase("interval")) {
-            if (!PermissionAPI.isManagement(sender.getName())) return;
+            if (!PermissionAPI.isManagement(sender.getUniqueId())) return;
             if (args.length == 4) {
                 String interval = BackupDatabase.loadSetting("backup_interval");
 
@@ -109,7 +113,8 @@ public class BackupDistributor {
                 }
             }
         }else if (cmd.equalsIgnoreCase("maxBackups")) {
-            if (!PermissionAPI.isManagement(sender.getName())) return;
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "maxbackups") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
+            if (!PermissionAPI.isManagement(sender.getUniqueId())) return;
 
             if (args.length == 4) {
                 String max = BackupDatabase.loadSetting("max_backups");

@@ -20,11 +20,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class LocationDistributer {
 
     public static void locationManager(Player sender, String[] args) {
+        String basePerm = "system.player.location.";
         String cmd = args[3];
         if (cmd.isEmpty()) return;
 
         // Mute Command
         if (cmd.equalsIgnoreCase("getLocation")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "getlocation") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 5) {
                 Player target = Bukkit.getPlayer(args[4]);
                 if (target == null || !HideAPI.canSee(sender, target)) {
@@ -50,6 +52,7 @@ public class LocationDistributer {
                 sender.sendMessage(teleportMessage);
             }
         } else if (cmd.equalsIgnoreCase("tp")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "tp") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 5) {
                 // Teleport zu einem Spieler
                 Player target = Bukkit.getPlayer(args[4]);
@@ -140,6 +143,7 @@ public class LocationDistributer {
             }
         }
         else if (cmd.equalsIgnoreCase("lastseen")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "lastseen") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 5) {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[4]);
                 if (!HideAPI.canSee(sender.getName(), offlinePlayer.getName())) {
@@ -163,6 +167,7 @@ public class LocationDistributer {
             }
         }
         else if (cmd.equalsIgnoreCase("placeGuard")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "placeguard") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 6) {
                 String guardName = args[4];
                 if (LocationAPI.guardLocations.containsKey(guardName)) {
@@ -181,6 +186,7 @@ public class LocationDistributer {
                 sender.sendMessage(ChatColor.BLUE + "Guard §f'" + guardName + "'§9 has been set at your current location with a §f"+range+" block range");
             }
         }else if (cmd.equalsIgnoreCase("removeGuard")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "removeguard") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 5) {
                 String guardName = args[4];
                 if (LocationAPI.guardLocations.containsKey(guardName)) {
@@ -201,6 +207,7 @@ public class LocationDistributer {
                 }
             }
         }else if (cmd.equalsIgnoreCase("listGuard")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "listguard") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 4) {
                 if (LocationAPI.guardLocations.isEmpty()) {
                     sender.sendMessage("§7No guards set.");
@@ -242,6 +249,7 @@ public class LocationDistributer {
                 }
             }
         } else if (cmd.equalsIgnoreCase("settings")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "settings") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 5) {
                 if (LocationAPI.guardLocations.containsKey(args[4])) {
                     if (LocationAPI.guardCreators.containsValue(sender.getName()) || PermissionAPI.isAllowedToChange(sender.getName(),LocationAPI.guardCreators.get(args[4]) , ShieldCause.LOCATION_GUARD_CHANGE)) {

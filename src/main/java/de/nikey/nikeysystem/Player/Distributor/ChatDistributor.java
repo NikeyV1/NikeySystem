@@ -10,7 +10,6 @@ import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -22,7 +21,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public class ChatDistributor {
-
     public static final Map<UUID, Channel> channels = new HashMap<>();
     public static final Map<UUID, UUID> playerChannels = new HashMap<>();
     private static final TextColor channelsColor = TextColor.color(38, 182, 120);
@@ -31,8 +29,10 @@ public class ChatDistributor {
     public static void manageChat(Player sender, String[] args) {
         String cmd = args[3];
         if (cmd.isEmpty()) return;
+        String basePerm = "system.player.chat.";
 
         if (cmd.equalsIgnoreCase("Channel")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "channel") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             String subCommand = args[4];
             if (subCommand.equalsIgnoreCase("create")) {
 
@@ -355,6 +355,7 @@ public class ChatDistributor {
                         .append(Component.text("deleted").color(NamedTextColor.RED)));
             }
         } else if (cmd.equalsIgnoreCase("mute")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "mute") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             String subCommand = args[4];
             if (subCommand.equalsIgnoreCase("mute")) {
                 if (args.length == 6) {
@@ -450,6 +451,7 @@ public class ChatDistributor {
                 }
             }
         } else if (cmd.equalsIgnoreCase("deletemsg")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "deletemsg") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length < 6 || args.length > 7) {
                 sender.sendMessage(Component.text("Usage: deletemsg <Player> <from> [to]").color(NamedTextColor.RED));
                 return;
@@ -473,7 +475,6 @@ public class ChatDistributor {
             }
 
             ChatHistory history = ChatAPI.getChatHistory(targetID);
-            List<SignedMessage> allMessages = history.getAllMessages();
 
             int count = 0;
             for (int i = from; i<= to; i++) {
@@ -492,6 +493,7 @@ public class ChatDistributor {
                 sender.sendMessage(Component.text("Deleted " + count + " message(s) from " + args[4], NamedTextColor.GREEN));
             }
         } else if (cmd.equalsIgnoreCase("viewmsgs")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "viewmsgs") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length != 5) {
                 sender.sendMessage(Component.text("Usage: viewmsgs <Player>" , NamedTextColor.RED));
                 return;

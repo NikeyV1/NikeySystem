@@ -101,11 +101,9 @@ public class ChatFunctions implements Listener {
             String[] args = event.getMessage().split(" ");
             String command = args[0].toLowerCase();
             if (command.startsWith("/minecraft:") || command.startsWith("/bukkit:") || command.startsWith("/paper:") || command.startsWith("/spigot:")) {
-                if (PermissionAPI.isOwner(event.getPlayer().getName()))return;
+                if (PermissionAPI.isOwner(event.getPlayer().getUniqueId()))return;
                 event.setCancelled(true);
             }
         }
     }
-
-
 }

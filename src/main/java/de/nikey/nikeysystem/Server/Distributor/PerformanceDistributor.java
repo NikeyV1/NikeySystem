@@ -32,8 +32,10 @@ public class PerformanceDistributor {
     public static void performanceManager(Player sender, String[] args) {
         String cmd = args[3];
         if (cmd.isEmpty()) return;
+        String basePerm = "system.server.performance.";
 
         if (cmd.equalsIgnoreCase("toggletpsbar")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "toggletpsbar") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             Player target = sender;
             if (args.length == 5) {
                 target = Bukkit.getPlayer(args[4]);
@@ -99,6 +101,7 @@ public class PerformanceDistributor {
                 }
             }.runTaskTimer(NikeySystem.getPlugin(), 0, 40);
         } else if (cmd.equalsIgnoreCase("servertick")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "servertick") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             double[] tps = Bukkit.getServer().getTPS();
             double tps1m = tps[0];
             double tps5m = tps[1];
@@ -157,6 +160,7 @@ public class PerformanceDistributor {
 
             sender.sendMessage(tpsInfo);
         } else if (cmd.equalsIgnoreCase("ping")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "ping") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             if (args.length == 5) {
                 Player target = Bukkit.getPlayer(args[4]);
                 if (target == null || !HideAPI.canSee(sender, target)) {
@@ -190,6 +194,7 @@ public class PerformanceDistributor {
                 }
             }
         }else if (cmd.equalsIgnoreCase("entitys")) {
+            if (!PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "entitys") && !PermissionAPI.hasPermission(sender.getUniqueId(), basePerm + "*")) return;
             listEntities(sender);
         }
     }

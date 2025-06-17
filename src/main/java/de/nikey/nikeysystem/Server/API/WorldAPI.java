@@ -8,16 +8,13 @@ import org.bukkit.WorldCreator;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class WorldAPI {
     public static HashMap<String , World> tempWorld = new HashMap<>();
 
     public static boolean isAllowedOnWorld(String player, String world) {
-        if (PermissionAPI.isOwner(player)) return true;
+        if (PermissionAPI.isOwner(Bukkit.getPlayerUniqueId(player))) return true;
 
         if (isCreatorOnly(world)) {
             return isWorldOwner(world, player);
@@ -44,13 +41,6 @@ public class WorldAPI {
          NikeySystem.getPlugin().saveConfig();
     }
 
-    public static String getWorldOwner(String world) {
-        FileConfiguration config = NikeySystem.getPlugin().getConfig();
-
-        String owner = config.getString("system.world.owner." + world);
-        return Objects.requireNonNullElseGet(owner, PermissionAPI::getOwner);
-    }
-
     public static void setWorldOwner(String world,String owner) {
         FileConfiguration config = NikeySystem.getPlugin().getConfig();
 
@@ -65,7 +55,11 @@ public class WorldAPI {
         FileConfiguration config = NikeySystem.getPlugin().getConfig();
 
         String st = config.getString("system.world.owner." + world);
-        String o = Objects.requireNonNullElseGet(st, PermissionAPI::getOwner);
+        String o = Objects.requireNonNullElseGet(st, () -> {
+            UUID w = PermissionAPI.getOwner();
+            return (w != null) ? Bukkit.getOfflinePlayer(w).getName() : "UnknownOwner";
+        });
+
         return o.equalsIgnoreCase(owner);
     }
 

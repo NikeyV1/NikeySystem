@@ -7,6 +7,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.querz.nbt.io.NBTDeserializer;
 import net.querz.nbt.io.NamedTag;
 import net.querz.nbt.tag.CompoundTag;
+import net.querz.nbt.tag.ListTag;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -20,12 +21,10 @@ import java.util.UUID;
 @SuppressWarnings("ALL")
 public class StatsDistributor {
     public static void statsDistributor(Player player, String[] args) {
-        if (args[3].equalsIgnoreCase("help")) {
-            player.sendMessage("§7The path 'System/Player/Stats' has following sub-paths: §fInvulnerable <PlayerName>, Fly <PlayerName>, Collidable <PlayerName>, SleepIgnore <PlayerName>, Invisibility <PlayerName>, VisualFire <PlayerName>, Op <Playername>.");
-            return;
-        }
+        String basePerm = "system.player.stats.";
 
         if (args[3].equalsIgnoreCase("health")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "health") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             OfflinePlayer target = Bukkit.getOfflinePlayer(args[4]);
             UUID uuid = target.getUniqueId();
             File file = new File(Bukkit.getWorld("world").getWorldFolder(), "playerdata/" + uuid + ".dat");
@@ -44,6 +43,11 @@ public class StatsDistributor {
                 String lastKnownName = data.getString("LastKnownName");
                 int food = data.getInt("foodLevel");
                 int invSize = data.getListTag("Inventory").size();
+                ListTag enderChestItems = data.getListTag("EnderItems");
+                int enderSize = enderChestItems.size();
+
+                player.sendMessage(ChatColor.YELLOW + "Enderchest-Slots belegt: " + enderSize);
+
 
                 player.sendMessage(ChatColor.GOLD + "Daten für " + lastKnownName + ":");
                 player.sendMessage(ChatColor.YELLOW + "Health: " + health);
@@ -73,6 +77,7 @@ public class StatsDistributor {
             return;
         }
         if (args[3].equalsIgnoreCase("Invulnerable")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "invulnerable") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             if (target.isInvulnerable()) {
                 target.setInvulnerable(false);
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set invulnerability §coff"+ChatColor.of("#f08d1d") +" for "+ target.getName());
@@ -81,6 +86,7 @@ public class StatsDistributor {
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set invulnerability §aon"+ChatColor.of("#f08d1d") +" for "+ target.getName());
             }
         }else if (args[3].equalsIgnoreCase("Fly")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "fly") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             if (target.getAllowFlight()) {
                 target.setAllowFlight(false);
                 target.setFlying(false);
@@ -91,6 +97,7 @@ public class StatsDistributor {
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set flying §aon"+ChatColor.of("#f08d1d") +" for "+ target.getName());
             }
         }else if (args[3].equalsIgnoreCase("Collidable")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "collidable") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             if (target.isCollidable()) {
                 target.setCollidable(false);
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set collidable §coff"+ChatColor.of("#f08d1d") +" for "+ target.getName());
@@ -99,6 +106,7 @@ public class StatsDistributor {
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set collidable §aon"+ChatColor.of("#f08d1d") +" for "+ target.getName());
             }
         }else if (args[3].equalsIgnoreCase("SleepIgnore")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "sleepignore") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             if (target.isSleepingIgnored()) {
                 target.setSleepingIgnored(false);
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set sleep-ignored §coff"+ChatColor.of("#f08d1d") +" for "+ target.getName());
@@ -107,6 +115,7 @@ public class StatsDistributor {
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set sleep-ignored §aon"+ChatColor.of("#f08d1d") +" for "+ target.getName());
             }
         }else if (args[3].equalsIgnoreCase("Invisibility")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "invisibility") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             if (target.isInvisible()) {
                 target.setInvisible(false);
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set invisible §coff"+ChatColor.of("#f08d1d") +" for "+ target.getName());
@@ -115,6 +124,7 @@ public class StatsDistributor {
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set invisible §aon"+ChatColor.of("#f08d1d") +" for "+ target.getName());
             }
         }else if (args[3].equalsIgnoreCase("VisualFire")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "visualfire") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             if (target.isVisualFire()) {
                 target.setVisualFire(false);
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set visual-fire §coff"+ChatColor.of("#f08d1d") +" for "+ target.getName());
@@ -123,6 +133,7 @@ public class StatsDistributor {
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set visual-fire §aon"+ChatColor.of("#f08d1d") +" for "+ target.getName());
             }
         }else if (args[3].equalsIgnoreCase("Op")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "op") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             if (target.isOp()) {
                 target.setOp(false);
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set Operator §coff"+ChatColor.of("#f08d1d") +" for "+ target.getName());
@@ -131,12 +142,16 @@ public class StatsDistributor {
                 player.sendMessage(ChatColor.of("#f08d1d") +"Set Operator §aon"+ChatColor.of("#f08d1d") +" for "+ target.getName());
             }
         } else if (args[3].equalsIgnoreCase("Address")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "address") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             player.sendMessage(ChatColor.of("#f08d1d") +"Address from §f" +target.getName() + ChatColor.of("#f08d1d") + " is §7" + target.getAddress().toString() + "/" +target.getAddress().getAddress().getHostAddress());
         } else if (args[3].equalsIgnoreCase("ClientName")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "clientname") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             player.sendMessage(ChatColor.of("#f08d1d") +"Client-Brand-Name from §f" +target.getName() + ChatColor.of("#f08d1d") + " is §7" + target.getClientBrandName());
         }else if (args[3].equalsIgnoreCase("Locale")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "locale") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             player.sendMessage(ChatColor.of("#f08d1d") +"Locale from §f" +target.getName() + ChatColor.of("#f08d1d") + " is §7" + target.locale());
         } else if (args[3].equalsIgnoreCase("Reset")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "reset") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             target.setInvulnerable(false);
             target.setAllowFlight(false);
             target.setFlying(false);
@@ -147,6 +162,7 @@ public class StatsDistributor {
             target.setOp(false);
             player.sendMessage("§cReset "+ChatColor.of("#f08d1d") +"stats for "+ target.getName());
         }else if (args[3].equalsIgnoreCase("List")) {
+            if (!PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "list") && !PermissionAPI.hasPermission(player.getUniqueId(), basePerm + "*")) return;
             String playerName = args[4];
             List<String> messages = new ArrayList<>();
 

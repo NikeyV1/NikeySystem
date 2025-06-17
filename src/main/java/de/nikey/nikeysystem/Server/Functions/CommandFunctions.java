@@ -28,21 +28,21 @@ public class CommandFunctions implements Listener {
             return;
         }
 
-        if (!PermissionAPI.isOwner(player.getName()) && cmd.startsWith("/minecraft:")) {
+        if (!PermissionAPI.isOwner(player.getUniqueId()) && cmd.startsWith("/minecraft:")) {
             player.sendMessage("§cUnknown or incomplete command, see below for error\n" +
                     cmd.substring(1)+"<--[HERE]");
             event.setCancelled(true);
             return;
         }
 
-        if (!PermissionAPI.isOwner(player.getName()) && cmd.startsWith("/bukkit:")) {
+        if (!PermissionAPI.isOwner(player.getUniqueId()) && cmd.startsWith("/bukkit:")) {
             player.sendMessage("§cUnknown or incomplete command, see below for error\n" +
                     cmd.substring(1)+"<--[HERE]");
             event.setCancelled(true);
         }
 
         if (CommandAPI.isCommandBlockedForPlayer(player,args[0].substring(1))){
-            if (!PermissionAPI.isOwner(player.getName())) {
+            if (!PermissionAPI.isOwner(player.getUniqueId())) {
                 player.sendMessage("§cUnknown or incomplete command, see below for error\n" +
                         cmd.substring(1)+"<--[HERE]");
                 event.setCancelled(true);
@@ -50,7 +50,7 @@ public class CommandFunctions implements Listener {
         }
 
         if (CommandAPI.isBlocked(args[0])) {
-            if (!PermissionAPI.isOwner(player.getName())) {
+            if (!PermissionAPI.isOwner(player.getUniqueId())) {
                 player.sendMessage("§cUnknown or incomplete command, see below for error\n" +
                         cmd.substring(1)+"<--[HERE]");
                 event.setCancelled(true);
@@ -66,14 +66,14 @@ public class CommandFunctions implements Listener {
             event.getCommands().remove("nikeysystem:system");
         }
 
-        if (!PermissionAPI.isOwner(event.getPlayer().getName())) {
+        if (!PermissionAPI.isOwner(event.getPlayer().getUniqueId())) {
             for (String cmd :CommandAPI.getDisabledCommands()) {
                 event.getCommands().remove(cmd);
             }
         }
         List<String> blockedCommands = NikeySystem.getPlugin().getConfig().getStringList("blockedCommands." + event.getPlayer().getName());
 
-        if (!PermissionAPI.isOwner(event.getPlayer().getName())) {
+        if (!PermissionAPI.isOwner(event.getPlayer().getUniqueId())) {
             for (String cmd :blockedCommands) {
                 event.getCommands().remove(cmd);
             }
@@ -85,16 +85,17 @@ public class CommandFunctions implements Listener {
     public void onTabComplete(TabCompleteEvent event) {
         String buffer = event.getBuffer();
         String[] split = buffer.split(" ");
+        if (!(event.getSender() instanceof Player sender)) return;
         if (CommandAPI.isBlocked(split[0])) {
             List<String > comp = new ArrayList<>();
-            if (!PermissionAPI.isOwner(event.getSender().getName())) {
+            if (!PermissionAPI.isOwner(sender.getUniqueId())) {
                 event.setCompletions(comp);
             }
         }
 
-        if (CommandAPI.isCommandBlockedForPlayer((Player) event.getSender(),split[0])) {
+        if (CommandAPI.isCommandBlockedForPlayer(sender,split[0])) {
             List<String > comp = new ArrayList<>();
-            if (!PermissionAPI.isOwner(event.getSender().getName())) {
+            if (!PermissionAPI.isOwner(sender.getUniqueId())) {
                 event.setCompletions(comp);
             }
         }

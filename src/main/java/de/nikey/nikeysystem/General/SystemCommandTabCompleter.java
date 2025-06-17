@@ -53,12 +53,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("permissions")) {
-            List<String> subCommands = new ArrayList<>(Arrays.asList("ToggleAdmin", "ToggleModerator", "List", "ListAll","TogglePermission"));
-            if (!PermissionAPI.isOwner(player.getName())) {
-                // Remove owner-specific commands for non-owners
-                subCommands.remove("ToggleAdmin");
-            }
-            return subCommands;
+            return List.of("set","list","remove");
         }
 
         // Handle the fourth argument (player name) for permissions commands that require a target player
@@ -66,12 +61,16 @@ public class SystemCommandTabCompleter implements TabCompleter {
             // Provide list of online player names as suggestions
             return GeneralAPI.handlePlayerListing((Player) sender,args,3);
         }
+
+        if (args.length == 5 && args[1].equalsIgnoreCase("permissions") && args[2].equalsIgnoreCase("set")) {
+            return PermissionAPI.ROLES.keySet().stream().toList();
+        }
         // Handle the third argument for system player hide
         if (args.length == 3 && args[1].equalsIgnoreCase("hide")) {
             List<String> subCommands = new ArrayList<>(Arrays.asList("ToggleHide", "ToggleTrueHide", "ToggleImmunity", "List", "Settings"));
-            if (!PermissionAPI.isOwner(player.getName())) {
+            if (!PermissionAPI.hasPermission(((Player) sender).getUniqueId(),"system.player.hide.ToggleTrueHide")) {
                 // Remove admin/owner-specific commands for non-owners
-                subCommands.removeAll(Arrays.asList("ToggleTrueHide", "ToggleTrueImmunity"));
+                subCommands.removeAll(List.of("ToggleTrueHide"));
             }
             return subCommands;
         }
@@ -158,7 +157,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         // Handle the fifth argument (Ask) for enable/disable commands
-        if (PermissionAPI.isOwner(sender.getName()) &&args.length == 5 && args[1].equalsIgnoreCase("System-Shield") &&
+        if (PermissionAPI.isOwner(player.getUniqueId()) &&args.length == 5 && args[1].equalsIgnoreCase("System-Shield") &&
                 (args[2].equalsIgnoreCase("enable") || args[2].equalsIgnoreCase("disable"))) {
             return List.of("Ask");
         }
@@ -200,7 +199,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         // Handle the fifth argument: effect type for give/remove commands
-        if (args.length == 5 && (args[2].equalsIgnoreCase("give") || args[2].equalsIgnoreCase("remove"))) {
+        if (args.length == 5 && args[1].equalsIgnoreCase("effect") && (args[2].equalsIgnoreCase("give") || args[2].equalsIgnoreCase("remove"))) {
             return GeneralAPI.handleStringListing(Arrays.stream(PotionEffectType.values()).map(PotionEffectType::getName).collect(Collectors.toList()),args[4]);
         }
 
@@ -427,7 +426,7 @@ public class SystemCommandTabCompleter implements TabCompleter {
         }
 
         if (args.length == 3 && args[1].equalsIgnoreCase("backup")) {
-            if (PermissionAPI.isManagement(sender.getName())) {
+            if (PermissionAPI.isManagement(((Player) sender).getUniqueId())) {
                 return new ArrayList<>(Arrays.asList("list","create","delete","load","interval","maxbackups", "settings"));
             }else {
                 return new ArrayList<>(Arrays.asList("list","create", "settings"));

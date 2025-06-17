@@ -1,0 +1,21 @@
+definitions:
+  OWNER:
+    level: 100
+    color: "§4"
+    permissions:
+      - "*"
+  ADMIN:
+    level: 80
+    color: "§c"
+    permissions:
+      - "system.edit"
+      - "system.view"
+  HELPER:
+    level: 40
+    color: "§b"
+    permissions:
+      - "system.view"
+  MEMBER:
+    level: 0
+    color: "§7"
+    permissions: []
