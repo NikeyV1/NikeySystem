@@ -40,22 +40,28 @@ public class ChannelDatabase {
     }
 
     public static void saveChannels() {
-        try (PreparedStatement ps = connection.prepareStatement(
-                "REPLACE INTO channels (id, name, owner, is_closed, messages, members, invited) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
-
-            for (Channel channel : ChatDistributor.channels.values()) {
-                ps.setString(1, channel.getId().toString());
-                ps.setString(2, channel.getName());
-                ps.setString(3, channel.getOwner().toString());
-                ps.setInt(4, channel.isClosed() ? 1 : 0);
-                ps.setString(5, String.join("§", channel.getMessages()));
-                ps.setString(6, channel.getMembers().stream().map(UUID::toString).collect(Collectors.joining(",")));
-                ps.setString(7, channel.getInvitedPlayers().stream().map(UUID::toString).collect(Collectors.joining(",")));
-                ps.addBatch();
+        try {
+            try (Statement stmt = connection.createStatement()) {
+                stmt.executeUpdate("DELETE FROM channels;");
             }
 
-            ps.executeBatch();
-        } catch (SQLException e) {
+            try (PreparedStatement ps = connection.prepareStatement(
+                    "INSERT INTO channels (id, name, owner, is_closed, messages, members, invited) VALUES (?, ?, ?, ?, ?, ?, ?)")) {
+
+                for (Channel channel : ChatDistributor.channels.values()) {
+                    ps.setString(1, channel.getId().toString());
+                    ps.setString(2, channel.getName());
+                    ps.setString(3, channel.getOwner().toString());
+                    ps.setInt(4, channel.isClosed() ? 1 : 0);
+                    ps.setString(5, String.join("§", channel.getMessages()));
+                    ps.setString(6, channel.getMembers().stream().map(UUID::toString).collect(Collectors.joining(",")));
+                    ps.setString(7, channel.getInvitedPlayers().stream().map(UUID::toString).collect(Collectors.joining(",")));
+                    ps.addBatch();
+                }
+
+                ps.executeBatch();
+            }
+        }catch (SQLException e) {
             e.printStackTrace();
         }
     }
