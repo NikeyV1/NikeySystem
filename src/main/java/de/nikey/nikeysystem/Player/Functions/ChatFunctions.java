@@ -6,7 +6,9 @@ import de.nikey.nikeysystem.Player.API.ChatAPI;
 import de.nikey.nikeysystem.Player.API.MuteAPI;
 import de.nikey.nikeysystem.Player.API.PermissionAPI;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import net.kyori.adventure.chat.ChatType;
 import net.kyori.adventure.chat.SignedMessage;
+import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
@@ -47,7 +49,7 @@ public class ChatFunctions implements Listener {
         }
     }
 
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
+    @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGHEST)
     public void onChatSave(AsyncChatEvent event) {
         Player player = event.getPlayer();
         SignedMessage signedMessage = event.signedMessage();
@@ -65,7 +67,11 @@ public class ChatFunctions implements Listener {
             if (PermissionAPI.isSystemUser(player)) {
                 player.sendMessage("§cYou are muted and cannot chat");
             }else {
-                player.sendMessage(Component.text("<" + player.getName() + "> ").append(event.message()));
+                ChatType.Bound bound = ChatType.CHAT.bind(Component.text(player.getName()));
+
+                SignedMessage signedMessage = event.signedMessage();
+
+                player.sendMessage(signedMessage, bound);
             }
             event.setCancelled(true);
         }
@@ -76,7 +82,7 @@ public class ChatFunctions implements Listener {
         String[] args = event.getMessage().split(" ");
         String command = args[0].toLowerCase();
 
-        if (command.equalsIgnoreCase("/msg") || command.equalsIgnoreCase("/tell") || command.equalsIgnoreCase("/w") ) {
+        if (command.equalsIgnoreCase("/msg") || command.equalsIgnoreCase("/tell") || command.equalsIgnoreCase("/w") || command.equalsIgnoreCase("/teammsg")) {
             Player sender = event.getPlayer();
 
             if (args.length < 3) {

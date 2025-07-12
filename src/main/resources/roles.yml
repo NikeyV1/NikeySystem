@@ -8,8 +8,7 @@ definitions:
     level: 80
     color: "§c"
     permissions:
-      - "system.edit"
-      - "system.view"
+      - "*"
   MODERATOR:
     level: 60
     color: "§0"
@@ -17,19 +16,8 @@ definitions:
       - "system.player.chat.mute"
       - "system.player.chat.deletemsg"
       - "system.player.chat.viewmsgs"
-      - "system.player.moderation.freeze"
-      - "system.player.moderation.unfreeze"
       - "system.player.moderation.history"
       - "system.player.stats.clientname"
       - "system.player.stats.locale"
       - "system.server.performance.servertick"
       - "system.server.performance.ping"
-  HELPER:
-    level: 40
-    color: "§b"
-    permissions:
-      - "system.view"
-  MEMBER:
-    level: 0
-    color: "§7"
-    permissions: []

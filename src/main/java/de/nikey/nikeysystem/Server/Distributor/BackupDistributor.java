@@ -333,7 +333,6 @@ public class BackupDistributor {
         }
     }
 
-
     private static void listBackups(CommandSender sender) {
         File[] backups = backupFolder.listFiles();
         if (backups == null || backups.length == 0) {
